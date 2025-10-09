@@ -6,26 +6,9 @@ function fmt(n){ return Number(n).toLocaleString("en-US"); }
 function providerName(id){ const w = (window.DEMO.wallets||[]).find(x=>x.id===id) || {}; return w.provider || id; }
 function merchantName(id){ const m = (window.DEMO.mmqrSamples||[]).find(x=>x.id===id) || {}; return m.merchantName || id; }
 
-/* CSV helpers */
-function csvEscape(v){
-  if(v===null||v===undefined) return "";
-  const s = String(v);
-  if(s.includes(",")||s.includes("\"")||s.includes("\n")) return `"${s.replace(/"/g,'""')}"`;
-  return s;
-}
-function downloadCsv(filename, csv){
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-}
+function csvEscape(v){ if(v===null||v===undefined) return ""; const s = String(v); if(s.includes(",")||s.includes("\"")||s.includes("\n")) return `"${s.replace(/"/g,'""')}"`; return s; }
+function downloadCsv(filename, csv){ const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
 
-/* apply date filter to list of txs */
 function filterTxsByDate(txs, start, end){
   if(!start && !end) return txs;
   const s = start ? new Date(start) : null;
@@ -33,25 +16,13 @@ function filterTxsByDate(txs, start, end){
   return txs.filter(t=>{
     const d = new Date(t.timestamp);
     if(s && d < s) return false;
-    if(e){
-      // include end date full day
-      const eEnd = new Date(e); eEnd.setHours(23,59,59,999);
-      if(d > eEnd) return false;
-    }
+    if(e){ const eEnd = new Date(e); eEnd.setHours(23,59,59,999); if(d > eEnd) return false; }
     return true;
   });
 }
 
-/* NAV highlight */
-function initNav(){
-  $$(".nav-link").forEach(link => link.classList.remove("text-indigo-600","font-semibold"));
-  const path = location.pathname.split('/').pop() || 'index.html';
-  const key = path === '' ? 'index.html' : path;
-  const el = document.querySelector(`a.nav-link[data-page="${key}"]`);
-  if(el) el.classList.add("text-indigo-600","font-semibold");
-}
+function initNav(){ $$(".nav-link").forEach(link => link.classList.remove("text-indigo-600","font-semibold")); const path = location.pathname.split('/').pop() || 'index.html'; const key = path === '' ? 'index.html' : path; const el = document.querySelector(`a.nav-link[data-page="${key}"]`); if(el) el.classList.add("text-indigo-600","font-semibold"); }
 
-/* Dashboard rendering (reads dashStart/dashEnd) */
 function renderDashboard(){
   const all = window.DEMO.transactions || [];
   const start = $("#dashStart")?.value || null;
@@ -72,7 +43,6 @@ function renderDashboard(){
 
   $("#allTxPreview").innerHTML = (txs.slice().sort((a,b)=> b.timestamp.localeCompare(a.timestamp))).map(tx=>`<tr class="border-b"><td class="px-3 py-2">${tx.id}</td><td class="px-3 py-2">${new Date(tx.timestamp).toLocaleString()}</td><td class="px-3 py-2">${tx.type.toUpperCase()}</td><td class="px-3 py-2">${providerName(tx.from)}</td><td class="px-3 py-2">${tx.mmqr?merchantName(tx.mmqr):providerName(tx.to)}</td><td class="px-3 py-2 text-right">${fmt(tx.amount)}</td><td class="px-3 py-2">${tx.status}</td></tr>`).join('');
 
-  // charts
   const byHour = {};
   txs.forEach(t=>{ const hr = new Date(t.timestamp).toISOString().slice(0,13)+":00"; byHour[hr] = (byHour[hr]||0)+t.amount; });
   const hours = Object.keys(byHour).sort();
@@ -96,7 +66,6 @@ function renderDashboard(){
   }
 }
 
-/* Transactions page (reads txStart/txEnd) */
 function renderTransactions(){
   const all = window.DEMO.transactions || [];
   const start = $("#txStart")?.value || null;
@@ -131,7 +100,6 @@ function renderTransactions(){
   $("#summaryReport").innerHTML = `<div class="grid grid-cols-2 gap-4"><div><strong>Total transactions</strong><div class="text-lg mt-1">${totalCount}</div></div><div><strong>Total volume</strong><div class="text-lg mt-1">${fmt(totalVolume)} MMK</div></div><div><strong>P2P</strong><div class="text-sm mt-1">${fmt(p2p)} MMK</div></div><div><strong>P2M</strong><div class="text-sm mt-1">${fmt(p2m)} MMK</div></div></div>`;
 }
 
-/* Wallets page */
 function renderWallets(){
   const wallets = window.DEMO.wallets || [];
   $("#walletCards").innerHTML = wallets.map(w=>`<div class="p-3 border rounded bg-gray-50"><div class="text-sm font-medium">${w.provider} <span class="text-xs text-gray-500">(${w.id})</span></div><div class="text-xs text-gray-600">Owner: ${w.ownerId ? (window.DEMO.users.find(u=>u.id===w.ownerId)||{}).name : 'Merchant'}</div><div class="mt-2 text-sm">Balance: <strong>${fmt(w.balance)} MMK</strong></div><div class="mt-2 text-xs text-gray-500">Type: ${w.type}</div></div>`).join('');
@@ -155,7 +123,6 @@ function renderWallets(){
   $("#walletReport").innerHTML = `<div class="grid grid-cols-4 gap-2 font-medium py-2 border-b"><div>Wallet</div><div>Owner</div><div class="text-right">Tx Count</div><div class="text-right">Tx Volume</div></div>` + rows;
 }
 
-/* CSV exports for each page */
 function exportDashboardCsv(){
   const start = $("#dashStart")?.value || null;
   const end = $("#dashEnd")?.value || null;
@@ -195,7 +162,6 @@ function exportWalletsCsv(){
   downloadCsv('wallets_export.csv', rows.join('\n'));
 }
 
-/* Admin apply (in-memory) */
 function adminApplyWebhook(txId, event){
   const tx = (window.DEMO.transactions || []).find(t=>t.id===txId);
   if(!tx) return { ok:false, error:'not found' };
@@ -204,22 +170,18 @@ function adminApplyWebhook(txId, event){
   return { ok:true, tx };
 }
 
-/* bootstrap and event wiring */
 document.addEventListener('DOMContentLoaded', ()=>{
   initNav();
-
   const page = location.pathname.split('/').pop() || 'index.html';
   if(page === '' || page === 'index.html' || page === 'dashboard.html') renderDashboard();
   else if(page === 'transactions.html') renderTransactions();
   else if(page === 'wallets.html') renderWallets();
 
-  // date filter buttons
   const dashApply = document.getElementById('dashApply');
   if(dashApply) dashApply.addEventListener('click', ()=> renderDashboard());
   const txApply = document.getElementById('txApply');
   if(txApply) txApply.addEventListener('click', ()=> renderTransactions());
 
-  // export buttons
   const dashExport = document.getElementById('dashExport');
   if(dashExport) dashExport.addEventListener('click', exportDashboardCsv);
   const txExport = document.getElementById('txExport');
@@ -227,7 +189,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
   const walletExport = document.getElementById('walletExport');
   if(walletExport) walletExport.addEventListener('click', exportWalletsCsv);
 
-  // admin bindings
   const applyBtn = document.getElementById('adminApply');
   if(applyBtn){
     applyBtn.addEventListener('click', ()=>{
@@ -240,7 +201,4 @@ document.addEventListener('DOMContentLoaded', ()=>{
   }
   const listBtn = document.getElementById('adminList');
   if(listBtn) listBtn.addEventListener('click', ()=> { const pending = (window.DEMO.transactions||[]).filter(t=>t.status==='pending'); document.getElementById('adminOut').textContent = JSON.stringify(pending, null, 2); });
-
-  // ensure wallets page charts update on load if open
-  if(page === 'wallets.html') renderWallets();
 });
