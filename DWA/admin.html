@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Admin — DWA Demo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="/public/data.js"></script>
+  <script defer src="/public/app.js"></script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+  <div class="max-w-3xl mx-auto p-6">
+    <h1 class="text-2xl font-semibold mb-4">Admin (Static Demo)</h1>
+
+    <div class="bg-white p-4 rounded shadow">
+      <label class="block text-xs text-gray-600">Transaction ID</label>
+      <input id="adminTxId" class="w-full p-2 border rounded mt-1 mb-3" />
+      <label class="block text-xs text-gray-600">Event</label>
+      <select id="adminEvent" class="w-full p-2 border rounded mt-1">
+        <option value="payment_captured">payment_captured</option>
+        <option value="payment_declined">payment_declined</option>
+      </select>
+      <div class="mt-3 flex gap-2">
+        <button id="adminApply" class="bg-amber-500 text-white px-3 py-2 rounded">Apply</button>
+        <button id="adminList" class="bg-gray-200 px-3 py-2 rounded">List pending</button>
+      </div>
+      <pre id="adminOut" class="mt-3 text-xs bg-gray-100 p-2 rounded max-h-60 overflow-auto"></pre>
+    </div>
+  </div>
+</body>
+</html>

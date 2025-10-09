@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Dashboard — Felixent DWA Demo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script defer src="/public/data.js"></script>
+  <script defer src="/public/app.js"></script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+  <div class="max-w-7xl mx-auto p-6">
+    <header class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-semibold">DWA Dashboard</h1>
+        <p class="text-sm text-gray-600">Static demo — all data in data.js</p>
+      </div>
+      <nav class="flex items-center gap-4" id="top-nav">
+        <a class="nav-link text-sm" href="/public/index.html" data-page="index.html">Dashboard</a>
+        <a class="nav-link text-sm" href="/public/transactions.html" data-page="transactions.html">Transactions</a>
+        <a class="nav-link text-sm" href="/public/wallets.html" data-page="wallets.html">Wallets</a>
+        <a class="nav-link text-sm" href="/public/admin.html" data-page="admin.html">Admin</a>
+      </nav>
+    </header>
+
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      <div class="lg:col-span-2 bg-white p-4 rounded shadow">
+        <div class="flex items-center justify-between mb-3 gap-4">
+          <div class="grid grid-cols-4 gap-4 w-full">
+            <div class="p-3 border rounded">
+              <div class="text-xs text-gray-500">Total transactions</div>
+              <div id="kpi-total" class="text-xl font-semibold mt-1">0</div>
+            </div>
+            <div class="p-3 border rounded">
+              <div class="text-xs text-gray-500">Total volume</div>
+              <div id="kpi-volume" class="text-xl font-semibold mt-1">0 MMK</div>
+            </div>
+            <div class="p-3 border rounded">
+              <div class="text-xs text-gray-500">P2P volume</div>
+              <div id="kpi-p2p" class="text-xl font-semibold mt-1">0 MMK</div>
+            </div>
+            <div class="p-3 border rounded">
+              <div class="text-xs text-gray-500">P2M volume</div>
+              <div id="kpi-p2m" class="text-xl font-semibold mt-1">0 MMK</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 mb-4">
+          <label class="text-xs text-gray-600">From</label>
+          <input id="dashStart" type="date" class="p-2 border rounded text-sm" />
+          <label class="text-xs text-gray-600">To</label>
+          <input id="dashEnd" type="date" class="p-2 border rounded text-sm" />
+          <button id="dashApply" class="ml-2 bg-indigo-600 text-white px-3 py-2 rounded text-sm">Apply</button>
+          <button id="dashExport" class="ml-auto bg-green-600 text-white px-3 py-2 rounded text-sm">Export CSV</button>
+        </div>
+
+        <div>
+          <h2 class="font-medium mb-2">Recent Transactions</h2>
+          <div class="overflow-auto">
+            <table class="min-w-full text-sm">
+              <thead class="bg-gray-100"><tr><th class="px-3 py-2 text-left">ID</th><th class="px-3 py-2 text-left">Date</th><th class="px-3 py-2">Type</th><th class="px-3 py-2">From</th><th class="px-3 py-2">To</th><th class="px-3 py-2 text-right">Amount</th><th class="px-3 py-2">Status</th></tr></thead>
+              <tbody id="dashTableBody" class="bg-white"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-4 rounded shadow">
+        <h2 class="font-medium mb-2">Charts</h2>
+        <div class="mb-4"><canvas id="dashVolumes" height="160"></canvas></div>
+        <div><canvas id="dashStatus" height="160"></canvas></div>
+      </div>
+    </section>
+
+    <section class="bg-white p-4 rounded shadow">
+      <h2 class="font-medium mb-3">All Transactions Preview</h2>
+      <div class="overflow-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-gray-100"><tr><th class="px-3 py-2">ID</th><th class="px-3 py-2">Date</th><th class="px-3 py-2">Type</th><th class="px-3 py-2">From</th><th class="px-3 py-2">To</th><th class="px-3 py-2 text-right">Amount</th><th class="px-3 py-2">Status</th></tr></thead>
+          <tbody id="allTxPreview" class="bg-white"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
