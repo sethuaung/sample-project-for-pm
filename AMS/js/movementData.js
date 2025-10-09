@@ -1,4 +1,6 @@
 // js/movementData.js
+// Initial movement logs for Felixent AMS (audit trail)
+
 let movementLogs = [
   { asset_id: "A001", move_date: "2025-01-05 09:15", move_status: "Acquired", move_notes: "Purchased for Felixent HQ", user_id: "U001", supplier_id: "S001" },
   { asset_id: "A001", move_date: "2025-01-12 10:00", move_status: "Deployed", move_notes: "Assigned to James (Founding Lead)", user_id: "U001", supplier_id: "" },

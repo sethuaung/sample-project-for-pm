@@ -1,4 +1,6 @@
 // js/data.js
+// 50 demo assets for Felixent AMS
+
 const assetData = [
   { id: "A001", name: "Dell Latitude 5420", category: "Laptop", location: "Felixent HQ", status: "In Use", assignedTo: "James" },
   { id: "A002", name: "Canon LBP2900", category: "Printer", location: "Felixent Mandalay", status: "New", assignedTo: "" },

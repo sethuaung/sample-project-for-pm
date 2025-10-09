@@ -158,11 +158,6 @@
   <script src="js/render.js"></script>
   <script src="js/page-hooks.js"></script>
   <script src="js/data-simulator.js"></script>
-  <script src="js/data.js"></script>
-  <script src="js/movementData.js"></script>
-  <script src="js/suppliers.js"></script>
-  <script>window.felixentDataChanged?.();</script>
-  <script src="js/render.js"></script>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -188,13 +183,5 @@
       if (typeof window.refreshDashboard === 'function') window.refreshDashboard();
     });
   </script>
-  <script>
-  // safety refresh after 500ms in case of race
-  setTimeout(() => {
-    window.felixentDataChanged?.();
-    if (typeof window.refreshDashboard === 'function') window.refreshDashboard();
-  }, 500);
-</script>
-
 </body>
 </html>
