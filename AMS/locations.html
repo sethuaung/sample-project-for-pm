@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Office Locations · Felixent AMS</title>
+  <base href="https://demoprojects-xi.vercel.app/AMS/">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6 min-h-screen">
+  <div id="sidebar-root"></div>
+
+  <main class="ml-0 lg:ml-64 p-6">
+    <header class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-bold">Office Locations</h1>
+      <button id="addLocationBtn" class="bg-indigo-600 text-white px-3 py-2 rounded">Add Location</button>
+    </header>
+
+    <section class="grid md:grid-cols-2 gap-4">
+      <div class="bg-white rounded shadow p-4">
+        <h2 class="font-semibold mb-2">Locations</h2>
+        <div id="locationsList" class="space-y-2 text-sm"></div>
+      </div>
+
+      <div class="bg-white rounded shadow p-4">
+        <h2 class="font-semibold mb-2">Map View (placeholder)</h2>
+        <div class="h-64 bg-gray-50 border rounded flex items-center justify-center text-gray-400">Map placeholder (use Leaflet/Google Maps)</div>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/sidebar.js"></script>
+  <script>
+    const locations = window.locations || ['Felixent HQ','Felixent Mandalay','Felixent Naypyidaw'];
+    const el = document.getElementById('locationsList');
+    function renderLocations() { el.innerHTML = locations.map(l=>`<div class="py-2 border-b">${l}</div>`).join(''); }
+    document.getElementById('addLocationBtn').addEventListener('click', ()=> {
+      const name = prompt('New location name'); if (name) { locations.push(name); renderLocations(); }
+    });
+    document.addEventListener('DOMContentLoaded', renderLocations);
+  </script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Items List · Felixent AMS</title>
+  <base href="https://demoprojects-xi.vercel.app/AMS/">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen">
+  <div id="sidebar-root"></div>
+
+  <main class="ml-0 lg:ml-64 p-6">
+    <header class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-bold">Items List</h1>
+        <p class="text-sm text-gray-600">Felixent · Assets catalog</p>
+      </div>
+      <div class="flex gap-2">
+        <input id="itemsSearch" type="search" placeholder="Search by ID, name, category" class="border rounded px-3 py-2" />
+        <select id="itemsFilterStatus" class="border rounded px-3 py-2">
+          <option value="All">All Statuses</option><option>New</option><option>In Use</option><option>Maintenance</option><option>Reassigned</option><option>Retired</option>
+        </select>
+        <button onclick="exportCSV()" class="bg-indigo-600 text-white px-3 py-2 rounded">Export CSV</button>
+        <button onclick="exportExcel()" class="bg-yellow-600 text-white px-3 py-2 rounded">Export Excel</button>
+      </div>
+    </header>
+
+    <section class="bg-white rounded shadow overflow-x-auto">
+      <table class="w-full table-auto">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="px-4 py-2 text-left">ID</th>
+            <th class="px-4 py-2 text-left">Name</th>
+            <th class="px-4 py-2 text-left">Category</th>
+            <th class="px-4 py-2 text-left">Location</th>
+            <th class="px-4 py-2 text-left">Status</th>
+            <th class="px-4 py-2 text-left">Assigned To</th>
+            <th class="px-4 py-2 text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="itemsTbody"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="js/sidebar.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/page-hooks.js"></script>
+
+  <script>
+    const searchEl = document.getElementById('itemsSearch');
+    const filterStatusEl = document.getElementById('itemsFilterStatus');
+
+    function renderItems() {
+      const tbody = document.getElementById('itemsTbody');
+      const q = (searchEl.value || '').toLowerCase();
+      const status = filterStatusEl.value;
+      const rows = (window.assetData || []).filter(a => {
+        const matchQ = !q || `${a.id} ${a.name} ${a.category}`.toLowerCase().includes(q);
+        const matchStatus = status === 'All' || a.status === status;
+        return matchQ && matchStatus;
+      }).map((a, i) => `
+        <tr class="border-b">
+          <td class="px-4 py-2">${a.id}</td>
+          <td class="px-4 py-2">${a.name}</td>
+          <td class="px-4 py-2">${a.category}</td>
+          <td class="px-4 py-2">${a.location}</td>
+          <td class="px-4 py-2 font-semibold">${a.status}</td>
+          <td class="px-4 py-2">${a.assignedTo||'-'}</td>
+          <td class="px-4 py-2"><button class="text-blue-600" onclick="openEditModal(${(window.assetData||[]).findIndex(x=>x.id===a.id)})">Edit</button></td>
+        </tr>
+      `).join('');
+      tbody.innerHTML = rows;
+    }
+
+    searchEl.addEventListener('input', renderItems);
+    filterStatusEl.addEventListener('change', renderItems);
+    document.addEventListener('DOMContentLoaded', () => { renderItems(); window.addEventListener('felixent:data:changed', renderItems); });
+  </script>
+</body>
+</html>

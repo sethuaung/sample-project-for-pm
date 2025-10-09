@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Suppliers · Felixent AMS</title>
+  <base href="https://demoprojects-xi.vercel.app/AMS/">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6 min-h-screen">
+  <div id="sidebar-root"></div>
+
+  <main class="ml-0 lg:ml-64 p-6">
+    <header class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-bold">Suppliers</h1>
+      <button id="addSupplierBtn" class="bg-green-600 text-white px-3 py-2 rounded">Add Supplier</button>
+    </header>
+
+    <section class="bg-white rounded shadow p-4">
+      <div id="suppliersContainer" class="space-y-2 text-sm"></div>
+    </section>
+  </main>
+
+  <script src="js/sidebar.js"></script>
+  <script src="js/suppliers.js"></script>
+  <script>
+    const container = document.getElementById('suppliersContainer');
+    function renderSuppliersUI() {
+      container.innerHTML = (window.suppliers || []).map((s,i)=>`
+        <div class="flex items-center justify-between border-b py-2">
+          <div>
+            <div class="font-semibold">${s.supplier_name} • ${s.supplier_id}</div>
+            <div class="text-xs text-gray-500">${s.supplier_email || ''} • ${s.supplier_tel || ''}</div>
+            <div class="text-xs text-gray-400">${s.supplier_address || ''}</div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="editSupplier(${i})" class="text-blue-600">Edit</button>
+            <button onclick="deleteSupplierUI(${i})" class="text-red-600">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+    function editSupplier(i) {
+      const s = suppliers[i];
+      const newName = prompt('Name', s.supplier_name);
+      if (!newName) return;
+      updateSupplier(s.supplier_id, { supplier_name: newName });
+      renderSuppliersUI();
+    }
+    function deleteSupplierUI(i) {
+      const s = suppliers[i];
+      if (!confirm(`Delete ${s.supplier_name}?`)) return;
+      deleteSupplier(s.supplier_id);
+      renderSuppliersUI();
+    }
+    document.getElementById('addSupplierBtn').addEventListener('click', () => {
+      const id = prompt('Supplier ID (e.g. S007)'); const name = prompt('Supplier name');
+      if (!id || !name) return alert('ID and name required');
+      const res = addSupplier({ supplier_id: id, supplier_name: name });
+      if (!res.ok) return alert(res.error);
+      renderSuppliersUI();
+    });
+    document.addEventListener('DOMContentLoaded', renderSuppliersUI);
+  </script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Users · Felixent AMS</title>
+  <base href="https://demoprojects-xi.vercel.app/AMS/">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6 min-h-screen">
+  <div id="sidebar-root"></div>
+
+  <main class="ml-0 lg:ml-64 p-6">
+    <header class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-bold">Users</h1>
+      <button id="addUserBtn" class="bg-green-600 text-white px-3 py-2 rounded">Add User</button>
+    </header>
+
+    <section class="bg-white rounded shadow p-4">
+      <div id="usersContainer" class="space-y-2"></div>
+    </section>
+  </main>
+
+  <div id="userModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center hidden">
+    <div class="bg-white p-4 rounded w-full max-w-sm">
+      <h2 id="userModalTitle" class="font-semibold mb-2">Add User</h2>
+      <form id="userForm" class="grid gap-2">
+        <input id="userId" placeholder="User ID" class="border p-2 rounded" required/>
+        <input id="userName" placeholder="Full name" class="border p-2 rounded" required/>
+        <input id="userEmail" type="email" placeholder="Email" class="border p-2 rounded"/>
+        <select id="userLevel" class="border p-2 rounded"><option>admin</option><option>editor</option><option>viewer</option></select>
+        <div class="flex justify-end gap-2">
+          <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded">Save</button>
+          <button type="button" onclick="closeUserModal()" class="px-3 py-1">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/sidebar.js"></script>
+  <script>
+    let users = window.users || [{ users_id: 'U001', user_name: 'James', user_email: 'james@felixent.com', user_level: 'admin' }];
+    const usersContainer = document.getElementById('usersContainer');
+    const userModal = document.getElementById('userModal');
+    const userForm = document.getElementById('userForm');
+
+    function renderUsers() {
+      usersContainer.innerHTML = users.map((u,i)=>`
+        <div class="flex items-center justify-between border-b py-2">
+          <div>
+            <div class="font-semibold">${u.user_name} • ${u.user_level}</div>
+            <div class="text-xs text-gray-500">${u.user_email}</div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="editUser(${i})" class="text-blue-600">Edit</button>
+            <button onclick="deleteUser(${i})" class="text-red-600">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openUserModal(editIndex = null) {
+      userModal.classList.remove('hidden');
+      userForm.dataset.editIndex = editIndex === null ? '' : editIndex;
+      if (editIndex !== null) {
+        const u = users[editIndex];
+        document.getElementById('userId').value = u.users_id;
+        document.getElementById('userName').value = u.user_name;
+        document.getElementById('userEmail').value = u.user_email;
+        document.getElementById('userLevel').value = u.user_level;
+        document.getElementById('userModalTitle').textContent = 'Edit User';
+      } else { userForm.reset(); document.getElementById('userModalTitle').textContent = 'Add User'; }
+    }
+
+    function closeUserModal() { userModal.classList.add('hidden'); userForm.reset(); }
+
+    document.getElementById('addUserBtn').addEventListener('click', ()=> openUserModal(null));
+    function editUser(i) { openUserModal(i); }
+    function deleteUser(i) { if (!confirm('Delete user?')) return; users.splice(i,1); renderUsers(); }
+
+    userForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const editIndex = userForm.dataset.editIndex;
+      const payload = { users_id: document.getElementById('userId').value.trim(), user_name: document.getElementById('userName').value.trim(), user_email: document.getElementById('userEmail').value.trim(), user_level: document.getElementById('userLevel').value };
+      if (editIndex) users[editIndex] = payload; else users.push(payload);
+      closeUserModal();
+      renderUsers();
+    });
+
+    document.addEventListener('DOMContentLoaded', renderUsers);
+  </script>
+</body>
+</html>

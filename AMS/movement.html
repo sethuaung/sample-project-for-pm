@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Asset Movement · Felixent AMS</title>
+  <base href="https://demoprojects-xi.vercel.app/AMS/">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6 min-h-screen">
+  <div id="sidebar-root"></div>
+
+  <main class="ml-0 lg:ml-64 p-6">
+    <header class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-bold">Asset Movement</h1>
+      <button id="addMovementBtn" class="bg-indigo-600 text-white px-3 py-2 rounded">Add Movement</button>
+    </header>
+
+    <section class="bg-white rounded shadow p-4">
+      <div id="movementContainer" class="space-y-2 text-sm"></div>
+    </section>
+  </main>
+
+  <script src="js/sidebar.js"></script>
+  <script src="js/movementData.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/suppliers.js"></script>
+
+  <script>
+    const container = document.getElementById('movementContainer');
+    function renderMovementsUI() {
+      const rows = (window.movementLogs || []).slice().sort((a,b) => new Date(b.move_date) - new Date(a.move_date));
+      container.innerHTML = rows.map(r=>`
+        <div class="py-2 border-b">
+          <div class="font-semibold">${r.asset_id} • ${r.move_status}</div>
+          <div class="text-xs text-gray-500">${r.move_date} — ${r.move_notes}</div>
+          <div class="text-xs text-gray-400">User: ${r.user_id || '-'} • Supplier: ${r.supplier_id || '-'}</div>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('addMovementBtn').addEventListener('click', () => {
+      const assetId = prompt('Asset ID (e.g. A001)'); if (!assetId) return;
+      const moveStatus = prompt('Move status (Acquired / Deployed / Maintenance / Reassigned / Retired)'); if (!moveStatus) return;
+      const notes = prompt('Notes (optional)'); const userId = prompt('User ID (optional)'); const supplierId = prompt('Supplier ID (optional)');
+      addMovementLog({ asset_id: assetId, move_date: new Date().toISOString().slice(0,19).replace('T',' '), move_status: moveStatus, move_notes: notes || '', user_id: userId || '', supplier_id: supplierId || '' });
+      renderMovementsUI();
+    });
+
+    document.addEventListener('DOMContentLoaded', renderMovementsUI);
+  </script>
+</body>
+</html>
