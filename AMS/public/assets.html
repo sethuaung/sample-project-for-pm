@@ -10,93 +10,107 @@
   <script defer src="/AMS/public/app.ams.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-800">
-  <div class="max-w-6xl mx-auto p-6">
-    <header class="flex items-center justify-between mb-6">
-      <div>
-        <h1 class="text-2xl font-semibold">Assets</h1>
-        <p class="text-sm text-gray-600">Manage inventory items</p>
+  <div class="min-h-screen flex">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r hidden md:block">
+      <div class="p-6">
+        <a href="/AMS/public/index.html" class="block text-lg font-semibold mb-4">AMS</a>
+        <nav class="space-y-1" id="ams-sidebar">
+          <a class="sidebar-link block px-3 py-2 rounded text-sm" href="/AMS/public/index.html" data-page="index.html">Dashboard</a>
+          <a class="sidebar-link block px-3 py-2 rounded text-sm" href="/AMS/public/assets.html" data-page="assets.html">Assets</a>
+        </nav>
       </div>
-      <nav class="flex items-center gap-4">
-        <a class="text-sm text-indigo-600 font-semibold" href="/AMS/public/index.html">AMS</a>
-        <a class="text-sm" href="/DWA/public/index.html">DWA</a>
-      </nav>
-    </header>
+    </aside>
 
-    <div class="mb-4 flex items-center gap-3">
-      <button id="addAsset" class="bg-indigo-600 text-white px-3 py-2 rounded">Add Asset</button>
-      <button id="exportAssets" class="ml-auto bg-green-600 text-white px-3 py-2 rounded">Export CSV</button>
-    </div>
+    <!-- Main content -->
+    <main class="flex-1 p-6">
+      <header class="flex items-center justify-between mb-6">
+        <div>
+          <h1 class="text-2xl font-semibold">Assets</h1>
+          <p class="text-sm text-gray-600">Manage inventory items</p>
+        </div>
+        <nav class="flex items-center gap-4 md:hidden">
+          <a class="text-sm text-indigo-600 font-semibold" href="/AMS/public/index.html">AMS</a>
+          <a class="text-sm" href="/DWA/public/index.html">DWA</a>
+        </nav>
+      </header>
 
-    <div class="bg-white p-4 rounded shadow">
-      <div class="overflow-auto">
-        <table class="min-w-full text-sm">
-          <thead class="bg-gray-100">
-            <tr>
-              <th class="px-2 py-2 text-left">SKU</th>
-              <th class="px-2 py-2 text-left">Name</th>
-              <th class="px-2 py-2">Category</th>
-              <th class="px-2 py-2">Location</th>
-              <th class="px-2 py-2 text-right">Qty</th>
-              <th class="px-2 py-2 text-right">Unit value</th>
-              <th class="px-2 py-2">Condition</th>
-              <th class="px-2 py-2">Purchased</th>
-              <th class="px-2 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="assetsBody" class="bg-white"></tbody>
-        </table>
+      <div class="mb-4 flex items-center gap-3">
+        <button id="addAsset" class="bg-indigo-600 text-white px-3 py-2 rounded">Add Asset</button>
+        <button id="exportAssets" class="ml-auto bg-green-600 text-white px-3 py-2 rounded">Export CSV</button>
       </div>
-    </div>
 
-    <!-- modal-ish inline form -->
-    <div id="assetModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4">
-      <div class="bg-white p-4 rounded w-full max-w-2xl">
-        <h3 id="assetModalTitle" class="font-medium mb-2">Add Asset</h3>
-        <form id="assetForm" class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <input type="hidden" id="assetId" />
-          <div>
-            <label class="text-xs">SKU</label>
-            <input id="sku" class="w-full p-2 border rounded" required />
-          </div>
-          <div>
-            <label class="text-xs">Name</label>
-            <input id="name" class="w-full p-2 border rounded" required />
-          </div>
-          <div>
-            <label class="text-xs">Category</label>
-            <select id="category" class="w-full p-2 border rounded"></select>
-          </div>
-          <div>
-            <label class="text-xs">Location</label>
-            <select id="location" class="w-full p-2 border rounded"></select>
-          </div>
-          <div>
-            <label class="text-xs">Quantity</label>
-            <input id="qty" type="number" class="w-full p-2 border rounded" required />
-          </div>
-          <div>
-            <label class="text-xs">Unit value</label>
-            <input id="unitValue" type="number" class="w-full p-2 border rounded" required />
-          </div>
-          <div>
-            <label class="text-xs">Condition</label>
-            <input id="condition" class="w-full p-2 border rounded" />
-          </div>
-          <div>
-            <label class="text-xs">Purchased At</label>
-            <input id="purchasedAt" type="date" class="w-full p-2 border rounded" />
-          </div>
-          <div class="md:col-span-2">
-            <label class="text-xs">Notes</label>
-            <textarea id="notes" class="w-full p-2 border rounded"></textarea>
-          </div>
-          <div class="md:col-span-2 flex gap-2 justify-end">
-            <button id="assetCancel" class="bg-gray-200 px-3 py-2 rounded">Cancel</button>
-            <button type="submit" class="bg-indigo-600 text-white px-3 py-2 rounded">Save</button>
-          </div>
-        </form>
+      <div class="bg-white p-4 rounded shadow">
+        <div class="overflow-auto">
+          <table class="min-w-full text-sm">
+            <thead class="bg-gray-100">
+              <tr>
+                <th class="px-2 py-2 text-left">SKU</th>
+                <th class="px-2 py-2 text-left">Name</th>
+                <th class="px-2 py-2">Category</th>
+                <th class="px-2 py-2">Location</th>
+                <th class="px-2 py-2 text-right">Qty</th>
+                <th class="px-2 py-2 text-right">Unit value</th>
+                <th class="px-2 py-2">Condition</th>
+                <th class="px-2 py-2">Purchased</th>
+                <th class="px-2 py-2">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="assetsBody" class="bg-white"></tbody>
+          </table>
+        </div>
       </div>
-    </div>
+
+      <!-- modal-ish inline form -->
+      <div id="assetModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4">
+        <div class="bg-white p-4 rounded w-full max-w-2xl">
+          <h3 id="assetModalTitle" class="font-medium mb-2">Add Asset</h3>
+          <form id="assetForm" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input type="hidden" id="assetId" />
+            <div>
+              <label class="text-xs">SKU</label>
+              <input id="sku" class="w-full p-2 border rounded" required />
+            </div>
+            <div>
+              <label class="text-xs">Name</label>
+              <input id="name" class="w-full p-2 border rounded" required />
+            </div>
+            <div>
+              <label class="text-xs">Category</label>
+              <select id="category" class="w-full p-2 border rounded"></select>
+            </div>
+            <div>
+              <label class="text-xs">Location</label>
+              <select id="location" class="w-full p-2 border rounded"></select>
+            </div>
+            <div>
+              <label class="text-xs">Quantity</label>
+              <input id="qty" type="number" class="w-full p-2 border rounded" required />
+            </div>
+            <div>
+              <label class="text-xs">Unit value</label>
+              <input id="unitValue" type="number" class="w-full p-2 border rounded" required />
+            </div>
+            <div>
+              <label class="text-xs">Condition</label>
+              <input id="condition" class="w-full p-2 border rounded" />
+            </div>
+            <div>
+              <label class="text-xs">Purchased At</label>
+              <input id="purchasedAt" type="date" class="w-full p-2 border rounded" />
+            </div>
+            <div class="md:col-span-2">
+              <label class="text-xs">Notes</label>
+              <textarea id="notes" class="w-full p-2 border rounded"></textarea>
+            </div>
+            <div class="md:col-span-2 flex gap-2 justify-end">
+              <button id="assetCancel" class="bg-gray-200 px-3 py-2 rounded">Cancel</button>
+              <button type="submit" class="bg-indigo-600 text-white px-3 py-2 rounded">Save</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
   </div>
 </body>
 </html>
