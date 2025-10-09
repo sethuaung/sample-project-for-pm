@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Categories — AMS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script defer src="./data.ams.js"></script>
+  <script defer src="./app.ams.js"></script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+  <div class="min-h-screen flex flex-col">
+    <div class="flex flex-1">
+      <aside class="w-64 bg-white border-r hidden md:block">
+        <div class="p-6">
+          <a href="./index.html" class="block text-lg font-semibold mb-4">AMS</a>
+          <nav class="space-y-1" id="ams-sidebar">
+            <a class="sidebar-link block px-3 py-2 rounded text-sm" href="./index.html" data-page="index.html">Dashboard</a>
+            <a class="sidebar-link block px-3 py-2 rounded text-sm" href="./assets.html" data-page="assets.html">Assets</a>
+            <a class="sidebar-link block px-3 py-2 rounded text-sm" href="./categories.html" data-page="categories.html">Categories</a>
+            <a class="sidebar-link block px-3 py-2 rounded text-sm" href="./locations.html" data-page="locations.html">Locations</a>
+            <a class="sidebar-link block px-3 py-2 rounded text-sm" href="./users.html" data-page="users.html">Users</a>
+          </nav>
+        </div>
+      </aside>
+
+      <main class="flex-1 p-6">
+        <header class="flex items-center justify-between mb-6">
+          <div><h1 class="text-2xl font-semibold">Categories</h1><p class="text-sm text-gray-600">Category-level summary and chart</p></div>
+          <div class="flex items-center gap-2">
+            <input id="newCategoryName" class="p-2 border rounded text-sm" placeholder="New category name" />
+            <button id="addCategoryBtn" class="bg-indigo-600 text-white px-3 py-2 rounded text-sm">Add</button>
+          </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="bg-white p-4 rounded shadow">
+            <h3 class="font-medium mb-2">Category report</h3>
+            <div id="categoriesBody" class="text-sm"></div>
+          </div>
+
+          <div class="bg-white p-4 rounded shadow">
+            <h3 class="font-medium mb-2">Category chart</h3>
+            <canvas id="categoriesChart" height="220"></canvas>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <footer class="bg-white border-t p-4 text-sm text-gray-600 text-center">
+      Felixent AMS — demo data • Powered by static client-side demo
+    </footer>
+  </div>
+</body>
+</html>

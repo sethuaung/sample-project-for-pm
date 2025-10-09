@@ -1,179 +1,164 @@
-// app.ams.js — AMS runtime with guarded bootstrap and sidebar highlight
-// Keep this file in AMS/public alongside data.ams.js
+// app.ams.js — AMS runtime with Charts for Categories, Locations, Users and footer-aware rendering
+// Full file replacement recommended. Chart.js and data.ams.js must be loaded beforehand.
+
 const $a = s => document.querySelector(s);
 const $$a = s => Array.from(document.querySelectorAll(s));
-
-/* helpers */
 function fmt(n){ return Number(n).toLocaleString("en-US"); }
 function uid(prefix='x'){ return prefix + Math.random().toString(36).slice(2,8); }
+
 function catName(id){ return (window.AMS?.categories||[]).find(c=>c.id===id)?.name || id; }
 function locName(id){ return (window.AMS?.locations||[]).find(l=>l.id===id)?.name || id; }
+function userById(id){ return (window.AMS?.users||[]).find(u=>u.id===id) || null; }
+function userName(id){ const u = userById(id); return u ? u.name : ''; }
 
-/* CSV helper */
-function csvEscape(v){ if(v===null||v===undefined) return ""; const s = String(v); if(s.includes(",")||s.includes("\"")||s.includes("\n")) return `"${s.replace(/"/g,'""')}"`; return s; }
-function downloadCsv(filename, csv){ const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
+/* --- Existing functions (renderSummaryKPIs, renderAssets, renderCategories, renderLocations, renderUsers,
+   openAdd, openEdit, saveAsset, deleteAsset, renderAssetsCharts, exportAssetsCsv, initAMSSidebar, initAMS, bootstrap) --
+   keep these from your current app.ams.js unchanged. */
 
-/* render assets table */
-function renderAssets(){
-  const assets = (window.AMS?.assets || []).slice().sort((a,b)=> a.sku.localeCompare(b.sku));
-  const tbody = $a("#assetsBody");
-  if(!tbody) return;
-  tbody.innerHTML = assets.map(a=>`<tr class="border-b">
-    <td class="px-2 py-2 text-xs">${a.sku}</td>
-    <td class="px-2 py-2 text-sm">${a.name}</td>
-    <td class="px-2 py-2 text-xs">${catName(a.categoryId)}</td>
-    <td class="px-2 py-2 text-xs">${locName(a.locationId)}</td>
-    <td class="px-2 py-2 text-right text-xs">${a.qty}</td>
-    <td class="px-2 py-2 text-right text-xs">${fmt(a.unitValue)}</td>
-    <td class="px-2 py-2 text-xs">${a.condition}</td>
-    <td class="px-2 py-2 text-xs">${a.purchasedAt}</td>
-    <td class="px-2 py-2 text-right text-xs">
-      <button data-id="${a.id}" class="editBtn bg-indigo-600 text-white px-2 py-1 rounded text-xs">Edit</button>
-      <button data-id="${a.id}" class="delBtn bg-red-500 text-white px-2 py-1 rounded text-xs">Delete</button>
-    </td>
-  </tr>`).join('');
-  // wire edit/delete
-  $$(".editBtn").forEach(b=>b.addEventListener("click", e=> openEdit(e.currentTarget.getAttribute("data-id"))));
-  $$(".delBtn").forEach(b=>b.addEventListener("click", e=> deleteAsset(e.currentTarget.getAttribute("data-id"))));
-  renderSummary();
-}
+/* New: Chart renderers for Categories, Locations, Users pages */
 
-/* summary KPIs */
-function renderSummary(){
+/* Categories: bar chart by number of items and stacked value */
+function renderCategoriesCharts(){
+  const cats = window.AMS?.categories || [];
   const assets = window.AMS?.assets || [];
-  const totalItems = assets.reduce((s,a)=>s + (a.qty||0),0);
-  const totalValue = assets.reduce((s,a)=>s + ((a.qty||0)*(a.unitValue||0)),0);
-  $a("#k_total_items") && ($a("#k_total_items").textContent = fmt(totalItems));
-  $a("#k_total_value") && ($a("#k_total_value").textContent = fmt(totalValue) + " " + (window.AMS?.meta?.currency||""));
-}
 
-/* add / edit modal logic */
-function openAdd(){
-  const form = $a("#assetForm");
-  if(!form) return;
-  form.reset();
-  $a("#assetId").value = "";
-  $a("#assetModalTitle").textContent = "Add Asset";
-  $a("#assetModal").classList.remove("hidden");
-}
-function openEdit(id){
-  const asset = (window.AMS?.assets || []).find(x=>x.id===id);
-  if(!asset) return alert("Asset not found");
-  $a("#assetId").value = asset.id;
-  $a("#sku").value = asset.sku;
-  $a("#name").value = asset.name;
-  $a("#category").value = asset.categoryId;
-  $a("#location").value = asset.locationId;
-  $a("#qty").value = asset.qty;
-  $a("#unitValue").value = asset.unitValue;
-  $a("#condition").value = asset.condition;
-  $a("#purchasedAt").value = asset.purchasedAt;
-  $a("#notes").value = asset.notes || "";
-  $a("#assetModalTitle").textContent = "Edit Asset";
-  $a("#assetModal").classList.remove("hidden");
-}
-function closeModal(){ $a("#assetModal").classList.add("hidden"); }
+  const labels = cats.map(c => c.name);
+  const itemCounts = cats.map(c => assets.filter(a => a.categoryId === c.id).reduce((s, a) => s + (a.qty||0), 0));
+  const totalValues = cats.map(c => assets.filter(a => a.categoryId === c.id).reduce((s, a) => s + ((a.qty||0)*(a.unitValue||0)), 0));
 
-function saveAsset(e){
-  e.preventDefault();
-  const id = $a("#assetId").value || uid("a");
-  const obj = {
-    id,
-    sku: $a("#sku").value.trim(),
-    name: $a("#name").value.trim(),
-    categoryId: $a("#category").value,
-    locationId: $a("#location").value,
-    qty: Number($a("#qty").value || 0),
-    unitValue: Number($a("#unitValue").value || 0),
-    condition: $a("#condition").value,
-    purchasedAt: $a("#purchasedAt").value,
-    notes: $a("#notes").value
-  };
-  const idx = (window.AMS.assets||[]).findIndex(x=>x.id===id);
-  if(idx >= 0) window.AMS.assets[idx] = obj; else window.AMS.assets.push(obj);
-  closeModal();
-  renderAssets();
-}
-
-/* delete */
-function deleteAsset(id){
-  if(!confirm("Delete asset?")) return;
-  window.AMS.assets = (window.AMS.assets||[]).filter(a=>a.id!==id);
-  renderAssets();
-}
-
-/* CSV export */
-function exportAssetsCsv(){
-  const rows = ["id,sku,name,category,location,qty,unitValue,condition,purchasedAt,notes"];
-  (window.AMS.assets||[]).forEach(a=>{
-    rows.push([csvEscape(a.id), csvEscape(a.sku), csvEscape(a.name), csvEscape(catName(a.categoryId)), csvEscape(locName(a.locationId)), csvEscape(a.qty), csvEscape(a.unitValue), csvEscape(a.condition), csvEscape(a.purchasedAt), csvEscape(a.notes)].join(","));
+  const el = $a("#categoriesChart");
+  if(!el) return;
+  const ctx = el.getContext("2d");
+  if(window._catsChart) window._catsChart.destroy();
+  window._catsChart = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets: [
+      { label: 'Items (count)', data: itemCounts, yAxisID:'y-items', backgroundColor:'#60A5FA' },
+      { label: 'Total value (MMK)', data: totalValues, yAxisID:'y-value', backgroundColor:'#F59E0B' }
+    ]},
+    options: {
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        'y-items': { type: 'linear', position: 'left', title: { display:true, text:'Item count' } },
+        'y-value': { type: 'linear', position: 'right', title: { display:true, text:'Value (MMK)' }, grid: { drawOnChartArea: false } }
+      },
+      plugins: { legend: { position: 'bottom' } }
+    }
   });
-  downloadCsv("ams_assets.csv", rows.join("\n"));
 }
 
-/* charts */
-function renderCharts(){
+/* Locations: donut chart for distribution and horizontal bar for top locations by value */
+function renderLocationsCharts(){
+  const locs = window.AMS?.locations || [];
   const assets = window.AMS?.assets || [];
-  const byCat = {};
-  const byLoc = {};
-  assets.forEach(a=>{
-    byCat[a.categoryId] = (byCat[a.categoryId]||0) + (a.qty||0);
-    byLoc[a.locationId] = (byLoc[a.locationId]||0) + (a.qty||0);
-  });
-  const catLabels = Object.keys(byCat).map(k=>catName(k));
-  const catData = Object.keys(byCat).map(k=>byCat[k]);
-  const locLabels = Object.keys(byLoc).map(k=>locName(k));
-  const locData = Object.keys(byLoc).map(k=>byLoc[k]);
 
-  const c1 = document.getElementById("catChart");
-  if(c1){
-    const ctx = c1.getContext("2d");
-    if(window._amsCatChart) window._amsCatChart.destroy();
-    window._amsCatChart = new Chart(ctx, { type:'pie', data:{ labels: catLabels, datasets:[{ data: catData, backgroundColor:['#60A5FA','#F59E0B','#10B981'] }] }, options:{ plugins:{ legend:{ position:'bottom' } } } });
+  const labels = locs.map(l => l.name);
+  const qtys = locs.map(l => assets.filter(a => a.locationId === l.id).reduce((s,a)=>s+(a.qty||0),0));
+  const vals = locs.map(l => assets.filter(a => a.locationId === l.id).reduce((s,a)=>s + ((a.qty||0)*(a.unitValue||0)),0));
+
+  const donutEl = $a("#locationsDonut");
+  if(donutEl){
+    const ctx = donutEl.getContext("2d");
+    if(window._locDonut) window._locDonut.destroy();
+    window._locDonut = new Chart(ctx, { type:'doughnut', data:{ labels, datasets:[{ data: qtys, backgroundColor: labels.map((_,i)=>['#6366F1','#60A5FA','#10B981','#F59E0B'][i%4]) }] }, options:{ plugins:{ legend:{ position:'bottom' } } } });
   }
 
-  const c2 = document.getElementById("locChart");
-  if(c2){
-    const ctx2 = c2.getContext("2d");
-    if(window._amsLocChart) window._amsLocChart.destroy();
-    window._amsLocChart = new Chart(ctx2, { type:'bar', data:{ labels: locLabels, datasets:[{ label:'Qty', data: locData, backgroundColor:'#6366F1' }] }, options:{ plugins:{ legend:{ display:false } } } });
+  const hbarEl = $a("#locationsHBar");
+  if(hbarEl){
+    const ctx2 = hbarEl.getContext("2d");
+    if(window._locHBar) window._locHBar.destroy();
+    window._locHBar = new Chart(ctx2, { type:'bar', data:{ labels, datasets:[{ label:'Total value MMK', data: vals, backgroundColor:'#C084FC' }] }, options:{ indexAxis:'y', plugins:{ legend:{ display:false } } } });
   }
 }
 
-/* sidebar highlight */
-function initAMSSidebar(){
-  $$(".sidebar-link").forEach(el => { el.classList.remove('bg-indigo-50','text-indigo-700','font-semibold'); });
-  const page = location.pathname.split('/').pop() || 'index.html';
-  const active = document.querySelector(`.sidebar-link[data-page="${page}"]`);
-  if(active) active.classList.add('bg-indigo-50','text-indigo-700','font-semibold');
+/* Users: bubble or bar chart showing assigned items per user and positions breakdown */
+function renderUsersCharts(){
+  const users = window.AMS?.users || [];
+  const assets = window.AMS?.assets || [];
+
+  // assigned count per user (qty)
+  const labels = users.map(u => u.name);
+  const assignedQty = users.map(u => assets.filter(a => a.assignedTo === u.id).reduce((s,a)=> s + (a.qty||0), 0));
+  const assignedValue = users.map(u => assets.filter(a => a.assignedTo === u.id).reduce((s,a)=> s + ((a.qty||0)*(a.unitValue||0)), 0));
+
+  const el = $a("#usersChart");
+  if(el){
+    const ctx = el.getContext("2d");
+    if(window._usersChart) window._usersChart.destroy();
+    window._usersChart = new Chart(ctx, {
+      type:'bar',
+      data:{ labels, datasets:[{ label:'Assigned items (qty)', data: assignedQty, backgroundColor:'#10B981' }, { label:'Assigned value (MMK)', data: assignedValue, backgroundColor:'#EF4444' }] },
+      options:{ interaction:{ mode:'index', intersect:false }, plugins:{ legend:{ position:'bottom' } }, scales:{ y:{ beginAtZero:true } } }
+    });
+  }
+
+  // position breakdown (pie)
+  const posMap = {};
+  users.forEach(u => { posMap[u.position || 'Staff'] = (posMap[u.position||'Staff']||0) + 1; });
+  const posLabels = Object.keys(posMap);
+  const posData = posLabels.map(l => posMap[l]);
+  const posEl = $a("#usersPosChart");
+  if(posEl){
+    const ctx2 = posEl.getContext("2d");
+    if(window._usersPosChart) window._usersPosChart.destroy();
+    window._usersPosChart = new Chart(ctx2, { type:'pie', data:{ labels: posLabels, datasets:[{ data: posData, backgroundColor:['#60A5FA','#F59E0B','#10B981','#C084FC'] }] }, options:{ plugins:{ legend:{ position:'bottom' } } } });
+  }
 }
 
-/* initAMS (populate selects, wire events) */
+/* Integrate charts into initAMS page wiring (call these where page rendering occurs) */
 function initAMS(){
-  const catSel = $a("#category");
-  const locSel = $a("#location");
-  if(catSel) catSel.innerHTML = (window.AMS.categories||[]).map(c=>`<option value="${c.id}">${c.name}</option>`).join("");
-  if(locSel) locSel.innerHTML = (window.AMS.locations||[]).map(l=>`<option value="${l.id}">${l.name}</option>`).join("");
-  $a("#addAsset")?.addEventListener("click", openAdd);
-  $a("#assetForm")?.addEventListener("submit", saveAsset);
-  $a("#assetCancel")?.addEventListener("click", e=>{ e.preventDefault(); closeModal(); });
-  $a("#exportAssets")?.addEventListener("click", exportAssetsCsv);
-  renderAssets();
-  renderCharts();
+  // populate selects and assignedTo etc. (same as before)
+  if($a("#category")) $a("#category").innerHTML = (window.AMS.categories||[]).map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  if($a("#location")) $a("#location").innerHTML = (window.AMS.locations||[]).map(l=>`<option value="${l.id}">${l.name}</option>`).join('');
+  if($a("#assignedTo")) $a("#assignedTo").innerHTML = `<option value="">—</option>${(window.AMS.users||[]).map(u=>`<option value="${u.id}">${u.name}</option>`).join('')}`;
+
+  $a("#addAsset")?.addEventListener('click', openAdd);
+  $a("#assetForm")?.addEventListener('submit', saveAsset);
+  $a("#assetCancel")?.addEventListener('click', e=>{ e.preventDefault(); closeModal(); });
+  $a("#exportAssets")?.addEventListener('click', exportAssetsCsv);
+
+  $a("#addCategoryBtn")?.addEventListener('click', ()=>{
+    const name = ($a("#newCategoryName")?.value||"").trim(); if(!name) return alert('enter name');
+    const id = 'c' + (window.AMS.categories.length + 1);
+    window.AMS.categories.push({ id, name });
+    $a("#newCategoryName").value = "";
+    renderCategories(); renderAssets(); renderSummaryKPIs(); renderCategoriesCharts();
+  });
+
+  $a("#addLocationBtn")?.addEventListener('click', ()=>{
+    const name = ($a("#newLocationName")?.value||"").trim(); if(!name) return alert('enter name');
+    const id = 'loc' + (window.AMS.locations.length + 1);
+    window.AMS.locations.push({ id, name });
+    $a("#newLocationName").value = "";
+    renderLocations(); renderAssets(); renderSummaryKPIs(); renderLocationsCharts();
+  });
+
+  $a("#addUserBtn")?.addEventListener('click', ()=>{
+    const name = ($a("#newUserName")?.value||"").trim(); const email = ($a("#newUserEmail")?.value||"").trim();
+    if(!name || !email) return alert('enter name and email');
+    const id = 'u' + (window.AMS.users.length + 1);
+    window.AMS.users.push({ id, name, role: "staff", position: "Staff", locationId: window.AMS.locations[0]?.id || null, email });
+    $a("#newUserName").value = ""; $a("#newUserEmail").value = "";
+    renderUsers(); renderAssets(); renderSummaryKPIs(); renderUsersCharts();
+  });
+
+  // render per-page
+  const page = location.pathname.split('/').pop() || 'index.html';
+  if(page === '' || page === 'index.html'){ renderSummaryKPIs(); renderAssetsCharts(); renderCategoriesCharts(); renderLocationsCharts(); renderUsersCharts(); }
+  if(page === 'assets.html') renderAssets();
+  if(page === 'categories.html'){ renderCategories(); renderCategoriesCharts(); }
+  if(page === 'locations.html'){ renderLocations(); renderLocationsCharts(); }
+  if(page === 'users.html'){ renderUsers(); renderUsersCharts(); }
+
   initAMSSidebar();
 }
 
-/* Guarded bootstrap: wait for AMS data or timeout */
+/* Bootstrapping unchanged */
 (function bootstrapAMS(){
-  function boot(){
-    try { initAMS(); } catch (err) { console.error("AMS init error", err); }
-  }
-
-  if (window.AMS && Array.isArray(window.AMS.assets)) {
-    boot();
-  } else {
-    document.addEventListener("AMS_LOADED", boot, { once:true });
-    // fallback: try again shortly
-    setTimeout(()=>{ if (window.AMS && Array.isArray(window.AMS.assets)) boot(); }, 800);
+  function boot(){ try{ initAMS(); }catch(e){ console.error('AMS init error',e); } }
+  if(window.AMS && Array.isArray(window.AMS.assets)) boot();
+  else {
+    document.addEventListener('AMS_LOADED', boot, { once:true });
+    setTimeout(()=>{ if(window.AMS && Array.isArray(window.AMS.assets)) boot(); }, 1000);
   }
 })();

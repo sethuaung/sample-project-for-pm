@@ -1,5 +1,6 @@
-Felixent static project with demo (all demo data in data.js)
-
-Files: public/index.html, public/app.js, public/data.js, public/admin.html, public/admin.js
-How to run: place files in a folder served by a static server or open public/index.html in a browser.
-Notes: all data is in-memory and seeded in data.js; reload resets to seed.
+Complete demo bundle (AMS, DWA, HRMS) with injected shared page menu.
+Serve each app's public folder with a static server:
+- cd DWA/public && python -m http.server 8000
+- cd AMS/public && python -m http.server 8001
+- cd HRMS/public && python -m http.server 8002
+Open top-level index.html or each app index pages.
