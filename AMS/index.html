@@ -5,8 +5,21 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Felixent AMS — Dashboard</title>
 
-  <!-- Base for relative links on your Vercel site -->
-  <base href="https://demoprojects-xi.vercel.app/AMS/">
+  <!-- Dynamic base: uses deployed path on Vercel, or relative './' for local dev -->
+  <script>
+    (function() {
+      const deployedBase = "https://demoprojects-xi.vercel.app/AMS/";
+      const hostMatch = location.hostname === 'demoprojects-xi.vercel.app';
+      const baseHref = hostMatch ? deployedBase : './';
+      const existing = document.querySelector('base');
+      if (existing) existing.setAttribute('href', baseHref);
+      else {
+        const b = document.createElement('base');
+        b.setAttribute('href', baseHref);
+        document.head.insertBefore(b, document.head.firstChild);
+      }
+    })();
+  </script>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

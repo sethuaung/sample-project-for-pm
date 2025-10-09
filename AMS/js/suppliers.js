@@ -1,6 +1,4 @@
 // js/suppliers.js
-// Supplier dataset and helpers for Felixent AMS
-
 const suppliers = [
   { supplier_id: "S001", supplier_name: "TechSource Myanmar", supplier_email: "info@techsource.com", supplier_tel: "09-123456789", supplier_address: "Yangon" },
   { supplier_id: "S002", supplier_name: "NetLink Co.", supplier_email: "support@netlink.com", supplier_tel: "09-987654321", supplier_address: "Mandalay" },
@@ -10,20 +8,13 @@ const suppliers = [
   { supplier_id: "S006", supplier_name: "NetworkGear", supplier_email: "gear@network.com", supplier_tel: "09-222333444", supplier_address: "Naypyidaw" }
 ];
 
-// Basic helpers: get, add, update, delete, find by email
-function getSupplierById(id) {
-  return suppliers.find(s => s.supplier_id === id) || null;
-}
-
-function findSupplierByEmail(email) {
-  return suppliers.find(s => s.supplier_email && s.supplier_email.toLowerCase() === (email || "").toLowerCase()) || null;
-}
+function getSupplierById(id) { return suppliers.find(s => s.supplier_id === id) || null; }
+function findSupplierByEmail(email) { return suppliers.find(s => s.supplier_email && s.supplier_email.toLowerCase() === (email || "").toLowerCase()) || null; }
 
 function addSupplier({ supplier_id, supplier_name, supplier_email = "", supplier_tel = "", supplier_address = "" }) {
   if (!supplier_id || !supplier_name) return { ok: false, error: "supplier_id and supplier_name are required" };
   if (getSupplierById(supplier_id)) return { ok: false, error: "supplier_id already exists" };
   if (supplier_email && findSupplierByEmail(supplier_email)) return { ok: false, error: "supplier_email already exists" };
-
   const newSupplier = { supplier_id, supplier_name, supplier_email, supplier_tel, supplier_address };
   suppliers.push(newSupplier);
   return { ok: true, supplier: newSupplier };
@@ -32,12 +23,10 @@ function addSupplier({ supplier_id, supplier_name, supplier_email = "", supplier
 function updateSupplier(supplier_id, updates = {}) {
   const idx = suppliers.findIndex(s => s.supplier_id === supplier_id);
   if (idx === -1) return { ok: false, error: "supplier not found" };
-
   if (updates.supplier_email) {
     const existing = findSupplierByEmail(updates.supplier_email);
     if (existing && existing.supplier_id !== supplier_id) return { ok: false, error: "supplier_email already in use" };
   }
-
   suppliers[idx] = { ...suppliers[idx], ...updates };
   return { ok: true, supplier: suppliers[idx] };
 }
@@ -49,12 +38,8 @@ function deleteSupplier(supplier_id) {
   return { ok: true, supplier: removed };
 }
 
-// Utility: returns a shallow copy of suppliers array
-function listSuppliers() {
-  return suppliers.slice();
-}
+function listSuppliers() { return suppliers.slice(); }
 
-// Expose globally for integration with render.js and export routines
 window.suppliers = suppliers;
 window.getSupplierById = getSupplierById;
 window.findSupplierByEmail = findSupplierByEmail;

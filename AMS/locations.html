@@ -4,7 +4,18 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Office Locations · Felixent AMS</title>
-  <base href="https://demoprojects-xi.vercel.app/AMS/">
+
+  <script>
+    (function() {
+      const deployedBase = "https://demoprojects-xi.vercel.app/AMS/";
+      const hostMatch = location.hostname === 'demoprojects-xi.vercel.app';
+      const baseHref = hostMatch ? deployedBase : './';
+      const existing = document.querySelector('base');
+      if (existing) existing.setAttribute('href', baseHref);
+      else { const b = document.createElement('base'); b.setAttribute('href', baseHref); document.head.insertBefore(b, document.head.firstChild); }
+    })();
+  </script>
+
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 p-6 min-h-screen">

@@ -1,7 +1,4 @@
 // js/movementData.js
-// Initial movement logs for Felixent AMS (audit trail)
-// Format: { asset_id, move_date, move_status, move_notes, user_id, supplier_id }
-
 let movementLogs = [
   { asset_id: "A001", move_date: "2025-01-05 09:15", move_status: "Acquired", move_notes: "Purchased for Felixent HQ", user_id: "U001", supplier_id: "S001" },
   { asset_id: "A001", move_date: "2025-01-12 10:00", move_status: "Deployed", move_notes: "Assigned to James (Founding Lead)", user_id: "U001", supplier_id: "" },
@@ -22,16 +19,14 @@ let movementLogs = [
   { asset_id: "A044", move_date: "2025-08-11 09:45", move_status: "Deployed", move_notes: "Laptop issued to Finance", user_id: "U011", supplier_id: "" },
   { asset_id: "A047", move_date: "2025-08-22 13:00", move_status: "Reassigned", move_notes: "QA Team assignment for stress tests", user_id: "U012", supplier_id: "" },
   { asset_id: "A048", move_date: "2025-09-01 10:10", move_status: "Acquired", move_notes: "New camera for Content Team", user_id: "U013", supplier_id: "S003" },
-  { asset_id: "A050", move_date: "2025-09:10 08:55", move_status: "Deployed", move_notes: "Power bank issued to James", user_id: "U001", supplier_id: "" }
+  { asset_id: "A050", move_date: "2025-09-10 08:55", move_status: "Deployed", move_notes: "Power bank issued to James", user_id: "U001", supplier_id: "" }
 ];
 
-// Helper: add a new movement log (keeps consistent formatting)
 function addMovementLog({ asset_id, move_date, move_status, move_notes = "", user_id = "", supplier_id = "" }) {
   const dateStr = move_date || new Date().toISOString().replace("T", " ").slice(0, 19);
   movementLogs.push({ asset_id, move_date: dateStr, move_status, move_notes, user_id, supplier_id });
 }
 
-// Helper: log a status change (used by edit handlers)
 function logStatusChange(asset, oldStatus, newStatus, userId = "", supplierId = "", notes = "") {
   if (!asset || oldStatus === newStatus) return;
   const now = new Date();
@@ -47,7 +42,6 @@ function logStatusChange(asset, oldStatus, newStatus, userId = "", supplierId = 
   });
 }
 
-// Expose globals
 window.movementLogs = movementLogs;
 window.addMovementLog = addMovementLog;
 window.logStatusChange = logStatusChange;
