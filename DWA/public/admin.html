@@ -11,7 +11,12 @@
 <body class="bg-gray-50 text-gray-800">
   <div class="max-w-3xl mx-auto p-6">
     <h1 class="text-2xl font-semibold mb-4">Admin (Static Demo)</h1>
-
+    <nav class="flex items-center gap-4" id="top-nav">
+      <a class="nav-link text-sm" href="/DWA/public/index.html" data-page="index.html">Dashboard</a>
+      <a class="nav-link text-sm" href="/DWA/public/transactions.html" data-page="transactions.html">Transactions</a>
+      <a class="nav-link text-sm" href="/DWA/public/wallets.html" data-page="wallets.html">Wallets</a>
+      <a class="nav-link text-sm" href="/DWA/public/channels.html" data-page="channels.html">Channels</a>
+    </nav>
     <div class="bg-white p-4 rounded shadow">
       <label class="block text-xs text-gray-600">Transaction ID</label>
       <input id="adminTxId" class="w-full p-2 border rounded mt-1 mb-3" />
