@@ -1,10 +1,11 @@
-# ams-dwa-hrms-full-public-with-index
+# Demo Web-based Project for Project Management Student
 
 This archive contains three static demo web apps designed for local testing and quick demos:
 
 - DWA (Digital Wallet App) — path: DWA/public
 - AMS (Inventory / Assets Management System) — path: AMS/public
 - HRMS (Human Resource Management System) — path: HRMS/public
+- Others
 
 Quick-run (recommended)
 1. Extract the zip.
