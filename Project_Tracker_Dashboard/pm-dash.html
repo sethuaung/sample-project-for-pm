@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Demo Project Dashboard — Responsive</title>
+
+  <!-- Tailwind CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+  <!-- FullCalendar -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+
+  <style>
+    :root { --card-bg: #ffffff; --muted: #6b7280; }
+    html,body { height:100%; }
+    body { background:#f3f4f6; color:#111827; }
+    .card { background:var(--card-bg); border-radius:.5rem; padding:1rem; box-shadow:0 1px 3px rgba(0,0,0,.06); }
+    .small-muted { font-size:.85rem; color:var(--muted); }
+    .go-btn { display:inline-block; background:linear-gradient(90deg,#3b82f6,#60a5fa); color:#fff; padding:.5rem .75rem; border-radius:.375rem; font-weight:600; text-decoration:none; }
+    .template-menu { max-height:220px; overflow:auto; }
+    .chart-box { height:220px; }
+    #calendar { min-height:300px; border-radius:.5rem; }
+    .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    @media (max-width: 1024px) { .grid-2 { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <header class="p-6">
+    <div class="flex items-start justify-between">
+      <div>
+        <h1 class="text-2xl font-bold">Project Dashboard</h1>
+        <p class="small-muted mt-1">Calendar, templates, objectives, contributors and PM artifacts — responsive</p>
+      </div>
+      <nav class="space-x-2">
+        <a id="navDashboard" href="#dashboard" class="px-3 py-1 bg-gray-100 rounded text-sm">Dashboard</a>
+        <a id="navTemplates" href="#templates" class="px-3 py-1 bg-gray-100 rounded text-sm">Templates</a>
+        <a id="navContributors" href="#contributors" class="px-3 py-1 bg-gray-100 rounded text-sm">Contributors</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="p-6">
+    <!-- DASHBOARD -->
+    <section id="dashboardView" class="mb-6">
+      <div class="grid md:grid-cols-4 gap-4 mb-6">
+        <div class="card">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Select Project</label>
+          <select id="projectSelect" class="w-full p-2 border rounded bg-white font-semibold">
+            <option value="DWA">Digital Wallet App (DWA)</option>
+            <option value="LMS">Learning Management System (LMS)</option>
+            <option value="AMS">Account Management Suite (AMS)</option>
+            <option value="CRM">SkyLink CRM (CRM)</option>
+            <option value="PM">Project Management Suite (PM)</option>
+          </select>
+          <div class="mt-3 text-sm text-gray-600">
+            <div id="phaseLabel">Phase: —</div>
+            <div id="progressLabel">Progress: —</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Project Management Templates</label>
+          <div id="templateMenu" class="template-menu text-sm mb-2"></div>
+          <div class="flex gap-2">
+            <button id="applyTemplateBtn" class="px-3 py-1 bg-blue-600 text-white rounded text-sm">Apply Template</button>
+            <button id="openTemplatesPage" class="px-3 py-1 bg-gray-200 text-sm rounded">Open Templates</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Milestone Completion</label>
+          <div class="chart-box">
+            <canvas id="milestoneChart"></canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Top Contributors (Preview)</label>
+          <div id="badgeContainer" class="flex flex-wrap gap-2 text-sm"></div>
+          <div class="mt-3">
+            <a href="#contributors" class="px-3 py-1 bg-blue-600 text-white rounded text-sm">Open Contributors Table</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-6">
+        <section class="card">
+          <h2 class="text-lg font-semibold mb-3">Project Calendar</h2>
+          <div id="calendar"></div>
+        </section>
+
+        <section class="space-y-6">
+          <div class="card">
+            <div class="md:flex md:items-start md:justify-between gap-4">
+              <div>
+                <div class="small-muted">Project Name</div>
+                <div id="projectName" class="text-xl font-semibold">Digital Wallet App (DWA)</div>
+                <div id="projectPhaseSmall" class="small-muted mt-1">Phase: —</div>
+              </div>
+
+              <div class="flex-1 md:px-4">
+                <div class="small-muted">Features</div>
+                <div id="projectFeatures" class="text-sm text-gray-700 mt-1">—</div>
+              </div>
+
+              <div class="mt-3 md:mt-0">
+                <div class="small-muted mb-2">Go to Project</div>
+                <a id="goToProjectBtn" href="#" class="go-btn">Go</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 class="text-lg font-semibold mb-2">Objectives and Goals</h3>
+            <div id="objectives" class="text-sm small-muted">—</div>
+          </div>
+
+          <div class="card">
+            <h3 class="text-lg font-semibold mb-2">Project Charter</h3>
+            <div id="charter" class="text-sm small-muted">—</div>
+          </div>
+
+          <div class="card">
+            <h3 class="text-lg font-semibold mb-2">Work Breakdown Structure (WBS)</h3>
+            <div id="wbs" class="text-sm small-muted">—</div>
+          </div>
+
+          <div class="card grid-2">
+            <div>
+              <h3 class="text-lg font-semibold mb-2">SMART Goals</h3>
+              <div id="smart" class="text-sm small-muted">—</div>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold mb-2">OKRs</h3>
+              <div id="okrs" class="text-sm small-muted">—</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 class="text-lg font-semibold mb-2">Stakeholder Management</h3>
+            <div id="stakeholders" class="text-sm small-muted">—</div>
+          </div>
+
+          <div class="card">
+            <h3 class="text-lg font-semibold mb-2">RACI Matrix</h3>
+            <div id="raci" class="text-sm small-muted">—</div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- TEMPLATES PAGE -->
+    <section id="templatesView" class="hidden">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold">Project Management Templates</h2>
+        <a href="#dashboard" class="px-3 py-1 bg-gray-200 rounded text-sm">Back to Dashboard</a>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-4 mb-6">
+        <div class="card">
+          <h3 class="font-semibold">Project Charter Template</h3>
+          <div class="small-muted mt-2">Purpose, scope, assumptions, constraints</div>
+          <pre class="mt-3 text-xs bg-gray-50 p-3 rounded text-gray-700">Purpose:
+Scope:
+Assumptions:
+Constraints:
+Stakeholders:
+Timeline:
+Risks:</pre>
+        </div>
+
+        <div class="card">
+          <h3 class="font-semibold">WBS Template</h3>
+          <div class="small-muted mt-2">Phases → Deliverables → Tasks</div>
+          <pre class="mt-3 text-xs bg-gray-50 p-3 rounded text-gray-700">1. Initiation
+1.1 Business Spec
+1.2 Compliance
+2. Architecture
+3. Development
+4. QA
+5. Onboarding</pre>
+        </div>
+
+        <div class="card">
+          <h3 class="font-semibold">SMART / OKR / RACI Templates</h3>
+          <div class="small-muted mt-2">Fillable templates for goals and role matrices</div>
+          <pre class="mt-3 text-xs bg-gray-50 p-3 rounded text-gray-700">SMART:
+Specific:
+Measurable:
+Achievable:
+Relevant:
+Time-bound:
+
+OKR:
+Objective:
+Key Results:
+
+RACI:
+Task | R | A | C | I</pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="font-semibold mb-3">Apply Template</h3>
+        <div id="templatesList" class="template-menu text-sm"></div>
+        <div class="mt-3">
+          <button id="applySelectedTemplate" class="px-3 py-1 bg-blue-600 text-white rounded text-sm">Apply Selected Template</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTRIBUTORS PAGE -->
+    <section id="contributorsView" class="hidden">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold">Contributors — Table View</h2>
+        <div class="flex items-center gap-2">
+          <label class="text-sm small-muted">Filter by project</label>
+          <select id="contributorsProjectFilter" class="p-2 border rounded bg-white text-sm">
+            <option value="ALL">All projects</option>
+            <option value="DWA">Digital Wallet App (DWA)</option>
+            <option value="LMS">Learning Management System (LMS)</option>
+            <option value="AMS">Account Management Suite (AMS)</option>
+            <option value="CRM">SkyLink CRM (CRM)</option>
+            <option value="PM">Project Management Suite (PM)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card mb-4 overflow-x-auto">
+        <table class="min-w-full table-auto">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-2 text-left text-sm small-muted">Name</th>
+              <th class="px-4 py-2 text-left text-sm small-muted">Position</th>
+              <th class="px-4 py-2 text-left text-sm small-muted">Supervisor</th>
+              <th class="px-4 py-2 text-left text-sm small-muted">Task</th>
+              <th class="px-4 py-2 text-left text-sm small-muted">Progress</th>
+              <th class="px-4 py-2 text-left text-sm small-muted">Projects</th>
+              <th class="px-4 py-2 text-left text-sm small-muted">WBS / RACI</th>
+            </tr>
+          </thead>
+          <tbody id="contributorsTableBody" class="bg-white"></tbody>
+        </table>
+      </div>
+
+      <div class="flex justify-end gap-2">
+        <button id="exportCsvBtn" class="px-3 py-2 bg-green-600 text-white rounded text-sm">Export CSV</button>
+        <a href="#dashboard" class="px-3 py-2 bg-gray-200 rounded text-sm">Back to Dashboard</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="p-6 small-muted">Felixent PME Class Materials. <a href="https://sandbox-felixent.vercel.app" class="text-indigo-600 hover:underline ml-2">Go to Main-Menu</a></footer>
+
+  <script>
+    /* -------------------------
+       Data models (projects + contributors + templates)
+       ------------------------- */
+    const projects = {
+      DWA: {
+        longName: "Digital Wallet App (DWA)",
+        progress: 95,
+        phase: "Final Review",
+        features: ["QR payment flow", "Webhook reliability", "MMQR & P2P scenarios"],
+        stakeholders: ["Finance Team","Operations","Sales","People Dept"],
+        calendarEvents: [
+          { title: "Requirements Signoff", start: "2025-10-05", color: "#3b82f6" },
+          { title: "QA Run 1", start: "2025-10-15", color: "#f59e0b" },
+          { title: "Final Review", start: "2025-11-03", color: "#10b981" }
+        ],
+        wbs: [{ id: "1", title: "Requirements", owner: "Se" }],
+        smart: [{ statement: "Reduce webhook failure rate to <1%", metric: "Webhook failure rate", target: "<1%", by: "2025-11-03" }],
+        okrs: [{ objective: "Reliable QR payment demo", keyResults: ["99% success on tokenized flows","Edge cases documented"] }],
+        raci: [{ task: "Requirements", R: "Se", A: "Hla Lin", C: "BusinessAnalyst-A", I: "Aung Ko" }]
+      },
+      LMS: {
+        longName: "Learning Management System (LMS)",
+        progress: 100,
+        phase: "Final Review",
+        features: ["Quiz engine","Auto-grading","Certificate issuance"],
+        stakeholders: ["Education Team","People Dept"],
+        calendarEvents: [{ title: "Quiz Engine Validation", start: "2025-10-10", color: "#6366f1" }],
+        wbs: [{ id: "1", title: "Spec Quiz Engine", owner: "Se" }],
+        smart: [{ statement: "Issue certificate within 10s after pass", metric: "Certificate issuance time", target: "<=10s", by: "2025-10-30" }],
+        okrs: [{ objective: "Fully automated LMS demo", keyResults: ["100% passing flow validated","Certificate verifiable"] }],
+        raci: [{ task: "Quiz Engine", R: "Mya Win", A: "Se", C: "Education Team", I: "Stakeholders" }]
+      },
+      AMS: {
+        longName: "Account Management Suite (AMS)",
+        progress: 80,
+        phase: "QA & Testing",
+        features: ["Billing engine","Overflow scenarios","Audit logs"],
+        stakeholders: ["Accounts Dept","Operations","Finance"],
+        calendarEvents: [{ title: "Billing Overflow Test", start: "2025-10-18", color: "#ef4444" }],
+        wbs: [{ id: "1", title: "Usage Metrics", owner: "Se" }],
+        smart: [{ statement: "Recover from billing overflow within 5m", metric: "Recovery time", target: "<=5m", by: "2025-10-25" }],
+        okrs: [{ objective: "Robust billing demo", keyResults: ["Overflow scenarios handled","Audit logs for 100% txns"] }],
+        raci: [{ task: "Billing Overflow", R: "Zaw Lin", A: "Se", C: "Accounts Dept", I: "Stakeholders" }]
+      },
+      CRM: {
+        longName: "SkyLink CRM (CRM)",
+        progress: 85,
+        phase: "Onboarding Docs",
+        features: ["Lead capture","Duplicate detection","Outreach hooks"],
+        stakeholders: ["Marketing Team","Sales","Operations"],
+        calendarEvents: [{ title: "Lead Capture Run", start: "2025-10-12", color: "#6366f1" }],
+        wbs: [{ id: "1", title: "Lead Capture", owner: "Se" }],
+        smart: [{ statement: "Reduce duplicate leads to <2%", metric: "Duplicate rate", target: "<2%", by: "2025-10-30" }],
+        okrs: [{ objective: "Reliable CRM demo", keyResults: ["Outreach for 100% qualified leads","Duplicate leads flagged"] }],
+        raci: [{ task: "Outreach", R: "Hnin Thiri", A: "Se", C: "Marketing Team", I: "Stakeholders" }]
+      },
+      PM: {
+        longName: "Project Management Suite (PM)",
+        progress: 75,
+        phase: "QA & Testing",
+        features: ["Dashboards","Milestone alerts","Contributor badges"],
+        stakeholders: ["Operations","Finance","Sales"],
+        calendarEvents: [{ title: "Dashboard Release", start: "2025-10-20", color: "#3b82f6" }],
+        wbs: [{ id: "1", title: "Gantt & Scheduling", owner: "Se" }],
+        smart: [{ statement: "Trigger milestone alerts within 1m", metric: "Alert latency", target: "<=1m", by: "2025-10-25" }],
+        okrs: [{ objective: "Complete PM Suite demo", keyResults: ["All dashboards working","Alerts validated across projects"] }],
+        raci: [{ task: "Milestone Alerts", R: "Kyaw Min", A: "Se", C: "Operations", I: "Stakeholders" }]
+      }
+    };
+
+    const contributors = [
+      { id:'c1', name:'James@SeThu', position:'Solutions Consultant (PMO)', supervisor:'Product Owner', task:'PMO enablement', progress:90, projects:['DWA','LMS','AMS','CRM','PM'] },
+      { id:'c2', name:'Aye Aung', position:'Manager (People Dept)', supervisor:'Head People', task:'People ops', progress:85, projects:['DWA','LMS','AMS','CRM','PM'] },
+      { id:'c3', name:'Aung Ko', position:'Task Handler', supervisor:'Se', task:'Dev & QA', progress:82, projects:['DWA'] },
+      { id:'c4', name:'Se', position:'Project Lead', supervisor:'Product Owner', task:'Project ownership', progress:95, projects:['DWA','LMS','AMS','CRM','PM'] },
+      { id:'c5', name:'DevOps Engineer', position:'Engineer (Project Delivery Department)', supervisor:'Developer-Lead', task:'CI/CD, infra', progress:77, projects:['DWA','AMS','PM'] }
+      /* add remaining contributors as needed */
+    ];
+
+    const templates = [
+      { id:'tpl-charter', name:'Project Charter Template', description:'Purpose, scope, assumptions, constraints' },
+      { id:'tpl-wbs', name:'WBS Template', description:'Hierarchy: phases → deliverables → tasks' },
+      { id:'tpl-smart', name:'SMART Goals Template', description:'Specific, Measurable, Achievable, Relevant, Time-bound' },
+      { id:'tpl-okrs', name:'OKR Template', description:'Objective with measurable key results' },
+      { id:'tpl-raci', name:'RACI Template', description:'Responsible/Accountable/Consulted/Informed matrix' }
+    ];
+
+    /* ===== rendering helpers ===== */
+    function renderTemplatesMenu() {
+      const el = document.getElementById('templateMenu');
+      el.innerHTML = templates.map(t => `
+        <label class="block p-2 border-b last:border-b-0">
+          <input type="radio" name="template" value="${t.id}" class="mr-2" /> <strong>${t.name}</strong>
+          <div class="small-muted mt-1">${t.description}</div>
+        </label>`).join('');
+
+      const tl = document.getElementById('templatesList');
+      if (tl) tl.innerHTML = templates.map(t => `
+        <label class="block p-2 border-b last:border-b-0">
+          <input type="radio" name="tpl" value="${t.id}" class="mr-2" /> <strong>${t.name}</strong>
+          <div class="small-muted mt-1">${t.description}</div>
+        </label>`).join('');
+    }
+
+    function renderBadgePreview(projectKey) {
+      const container = document.getElementById('badgeContainer');
+      container.innerHTML = '';
+      contributors.filter(c => c.projects.includes(projectKey)).slice(0,8).forEach(c => {
+        const item = document.createElement('div');
+        item.className = 'px-3 py-1 bg-gray-100 rounded-full text-sm font-medium';
+        item.textContent = `${c.name} · ${c.position.split(' (')[0] || c.position}`;
+        container.appendChild(item);
+      });
+    }
+
+    function renderProjectHeader(key) {
+      const p = projects[key];
+      document.getElementById('projectName').textContent = p.longName || key;
+      document.getElementById('projectPhaseSmall').textContent = 'Phase: ' + (p.phase || '—');
+      document.getElementById('phaseLabel').textContent = 'Phase: ' + (p.phase || '—');
+      document.getElementById('progressLabel').textContent = 'Progress: ' + (p.progress || 0) + '%';
+      document.getElementById('projectFeatures').textContent = (p.features || []).join('; ') || '—';
+      document.getElementById('goToProjectBtn').setAttribute('href', '#');
+    }
+
+    function renderObjectives(key) {
+      const p = projects[key];
+      const content = (p.smart && p.smart.length) ? p.smart.map(s => `<div class="mb-2"><div class="font-semibold">${s.statement}</div><div class="small-muted">${s.metric ? `Metric: ${s.metric} · Target: ${s.target} · By: ${s.by}` : ''}</div></div>`).join('') : (p.okrs && p.okrs.length) ? p.okrs.map(o => `<div class="mb-2"><div class="font-semibold">${o.objective}</div><ul class="list-disc pl-5 text-sm">${(o.keyResults||[]).map(kr=>`<li>${kr}</li>`).join('')}</ul></div>`).join('') : '<div class="small-muted">No objectives defined.</div>';
+      document.getElementById('objectives').innerHTML = content;
+    }
+
+    function renderCharter(key) {
+      const p = projects[key];
+      document.getElementById('charter').textContent = p.charter || `Add a project charter for ${p.longName || key}.`;
+    }
+
+    function renderWBS(key) {
+      const p = projects[key];
+      const rows = (p.wbs || []).map(i => `<tr><td class="px-3 py-2 border">${i.id}</td><td class="px-3 py-2 border">${i.title}</td><td class="px-3 py-2 border">${i.owner}</td></tr>`).join('');
+      document.getElementById('wbs').innerHTML = rows ? `<table class="min-w-full border-collapse text-sm"><thead><tr class="bg-gray-50"><th class="px-3 py-2 border">WBS</th><th class="px-3 py-2 border">Task</th><th class="px-3 py-2 border">Owner</th></tr></thead><tbody>${rows}</tbody></table>` : '<div class="small-muted">No WBS items.</div>';
+    }
+
+    function renderSMART(key) {
+      const p = projects[key];
+      document.getElementById('smart').innerHTML = (p.smart || []).map(s => `<div class="mb-2"><div class="font-semibold">${s.statement}</div><div class="small-muted">${s.metric ? `Metric: ${s.metric} · Target: ${s.target} · By: ${s.by}` : ''}</div></div>`).join('') || '<div class="small-muted">No SMART goals defined.</div>';
+    }
+
+    function renderOKRs(key) {
+      const p = projects[key];
+      document.getElementById('okrs').innerHTML = (p.okrs || []).map(o => `<div class="mb-3"><div class="font-semibold">${o.objective}</div><ul class="list-disc pl-5 text-sm">${(o.keyResults||[]).map(kr=>`<li>${kr}</li>`).join('')}</ul></div>`).join('') || '<div class="small-muted">No OKRs defined.</div>';
+    }
+
+    function renderStakeholders(key) {
+      const p = projects[key];
+      document.getElementById('stakeholders').innerHTML = (p.stakeholders && p.stakeholders.length) ? `<ul class="list-disc pl-5">${p.stakeholders.map(s=>`<li>${s}</li>`).join('')}</ul>` : '<div class="small-muted">No stakeholders defined.</div>';
+    }
+
+    function renderRACI(key) {
+      const rows = (projects[key].raci || []).map(r => `<tr><td class="px-3 py-2 border">${r.task}</td><td class="px-3 py-2 border">${r.R}</td><td class="px-3 py-2 border">${r.A}</td><td class="px-3 py-2 border">${r.C}</td><td class="px-3 py-2 border">${r.I}</td></tr>`).join('');
+      document.getElementById('raci').innerHTML = rows ? `<table class="min-w-full border-collapse text-sm"><thead><tr class="bg-gray-50"><th class="px-3 py-2 border">Task</th><th class="px-3 py-2 border">R</th><th class="px-3 py-2 border">A</th><th class="px-3 py-2 border">C</th><th class="px-3 py-2 border">I</th></tr></thead><tbody>${rows}</tbody></table>` : '<div class="small-muted">No RACI entries.</div>';
+    }
+
+    /* Calendar and Chart */
+    let calendar = null;
+    function initCalendar(key) {
+      const el = document.getElementById('calendar');
+      el.innerHTML = ''; // clear old
+      calendar = new FullCalendar.Calendar(el, {
+        initialView: 'dayGridMonth',
+        headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,listWeek' },
+        events: projects[key].calendarEvents || [],
+        height: 'auto',
+        dayMaxEvents: true
+      });
+      calendar.render();
+    }
+
+    let milestoneChart = null;
+    function initMilestoneChart() {
+      const wrapper = document.getElementById('milestoneChart').parentElement;
+      wrapper.style.minHeight = '160px';
+      const ctx = document.getElementById('milestoneChart').getContext('2d');
+      milestoneChart = new Chart(ctx, {
+        type: 'bar',
+        data: { labels: Object.keys(projects).map(k => projects[k].longName || k), datasets: [{ label: '% Complete', data: Object.values(projects).map(p => p.progress), backgroundColor: ['#3b82f6','#10b981','#f59e0b','#6366f1','#ef4444'] }]},
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } }, plugins: { legend: { display: false } } }
+      });
+    }
+
+    /* Contributors table */
+    function renderContributorsTable(filterProject = 'ALL') {
+      const tbody = document.getElementById('contributorsTableBody');
+      tbody.innerHTML = '';
+      const list = filterProject === 'ALL' ? contributors : contributors.filter(c => c.projects.includes(filterProject));
+      list.forEach(c => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="px-4 py-3 border text-sm">${c.name}</td>
+          <td class="px-4 py-3 border text-sm">${c.position}</td>
+          <td class="px-4 py-3 border text-sm">${c.supervisor}</td>
+          <td class="px-4 py-3 border text-sm">${c.task}</td>
+          <td class="px-4 py-3 border text-sm" style="min-width:160px;">
+            <div class="w-full bg-gray-200 rounded-full h-3"><div class="progress-bar" style="width:${c.progress}%; background:linear-gradient(90deg,#3b82f6,#60a5fa); height:10px; border-radius:999px;"></div></div>
+            <div class="text-xs text-gray-600 mt-1">${c.progress}%</div>
+          </td>
+          <td class="px-4 py-3 border text-sm">${c.projects.join(', ')}</td>
+          <td class="px-4 py-3 border text-sm"><button class="px-2 py-1 bg-gray-100 rounded text-xs view-artifacts" data-id="${c.id}">View</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+      document.querySelectorAll('.view-artifacts').forEach(btn => btn.addEventListener('click', (e) => {
+        const id = e.currentTarget.dataset.id;
+        const person = contributors.find(x => x.id === id);
+        if (person) alert(`${person.name}\nTasks: ${person.task}\nProjects: ${person.projects.join(', ')}`);
+      }));
+    }
+
+    function exportContributorsCsv(filterProject = 'ALL') {
+      const rows = [['Name','Position','Supervisor','Task','Progress','Projects']];
+      const list = filterProject === 'ALL' ? contributors : contributors.filter(c => c.projects.includes(filterProject));
+      list.forEach(c => rows.push([c.name,c.position,c.supervisor,c.task,c.progress,c.projects.join('|')]));
+      const csv = rows.map(r => r.map(cell => `"${(cell+'').replace(/"/g,'""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = `contributors_${filterProject}.csv`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    }
+
+    /* Apply template */
+    function applyTemplate(templateId) {
+      const proj = document.getElementById('projectSelect').value;
+      if (!proj) return;
+      if (templateId === 'tpl-charter') { projects[proj].charter = `Template Charter applied to ${projects[proj].longName}`; renderCharter(proj); }
+      if (templateId === 'tpl-wbs') { projects[proj].wbs = [{id:'0',title:'Template: Initiation',owner:'Project Lead'}, ...(projects[proj].wbs||[])]; renderWBS(proj); }
+      if (templateId === 'tpl-smart') { projects[proj].smart = [{statement:'Template SMART: Improve reliability', metric:'Uptime', target:'>=99.9%', by:'Next Release'}, ...(projects[proj].smart||[])]; renderSMART(proj); }
+      if (templateId === 'tpl-okrs') { projects[proj].okrs = [{objective:'Template Objective',keyResults:['KR1','KR2']}, ...(projects[proj].okrs||[])]; renderOKRs(proj); }
+      if (templateId === 'tpl-raci') { projects[proj].raci = [{task:'Template Task',R:'Owner',A:'Sponsor',C:'Team',I:'Stakeholders'}, ...(projects[proj].raci||[])]; renderRACI(proj); }
+      if (milestoneChart) { milestoneChart.data.datasets[0].data = Object.values(projects).map(p => p.progress); milestoneChart.update(); }
+    }
+
+    /* Navigation */
+    function showView(view) {
+      document.getElementById('dashboardView').classList.toggle('hidden', view !== 'dashboard');
+      document.getElementById('templatesView').classList.toggle('hidden', view !== 'templates');
+      document.getElementById('contributorsView').classList.toggle('hidden', view !== 'contributors');
+      document.getElementById('navDashboard').classList.toggle('bg-gray-200', view === 'dashboard');
+      document.getElementById('navTemplates').classList.toggle('bg-gray-200', view === 'templates');
+      document.getElementById('navContributors').classList.toggle('bg-gray-200', view === 'contributors');
+    }
+
+    window.addEventListener('hashchange', () => {
+      const h = (location.hash.replace('#','') || 'dashboard');
+      showView(h);
+      if (h === 'contributors') renderContributorsTable(document.getElementById('contributorsProjectFilter').value || 'ALL');
+    });
+
+    /* Initialization */
+    document.addEventListener('DOMContentLoaded', () => {
+      renderTemplatesMenu();
+      initMilestoneChart();
+
+      const projectSelect = document.getElementById('projectSelect');
+      function loadProject(key) {
+        renderProjectHeader(key);
+        renderBadgePreview(key);
+        renderObjectives(key);
+        renderCharter(key);
+        renderWBS(key);
+        renderSMART(key);
+        renderOKRs(key);
+        renderStakeholders(key);
+        renderRACI(key);
+        initCalendar(key);
+        if (milestoneChart) { milestoneChart.data.datasets[0].data = Object.values(projects).map(p => p.progress); milestoneChart.update(); }
+      }
+
+      projectSelect.addEventListener('change', (e) => loadProject(e.target.value));
+      document.getElementById('applyTemplateBtn').addEventListener('click', () => {
+        const chosen = document.querySelector('input[name="template"]:checked');
+        if (!chosen) { alert('Select a template from the template menu'); return; }
+        applyTemplate(chosen.value);
+      });
+      document.getElementById('openTemplatesPage').addEventListener('click', () => location.hash = '#templates');
+      document.getElementById('applySelectedTemplate').addEventListener('click', () => {
+        const chosen = document.querySelector('input[name="tpl"]:checked');
+        if (!chosen) { alert('Select a template on the Templates page'); return; }
+        applyTemplate(chosen.value);
+      });
+
+      document.getElementById('contributorsProjectFilter').addEventListener('change', (e) => renderContributorsTable(e.target.value));
+      document.getElementById('exportCsvBtn').addEventListener('click', () => exportContributorsCsv(document.getElementById('contributorsProjectFilter').value || 'ALL'));
+
+      if (!location.hash) location.hash = '#dashboard';
+      showView(location.hash.replace('#','') || 'dashboard');
+
+      // initial project load
+      loadProject(projectSelect.value);
+
+      // initial contributors table
+      renderContributorsTable('ALL');
+
+      // keep calendar responsive on resize
+      window.addEventListener('resize', () => {
+        if (calendar) calendar.render();
+        if (milestoneChart) milestoneChart.resize();
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="keywords" content="FE-Summrized">
+  <meta name="description" content="FELIXENT: Project Management Training">
+  <meta name="author" content="Mosquito">
+  <link href="./contents/favicon.ico" rel="icon">
+  <title>Project Dashboard — Responsive, Templates, Contributors, Business Flows</title>
+
+  <!-- Tailwind CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+  <!-- FullCalendar -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+
+  <!-- Mermaid (diagrams) -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.4.0/dist/mermaid.min.js"></script>
+
+  <style>
+    :root { --card-bg: #ffffff; --muted: #6b7280; }
+    html,body { height:100%; }
+    body { background:#f3f4f6; color:#111827; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+    .card { background:var(--card-bg); border-radius:.5rem; padding:1rem; box-shadow:0 1px 3px rgba(0,0,0,.06); }
+    .small-muted { font-size:.85rem; color:var(--muted); }
+    .go-btn { display:inline-block; background:linear-gradient(90deg,#3b82f6,#60a5fa); color:#fff; padding:.5rem .75rem; border-radius:.375rem; font-weight:600; text-decoration:none; }
+    .template-menu { max-height:220px; overflow:auto; }
+    .chart-box { height:220px; }
+    #calendar { min-height:300px; border-radius:.5rem; }
+    .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .flows-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:12px; }
+    .mermaid-wrapper { background:#fff; border-radius:.5rem; padding:.5rem; min-height:220px; display:flex; align-items:center; justify-content:center; overflow:auto; }
+    .flow-diagram svg { width:100% !important; height:auto !important; display:block; }
+    .tab { cursor:pointer; padding:.4rem .6rem; border-radius:.375rem; background:#eef2ff; color:#3730a3; font-weight:600; border:1px solid rgba(99,102,241,0.12); }
+    .tab.active { background:linear-gradient(90deg,#3b82f6,#60a5fa); color:white; }
+    .progress-bar { height:10px; border-radius:999px; background:linear-gradient(90deg,#3b82f6,#60a5fa); display:block; }
+    @media (max-width:1024px){ .grid-2{grid-template-columns:1fr;} }
+  </style>
+</head>
+<body>
+  <header class="p-6">
+    <div class="flex items-start justify-between">
+      <div>
+        <h1 class="text-2xl font-bold">FELIXENT: Project Management Dashboard</h1>
+        <p class="small-muted mt-1">Calendar, templates, contributors, artifacts and business flows — responsive</p>
+      </div>
+      <nav class="space-x-2">
+        <a id="navDashboard" href="#dashboard" class="px-3 py-1 bg-gray-100 rounded text-sm">Dashboard</a>
+        <a id="navTemplates" href="#templates" class="px-3 py-1 bg-gray-100 rounded text-sm">Templates</a>
+        <a id="navContributors" href="#contributors" class="px-3 py-1 bg-gray-100 rounded text-sm">Contributors</a>
+        <a id="navFlows" href="#flows" class="px-3 py-1 bg-gray-100 rounded text-sm">Business Flows</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="p-6">
+    <!-- DASHBOARD -->
+    <section id="dashboardView" class="mb-6">
+      <div class="grid md:grid-cols-4 gap-4 mb-6">
+        <div class="card">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Select Project</label>
+          <select id="projectSelect" class="w-full p-2 border rounded bg-white font-semibold">
+            <option value="DWA">Digital Wallet App (DWA)</option>
+            <option value="LMS">Learning Management System (LMS)</option>
+            <option value="AMS">Account Management Suite (AMS)</option>
+            <option value="CRM">SkyLink CRM (CRM)</option>
+            <option value="HRMS">HR Management System (HRMS)</option>
+            <option value="PM">Project Management Suite (PM)</option>
+          </select>
+          <div class="mt-3 text-sm text-gray-600">
+            <div id="phaseLabel">Phase: —</div>
+            <div id="progressLabel">Progress: —</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Project Management Templates</label>
+          <div id="templateMenu" class="template-menu text-sm mb-2"></div>
+          <div class="flex gap-2">
+            <button id="applyTemplateBtn" class="px-3 py-1 bg-blue-600 text-white rounded text-sm">Apply Template</button>
+            <button id="openTemplatesPage" class="px-3 py-1 bg-gray-200 text-sm rounded">Open Templates</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Milestone Completion</label>
+          <div class="chart-box">
+            <canvas id="milestoneChart"></canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Top Contributors (Preview)</label>
+          <div id="badgeContainer" class="flex flex-wrap gap-2 text-sm"></div>
+          <div class="mt-3">
+            <a href="#contributors" class="px-3 py-1 bg-blue-600 text-white rounded text-sm">Open Contributors Table</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-6">
+        <section class="card">
+          <h2 class="text-lg font-semibold mb-3">Project Calendar</h2>
+          <div id="calendar"></div>
+        </section>
+
+        <section class="space-y-6">
+          <div class="card">
+            <div class="md:flex md:items-start md:justify-between gap-4">
+              <div>
+                <div class="small-muted">Project Name</div>
+                <div id="projectName" class="text-xl font-semibold">Digital Wallet App (DWA)</div>
+                <div id="projectPhaseSmall" class="small-muted mt-1">Phase: —</div>
+              </div>
+
+              <div class="flex-1 md:px-4">
+                <div class="small-muted">Features</div>
+                <div id="projectFeatures" class="text-sm text-gray-700 mt-1">—</div>
+              </div>
+
+              <div class="mt-3 md:mt-0">
+                <div class="small-muted mb-2">Go to Project</div>
+                <a id="goToProjectBtn" href="#" class="go-btn">Go</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 class="text-lg font-semibold mb-2">Objectives and Goals</h3>
+            <div id="objectives" class="text-sm small-muted">—</div>
+          </div>
+
+          <div class="card">
+            <h3 class="text-lg font-semibold mb-2">Project Charter</h3>
+            <div id="charter" class="text-sm small-muted">—</div>
+          </div>
+
+          <div class="card">
+            <h3 class="text-lg font-semibold mb-2">Work Breakdown Structure (WBS)</h3>
+            <div id="wbs" class="text-sm small-muted">—</div>
+          </div>
+
+          <div class="card grid-2">
+            <div>
+              <h3 class="text-lg font-semibold mb-2">SMART Goals</h3>
+              <div id="smart" class="text-sm small-muted">—</div>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold mb-2">OKRs</h3>
+              <div id="okrs" class="text-sm small-muted">—</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 class="text-lg font-semibold mb-2">Stakeholder Management</h3>
+            <div id="stakeholders" class="text-sm small-muted">—</div>
+          </div>
+
+          <div class="card">
+            <h3 class="text-lg font-semibold mb-2">RACI Matrix</h3>
+            <div id="raci" class="text-sm small-muted">—</div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- TEMPLATES -->
+    <section id="templatesView" class="hidden mb-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold">Project Management Templates</h2>
+        <a href="#dashboard" class="px-3 py-1 bg-gray-200 rounded text-sm">Back to Dashboard</a>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-4 mb-6">
+        <div class="card">
+          <h3 class="font-semibold">Project Charter Template</h3>
+          <div class="small-muted mt-2">Purpose, scope, assumptions, constraints</div>
+          <pre class="mt-3 text-xs bg-gray-50 p-3 rounded text-gray-700">Purpose:
+Scope:
+Assumptions:
+Constraints:
+Stakeholders:
+Timeline:
+Risks:</pre>
+        </div>
+
+        <div class="card">
+          <h3 class="font-semibold">WBS Template</h3>
+          <div class="small-muted mt-2">Phases → Deliverables → Tasks</div>
+          <pre class="mt-3 text-xs bg-gray-50 p-3 rounded text-gray-700">1. Initiation
+1.1 Business Spec
+1.2 Compliance
+2. Architecture
+3. Development
+4. QA
+5. Onboarding</pre>
+        </div>
+
+        <div class="card">
+          <h3 class="font-semibold">SMART / OKR / RACI Templates</h3>
+          <div class="small-muted mt-2">Fillable templates for goals and role matrices</div>
+          <pre class="mt-3 text-xs bg-gray-50 p-3 rounded text-gray-700">SMART:
+Specific:
+Measurable:
+Achievable:
+Relevant:
+Time-bound:
+
+OKR:
+Objective:
+Key Results:
+
+RACI:
+Task | R | A | C | I</pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="font-semibold mb-3">Apply Template</h3>
+        <div id="templatesList" class="template-menu text-sm mb-3"></div>
+        <div>
+          <button id="applySelectedTemplate" class="px-3 py-1 bg-blue-600 text-white rounded text-sm">Apply Selected Template</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTRIBUTORS -->
+    <section id="contributorsView" class="hidden mb-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold">Contributors — Table View</h2>
+        <div class="flex items-center gap-2">
+          <label class="text-sm small-muted">Filter by project</label>
+          <select id="contributorsProjectFilter" class="p-2 border rounded bg-white text-sm">
+            <option value="ALL">All projects</option>
+            <option value="DWA">Digital Wallet App (DWA)</option>
+            <option value="LMS">Learning Management System (LMS)</option>
+            <option value="AMS">Account Management Suite (AMS)</option>
+            <option value="CRM">SkyLink CRM (CRM)</option>
+            <option value="HRMS">HR Management System (HRMS)</option>
+            <option value="PM">Project Management Suite (PM)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card mb-4 overflow-x-auto">
+        <table class="min-w-full table-auto">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-2 text-left text-sm small-muted">Name</th>
+              <th class="px-4 py-2 text-left text-sm small-muted">Position</th>
+              <th class="px-4 py-2 text-left text-sm small-muted">Supervisor</th>
+              <th class="px-4 py-2 text-left text-sm small-muted">Task</th>
+              <th class="px-4 py-2 text-left text-sm small-muted">Progress</th>
+              <th class="px-4 py-2 text-left text-sm small-muted">Projects</th>
+              <th class="px-4 py-2 text-left text-sm small-muted">WBS / RACI</th>
+            </tr>
+          </thead>
+          <tbody id="contributorsTableBody" class="bg-white"></tbody>
+        </table>
+      </div>
+
+      <div class="flex justify-end gap-2">
+        <button id="exportCsvBtn" class="px-3 py-2 bg-green-600 text-white rounded text-sm">Export CSV</button>
+        <a href="#dashboard" class="px-3 py-2 bg-gray-200 rounded text-sm">Back to Dashboard</a>
+      </div>
+    </section>
+
+    <!-- BUSINESS FLOWS -->
+    <section id="flowsView" class="hidden mb-6">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-xl font-semibold">Business Flows</h2>
+          <p class="small-muted mt-1">Visual diagrams per project. Use tabs to switch diagram type.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="small-muted mr-2">Select Project</label>
+          <select id="flowsProjectSelect" class="p-2 border rounded bg-white text-sm">
+            <option value="DWA">Digital Wallet App (DWA)</option>
+            <option value="LMS">Learning Management System (LMS)</option>
+            <option value="AMS">Account Management Suite (AMS)</option>
+            <option value="CRM">SkyLink CRM (CRM)</option>
+            <option value="HRMS">HR Management System (HRMS)</option>
+            <option value="PM">Project Management Suite (PM)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="small-muted mb-2">View Mode</div>
+        <div class="flex gap-2 mb-3">
+          <button class="tab active" data-view="process">Process Flow</button>
+          <button class="tab" data-view="sequence">Sequence</button>
+          <button class="tab" data-view="integration">Integration</button>
+        </div>
+
+        <div class="flows-grid">
+          <div class="mermaid-wrapper card">
+            <div id="flowDiagramArea" class="flow-diagram" aria-live="polite">Rendering diagram…</div>
+          </div>
+
+          <div class="card">
+            <h3 class="font-semibold mb-2">Legend & Actions</h3>
+            <ul class="text-sm small-muted">
+              <li><strong>Rounded nodes</strong> = actors or systems</li>
+              <li><strong>Rectangles</strong> = steps or activities</li>
+              <li><strong>Dashed</strong> = optional or fallback flows</li>
+              <li><strong>Colored lines</strong> = integrations / webhooks</li>
+            </ul>
+            <div class="mt-4 flex gap-2">
+              <button id="exportPngBtn" class="px-3 py-1 bg-green-600 text-white rounded text-sm">Export PNG</button>
+              <button id="openInNewBtn" class="px-3 py-1 bg-gray-200 rounded text-sm">Open Diagram</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="p-6 small-muted">Felixent PME Class Materials. <a href="https://sandbox-felixent.vercel.app" class="text-indigo-600 hover:underline ml-2">Go to Main-Menu</a></footer>
+
+  <script>
+    /* -------------------------
+       Data models (projects, contributors, templates, flows)
+       ------------------------- */
+    const projects = {
+      DWA: {
+        longName: "Digital Wallet App (DWA)",
+        progress: 95, phase: "Final Review",
+        features: ["QR payment flow","Webhook reliability","MMQR & P2P scenarios"],
+        stakeholders: ["Finance Team","Operations","Sales","People Dept"],
+        calendarEvents: [{ title:"Requirements Signoff", start:"2025-10-05", color:"#3b82f6" }, { title:"QA Run 1", start:"2025-10-15", color:"#f59e0b" }],
+        wbs: [{ id:"1", title:"Requirements", owner:"Se" }],
+        smart: [{ statement:"Reduce webhook failure rate to <1%", metric:"Webhook failure rate", target:"<1%", by:"2025-11-03" }],
+        okrs: [{ objective:"Reliable QR payment demo", keyResults:["99% success on tokenized flows","Edge cases documented"] }],
+        raci: [{ task:"Requirements", R:"Se", A:"Hla Lin", C:"BusinessAnalyst-A", I:"Aung Ko" }]
+      },
+      LMS: {
+        longName: "Learning Management System (LMS)",
+        progress: 100, phase: "Final Review",
+        features: ["Quiz engine","Auto-grading","Certificate issuance"],
+        stakeholders: ["Education Team","People Dept"],
+        calendarEvents: [{ title:"Quiz Engine Validation", start:"2025-10-10", color:"#6366f1" }],
+        wbs: [{ id:"1", title:"Spec Quiz Engine", owner:"Se" }],
+        smart: [{ statement:"Issue certificate within 10s after pass", metric:"Certificate issuance time", target:"<=10s", by:"2025-10-30" }],
+        okrs: [{ objective:"Fully automated LMS demo", keyResults:["100% passing flow validated","Certificate verifiable"] }],
+        raci: [{ task:"Quiz Engine", R:"Mya Win", A:"Se", C:"Education Team", I:"Stakeholders" }]
+      },
+      AMS: {
+        longName: "Account Management Suite (AMS)",
+        progress: 80, phase: "QA & Testing",
+        features: ["Billing engine","Overflow scenarios","Audit logs"],
+        stakeholders: ["Accounts Dept","Operations","Finance"],
+        calendarEvents: [{ title:"Billing Overflow Test", start:"2025-10-18", color:"#ef4444" }],
+        wbs: [{ id:"1", title:"Usage Metrics", owner:"Se" }],
+        smart: [{ statement:"Recover from billing overflow within 5m", metric:"Recovery time", target:"<=5m", by:"2025-10-25" }],
+        okrs: [{ objective:"Robust billing demo", keyResults:["Overflow scenarios handled","Audit logs for 100% txns"] }],
+        raci: [{ task:"Billing Overflow", R:"Zaw Lin", A:"Se", C:"Accounts Dept", I:"Stakeholders" }]
+      },
+      CRM: {
+        longName: "SkyLink CRM (CRM)",
+        progress: 85, phase: "Onboarding Docs",
+        features: ["Lead capture","Duplicate detection","Outreach hooks"],
+        stakeholders: ["Marketing Team","Sales","Operations"],
+        calendarEvents: [{ title:"Lead Capture Run", start:"2025-10-12", color:"#6366f1" }],
+        wbs: [{ id:"1", title:"Lead Capture", owner:"Se" }],
+        smart: [{ statement:"Reduce duplicate leads to <2%", metric:"Duplicate rate", target:"<2%", by:"2025-10-30" }],
+        okrs: [{ objective:"Reliable CRM demo", keyResults:["Outreach for 100% qualified leads","Duplicate leads flagged"] }],
+        raci: [{ task:"Outreach", R:"Hnin Thiri", A:"Se", C:"Marketing Team", I:"Stakeholders" }]
+      },
+      HRMS: {
+        longName: "HR Management System (HRMS)",
+        progress: 65, phase: "Design",
+        features: ["Leave management","Payroll sync","Org charts"],
+        stakeholders: ["People Dept","Finance"],
+        calendarEvents: [{ title:"HR Review", start:"2025-10-08", color:"#8b5cf6" }],
+        wbs: [{ id:"1", title:"Leave Module", owner:"Se" }],
+        smart: [{ statement:"Reduce leave approval delays", metric:"Approval time", target:"<24h", by:"2025-11-15" }],
+        okrs: [{ objective:"HRMS MVP", keyResults:["Leave module complete","Payroll integration tested"] }],
+        raci: [{ task:"Payroll Integration", R:"DevOps Engineer", A:"Hla Lin", C:"Finance", I:"Stakeholders" }]
+      },
+      PM: {
+        longName: "Project Management Suite (PM)",
+        progress: 75, phase: "QA & Testing",
+        features: ["Dashboards","Milestone alerts","Contributor badges"],
+        stakeholders: ["Operations","Finance","Sales"],
+        calendarEvents: [{ title:"Dashboard Release", start:"2025-10-20", color:"#3b82f6" }],
+        wbs: [{ id:"1", title:"Gantt & Scheduling", owner:"Se" }],
+        smart: [{ statement:"Trigger milestone alerts within 1m", metric:"Alert latency", target:"<=1m", by:"2025-10-25" }],
+        okrs: [{ objective:"Complete PM Suite demo", keyResults:["All dashboards working","Alerts validated across projects"] }],
+        raci: [{ task:"Milestone Alerts", R:"Kyaw Min", A:"Se", C:"Operations", I:"Stakeholders" }]
+      }
+    };
+
+    const contributors = [
+      { id:'c1', name:'James@SeThu', position:'Solutions Consultant (PMO)', supervisor:'Product Owner', task:'PMO enablement', progress:90, projects:['DWA','LMS','AMS','CRM','PM'] },
+      { id:'c2', name:'Aye Aung', position:'Manager (People Dept)', supervisor:'Head People', task:'People ops', progress:85, projects:['DWA','LMS','AMS','CRM','PM'] },
+      { id:'c3', name:'Aye Htun', position:'Clerk (Operations Dept)', supervisor:'Aye Aung', task:'Ops support', progress:70, projects:['DWA','LMS','AMS','CRM','PM'] },
+      { id:'c4', name:'Aye Thant', position:'Clerk (Sales Dept)', supervisor:'Lwin San', task:'Sales admin', progress:60, projects:['DWA','LMS','AMS','CRM','PM'] },
+      { id:'c5', name:'Hla Lin', position:'Manager (Finance Dept)', supervisor:'CFO', task:'Finance review', progress:88, projects:['DWA','LMS','AMS','CRM','PM'] },
+      { id:'c6', name:'Lwin San', position:'Manager (Sales Dept)', supervisor:'Head Sales', task:'Sales lead', progress:82, projects:['DWA','LMS','AMS','CRM','PM'] },
+      { id:'c7', name:'Developer-Lead', position:'Lead (Development Dept)', supervisor:'Product Owner', task:'Architecture & code reviews', progress:75, projects:['DWA','LMS','AMS','CRM','PM'] },
+      { id:'c8', name:'Product Owner', position:'PO (Project Delivery Department)', supervisor:'Head Delivery', task:'Prioritization', progress:92, projects:['DWA','LMS','AMS','CRM','PM'] },
+      { id:'c9', name:'Scrum Master', position:'SM (Project Delivery Department)', supervisor:'Product Owner', task:'Sprint facilitation', progress:86, projects:['DWA','LMS','AMS','CRM','PM'] },
+      { id:'c10', name:'Developer-A', position:'Backend Developer (Development Dept)', supervisor:'Developer-Lead', task:'API & backend', progress:70, projects:['DWA','AMS','PM'] },
+      { id:'c11', name:'Developer-B', position:'Frontend Developer (Development Dept)', supervisor:'Developer-Lead', task:'UI & front-end', progress:68, projects:['CRM','LMS','PM'] },
+      { id:'c12', name:'BusinessAnalyst-A', position:'Business Analyst (Business Development Dept)', supervisor:'BusinessAnalyst Lead', task:'Requirements & BA', progress:78, projects:['DWA','CRM'] },
+      { id:'c13', name:'BusinessAnalyst Lead', position:'Manager (Business Development Dept)', supervisor:'Head BD', task:'BA oversight', progress:84, projects:['DWA','CRM','PM'] },
+      { id:'c14', name:'Project Manager-A', position:'Project Manager (Project Delivery Department)', supervisor:'Head Delivery', task:'Project delivery', progress:80, projects:['DWA','AMS','PM'] },
+      { id:'c15', name:'Project Manager-B', position:'Ass. Project Manager (Project Delivery Department)', supervisor:'Project Manager-A', task:'Assistance & coordination', progress:72, projects:['LMS','CRM'] },
+      { id:'c16', name:'DevOps Engineer', position:'Engineer (Project Delivery Department)', supervisor:'Developer-Lead', task:'CI/CD, infra', progress:77, projects:['DWA','AMS','PM'] },
+      { id:'c17', name:'Se', position:'Project Lead', supervisor:'Product Owner', task:'Project ownership', progress:95, projects:['DWA','LMS','AMS','CRM','PM'] }
+    ];
+
+    const templates = [
+      { id:'tpl-charter', name:'Project Charter Template', description:'Purpose, scope, assumptions, constraints' },
+      { id:'tpl-wbs', name:'WBS Template', description:'Phases → deliverables → tasks' },
+      { id:'tpl-smart', name:'SMART Goals Template', description:'Specific, Measurable, Achievable, Relevant, Time-bound' },
+      { id:'tpl-okrs', name:'OKR Template', description:'Objective with measurable key results' },
+      { id:'tpl-raci', name:'RACI Template', description:'Responsible/Accountable/Consulted/Informed matrix' }
+    ];
+
+    const flowDiagrams = {
+      DWA: {
+        process: `graph TD
+CUST[Customer] -->|Scan QR| POS[POS App]
+POS -->|Request Token| DWA_API[Digital Wallet API]
+DWA_API --> |Auth & Verify| KYC[KYC Service]
+DWA_API -->|Reserve Funds| Ledger[Ledger Service]
+Ledger -->|Webhook| Merchant[Merchant System]
+Merchant -->|Acknowledge| POS
+POS --> CUST`,
+        sequence: `sequenceDiagram
+participant C as Customer
+participant P as POS
+participant W as WalletAPI
+participant L as Ledger
+C->>P: Scan QR
+P->>W: Payment request
+W->>L: Reserve funds
+L-->>W: Reserved
+W->>Merchant: Notify via webhook
+Merchant-->>P: Confirm
+P-->>C: Receipt`,
+        integration: `graph LR
+DWA_API -->|Webhook| Merchant
+DWA_API -->|KYC call| KYC
+DWA_API -->|Ledger RPC| Ledger`
+      },
+      LMS: {
+        process: `graph TD
+Student -->|Start Quiz| LMS_UI[Quiz UI]
+LMS_UI -->|Submit Answers| LMS_API[Quiz API]
+LMS_API -->|Grade| Grader[Auto-grader Service]
+Grader -->|Pass/Fail| LMS_API
+LMS_API -->|Issue Cert| Cert[Certificate Service]
+Cert --> Student`,
+        sequence: `sequenceDiagram
+participant S as Student
+participant Q as QuizUI
+participant A as QuizAPI
+participant G as Grader
+S->>Q: Start Quiz
+Q->>A: Submit
+A->>G: Grade
+G-->>A: Result
+A->>Cert: Issue certificate
+Cert-->>S: Certificate`,
+        integration: `graph LR
+LMS_API -->|Cert API| Cert
+LMS_API -->|Auth| AuthService`
+      },
+      AMS: {
+        process: `graph TD
+User -->|Submit Invoice| AMS_UI
+AMS_UI --> AMS_API
+AMS_API --> Billing[Billing Engine]
+Billing -->|Overflow| OverflowHandler[Overflow Handler]
+Billing --> Ledger
+OverflowHandler --> Alerting[Alerting/OPS]`,
+        sequence: `sequenceDiagram
+participant U as User
+participant A as AMS_UI
+participant BE as BillingEngine
+U->>A: Submit invoice
+A->>BE: Process
+BE->>Overflow: If overflow
+Overflow-->>OPS: Alert`,
+        integration: `graph TD
+Billing -->|Push| Ledger
+Billing -->|Notify| Alerting`
+      },
+      CRM: {
+        process: `graph TD
+Scan[QR Scan] -->|Lead Data| CRM_UI
+CRM_UI -->|Create Lead| CRM_API
+CRM_API -->|Duplicate Check| Deduper
+Deduper -->|New/Existing| CRM_DB
+CRM_API -->|Trigger Outreach| Marketing`,
+        sequence: `sequenceDiagram
+participant U as Scanner
+participant C as CRM_UI
+participant API as CRM_API
+participant D as Deduper
+U->>C: Scan
+C->>API: Create lead
+API->>D: Check duplicates
+D-->>API: Response
+API->>Marketing: Trigger outreach`,
+        integration: `graph LR
+CRM_API -->|Webhook| Marketing
+CRM_API -->|Dup check| Deduper`
+      },
+      HRMS: {
+        process: `graph TD
+Employee -->|Submit Leave| HR_UI
+HR_UI --> HR_API
+HR_API -->|Check Balance| LeaveDB
+HR_API -->|Notify| Manager
+Manager -->|Approve| HR_API
+HR_API -->|Update| Payroll`,
+        sequence: `sequenceDiagram
+participant E as Employee
+participant H as HR_UI
+participant API as HR_API
+E->>H: Submit leave
+H->>API: Request approval
+API->>Manager: Notify
+Manager-->>API: Approve
+API->>Payroll: Update`,
+        integration: `graph LR
+HR_API -->|Notify| Manager
+HR_API -->|Update| Payroll`
+      },
+      PM: {
+        process: `graph TD
+PM[Project Manager] -->|Create Task| PM_UI
+PM_UI --> PM_API
+PM_API -->|Assign| Assignee
+PM_API -->|Trigger Milestone| Alerts`,
+        sequence: `sequenceDiagram
+participant PM as ProjectManager
+participant UI as PM_UI
+participant API as PM_API
+PM->>UI: Create task
+UI->>API: Save
+API->>Assignee: Notify
+API->>Alerts: Milestone event`,
+        integration: `graph LR
+PM_API -->|Webhook| Alerts
+PM_API -->|Sync| Dashboard`
+      }
+    };
+
+    /* ---------- Libraries init and helpers ---------- */
+    // Mermaid
+    if (typeof mermaid !== 'undefined') mermaid.initialize({ startOnLoad: false, theme: 'default' });
+
+    // FullCalendar instance guard
+    let _fcInstance = null;
+    function initCalendar(key) {
+      const el = document.getElementById('calendar');
+      if (!el) return;
+      el.innerHTML = '';
+      if (_fcInstance) {
+        try { _fcInstance.destroy(); } catch (e) { console.warn('destroy calendar fail', e); }
+        _fcInstance = null;
+      }
+      _fcInstance = new FullCalendar.Calendar(el, {
+        initialView: 'dayGridMonth',
+        headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,listWeek' },
+        events: projects[key].calendarEvents || [],
+        height: 'auto',
+        dayMaxEvents: true
+      });
+      _fcInstance.render();
+    }
+
+    // Mermaid render into stable container
+    async function renderMermaidDiagram(diagramText) {
+      const container = document.getElementById('flowDiagramArea');
+      if (!container) return;
+      container.innerHTML = '<div class="small-muted">Rendering diagram…</div>';
+      try {
+        const id = 'mmd-' + Date.now();
+        const { svg } = await mermaid.render(id, diagramText);
+        container.innerHTML = svg;
+        const svgEl = container.querySelector('svg');
+        if (svgEl) {
+          svgEl.style.width = '100%';
+          svgEl.style.height = 'auto';
+          if (!svgEl.getAttribute('viewBox') && svgEl.hasAttribute('width') && svgEl.hasAttribute('height')) {
+            const w = parseFloat(svgEl.getAttribute('width'));
+            const h = parseFloat(svgEl.getAttribute('height'));
+            if (w && h) svgEl.setAttribute('viewBox', `0 0 ${w} ${h}`);
+          }
+        }
+      } catch (err) {
+        console.error('Mermaid render error', err);
+        container.innerHTML = '<div class="text-red-600">Diagram failed to render. See console.</div>';
+      }
+    }
+
+    function updateFlowDiagram() {
+      const select = document.getElementById('flowsProjectSelect');
+      const projectKey = (select && select.value) || 'DWA';
+      const activeView = document.querySelector('.tab.active')?.dataset?.view || 'process';
+      const diagramText = (flowDiagrams[projectKey] && flowDiagrams[projectKey][activeView]) || flowDiagrams[projectKey].process;
+      renderMermaidDiagram(diagramText);
+    }
+
+    // Export diagram to PNG
+    async function exportDiagramToPng(filename) {
+      const container = document.getElementById('flowDiagramArea');
+      const svgEl = container.querySelector('svg');
+      if (!svgEl) { alert('Diagram not ready'); return; }
+      if (!svgEl.getAttribute('xmlns')) svgEl.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+      const serializer = new XMLSerializer();
+      const svgString = serializer.serializeToString(svgEl);
+      const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth || img.width;
+        canvas.height = img.naturalHeight || img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.drawImage(img, 0, 0);
+        canvas.toBlob((b) => {
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(b);
+          a.download = filename || 'diagram.png';
+          document.body.appendChild(a); a.click(); a.remove();
+          URL.revokeObjectURL(url);
+        }, 'image/png');
+      };
+      img.onerror = () => { alert('Export failed'); URL.revokeObjectURL(url); };
+      img.src = url;
+    }
+
+    /* ---------- UI rendering helpers ---------- */
+    function renderTemplatesMenu() {
+      const el = document.getElementById('templateMenu');
+      if (!el) return;
+      el.innerHTML = templates.map(t => `
+        <label class="block p-2 border-b last:border-b-0">
+          <input type="radio" name="template" value="${t.id}" class="mr-2"> <strong>${t.name}</strong>
+          <div class="small-muted mt-1">${t.description}</div>
+        </label>
+      `).join('');
+      const tl = document.getElementById('templatesList');
+      if (tl) tl.innerHTML = templates.map(t => `
+        <label class="block p-2 border-b last:border-b-0">
+          <input type="radio" name="tpl" value="${t.id}" class="mr-2"> <strong>${t.name}</strong>
+          <div class="small-muted mt-1">${t.description}</div>
+        </label>
+      `).join('');
+    }
+
+    function renderBadgePreview(projectKey) {
+      const container = document.getElementById('badgeContainer');
+      if (!container) return;
+      container.innerHTML = '';
+      contributors.filter(c => c.projects.includes(projectKey)).slice(0,8).forEach(c => {
+        const item = document.createElement('div');
+        item.className = 'px-3 py-1 bg-gray-100 rounded-full text-sm font-medium';
+        item.textContent = `${c.name} · ${c.position.split(' (')[0] || c.position}`;
+        container.appendChild(item);
+      });
+    }
+
+    function renderProjectHeader(key) {
+      const p = projects[key];
+      if (!p) return;
+      document.getElementById('projectName').textContent = p.longName || key;
+      document.getElementById('projectPhaseSmall').textContent = 'Phase: ' + (p.phase || '—');
+      document.getElementById('phaseLabel').textContent = 'Phase: ' + (p.phase || '—');
+      document.getElementById('progressLabel').textContent = 'Progress: ' + (p.progress || 0) + '%';
+      document.getElementById('projectFeatures').textContent = (p.features || []).join('; ') || '—';
+      document.getElementById('goToProjectBtn').setAttribute('href', '#');
+    }
+
+    function renderObjectives(key) {
+      const p = projects[key];
+      const content = (p.smart && p.smart.length)
+        ? p.smart.map(s => `<div class="mb-2"><div class="font-semibold">${s.statement}</div><div class="small-muted">${s.metric ? `Metric: ${s.metric} · Target: ${s.target} · By: ${s.by}` : ''}</div></div>`).join('')
+        : (p.okrs && p.okrs.length) ? p.okrs.map(o => `<div class="mb-2"><div class="font-semibold">${o.objective}</div><ul class="list-disc pl-5 text-sm">${(o.keyResults||[]).map(kr=>`<li>${kr}</li>`).join('')}</ul></div>`).join('')
+        : '<div class="small-muted">No objectives defined.</div>';
+      document.getElementById('objectives').innerHTML = content;
+    }
+
+    function renderCharter(key) {
+      const p = projects[key];
+      document.getElementById('charter').textContent = p.charter || `Add a project charter for ${p.longName || key}.`;
+    }
+
+    function renderWBS(key) {
+      const p = projects[key];
+      const rows = (p.wbs || []).map(i => `<tr><td class="px-3 py-2 border">${i.id}</td><td class="px-3 py-2 border">${i.title}</td><td class="px-3 py-2 border">${i.owner}</td></tr>`).join('');
+      document.getElementById('wbs').innerHTML = rows ? `<table class="min-w-full border-collapse text-sm"><thead><tr class="bg-gray-50"><th class="px-3 py-2 border">WBS</th><th class="px-3 py-2 border">Task</th><th class="px-3 py-2 border">Owner</th></tr></thead><tbody>${rows}</tbody></table>` : '<div class="small-muted">No WBS items.</div>';
+    }
+
+    function renderSMART(key) {
+      const p = projects[key];
+      document.getElementById('smart').innerHTML = (p.smart || []).map(s => `<div class="mb-2"><div class="font-semibold">${s.statement}</div><div class="small-muted">${s.metric ? `Metric: ${s.metric} · Target: ${s.target} · By: ${s.by}` : ''}</div></div>`).join('') || '<div class="small-muted">No SMART goals defined.</div>';
+    }
+
+    function renderOKRs(key) {
+      const p = projects[key];
+      document.getElementById('okrs').innerHTML = (p.okrs || []).map(o => `<div class="mb-3"><div class="font-semibold">${o.objective}</div><ul class="list-disc pl-5 text-sm">${(o.keyResults||[]).map(kr=>`<li>${kr}</li>`).join('')}</ul></div>`).join('') || '<div class="small-muted">No OKRs defined.</div>';
+    }
+
+    function renderStakeholders(key) {
+      const p = projects[key];
+      document.getElementById('stakeholders').innerHTML = (p.stakeholders && p.stakeholders.length) ? `<ul class="list-disc pl-5">${p.stakeholders.map(s=>`<li>${s}</li>`).join('')}</ul>` : '<div class="small-muted">No stakeholders defined.</div>';
+    }
+
+    function renderRACI(key) {
+      const rows = (projects[key].raci || []).map(r => `<tr><td class="px-3 py-2 border">${r.task}</td><td class="px-3 py-2 border">${r.R}</td><td class="px-3 py-2 border">${r.A}</td><td class="px-3 py-2 border">${r.C}</td><td class="px-3 py-2 border">${r.I}</td></tr>`).join('');
+      document.getElementById('raci').innerHTML = rows ? `<table class="min-w-full border-collapse text-sm"><thead><tr class="bg-gray-50"><th class="px-3 py-2 border">Task</th><th class="px-3 py-2 border">R</th><th class="px-3 py-2 border">A</th><th class="px-3 py-2 border">C</th><th class="px-3 py-2 border">I</th></tr></thead><tbody>${rows}</tbody></table>` : '<div class="small-muted">No RACI entries.</div>';
+    }
+
+    // Milestone chart
+    let milestoneChart = null;
+    function initMilestoneChart() {
+      const ctx = document.getElementById('milestoneChart').getContext('2d');
+      milestoneChart = new Chart(ctx, {
+        type: 'bar',
+        data: { labels: Object.keys(projects).map(k => projects[k].longName || k), datasets: [{ label: '% Complete', data: Object.values(projects).map(p => p.progress), backgroundColor: ['#3b82f6','#10b981','#f59e0b','#6366f1','#8b5cf6','#ef4444'] }]},
+        options: { responsive:true, maintainAspectRatio:false, scales:{ y:{ beginAtZero:true, max:100 } }, plugins:{ legend:{ display:false } } }
+      });
+    }
+
+    // Contributors table
+    function renderContributorsTable(filterProject = 'ALL') {
+      const tbody = document.getElementById('contributorsTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      const list = filterProject === 'ALL' ? contributors : contributors.filter(c => c.projects.includes(filterProject));
+      list.forEach(c => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="px-4 py-3 border text-sm">${c.name}</td>
+          <td class="px-4 py-3 border text-sm">${c.position}</td>
+          <td class="px-4 py-3 border text-sm">${c.supervisor}</td>
+          <td class="px-4 py-3 border text-sm">${c.task}</td>
+          <td class="px-4 py-3 border text-sm" style="min-width:160px;">
+            <div class="w-full bg-gray-200 rounded-full h-3"><div class="progress-bar" style="width:${c.progress}%;"></div></div>
+            <div class="text-xs text-gray-600 mt-1">${c.progress}%</div>
+          </td>
+          <td class="px-4 py-3 border text-sm">${c.projects.join(', ')}</td>
+          <td class="px-4 py-3 border text-sm"><button class="px-2 py-1 bg-gray-100 rounded text-xs view-artifacts" data-id="${c.id}">View</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+      document.querySelectorAll('.view-artifacts').forEach(btn => btn.addEventListener('click', (e) => {
+        const id = e.currentTarget.dataset.id;
+        const person = contributors.find(x => x.id === id);
+        if (person) alert(`${person.name}\nTask: ${person.task}\nProjects: ${person.projects.join(', ')}`);
+      }));
+    }
+
+    function exportContributorsCsv(filterProject = 'ALL') {
+      const rows = [['Name','Position','Supervisor','Task','Progress','Projects']];
+      const list = filterProject === 'ALL' ? contributors : contributors.filter(c => c.projects.includes(filterProject));
+      list.forEach(c => rows.push([c.name,c.position,c.supervisor,c.task,c.progress,c.projects.join('|')]));
+      const csv = rows.map(r => r.map(cell => `"${(cell+'').replace(/"/g,'""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = `contributors_${filterProject}.csv`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    }
+
+    // Apply template (simple examples)
+    function applyTemplate(templateId) {
+      const proj = document.getElementById('projectSelect').value;
+      if (!proj) return;
+      if (templateId === 'tpl-charter') { projects[proj].charter = `Template Charter applied to ${projects[proj].longName}`; renderCharter(proj); }
+      if (templateId === 'tpl-wbs') { projects[proj].wbs = [{ id:'0', title:'Template: Initiation', owner:'Project Lead' }, ...(projects[proj].wbs||[])]; renderWBS(proj); }
+      if (templateId === 'tpl-smart') { projects[proj].smart = [{ statement:'Template SMART: Improve reliability', metric:'Uptime', target:'>=99.9%', by:'Next Release'}, ...(projects[proj].smart||[])]; renderSMART(proj); }
+      if (templateId === 'tpl-okrs') { projects[proj].okrs = [{ objective:'Template Objective', keyResults:['KR1','KR2'] }, ...(projects[proj].okrs||[])]; renderOKRs(proj); }
+      if (templateId === 'tpl-raci') { projects[proj].raci = [{ task:'Template Task', R:'Owner', A:'Sponsor', C:'Team', I:'Stakeholders' }, ...(projects[proj].raci||[])]; renderRACI(proj); }
+      if (milestoneChart) { milestoneChart.data.datasets[0].data = Object.values(projects).map(p => p.progress); milestoneChart.update(); }
+    }
+
+    // Update UI when project changes
+    function loadProject(key) {
+      renderProjectHeader(key);
+      renderBadgePreview(key);
+      renderObjectives(key);
+      renderCharter(key);
+      renderWBS(key);
+      renderSMART(key);
+      renderOKRs(key);
+      renderStakeholders(key);
+      renderRACI(key);
+      initCalendar(key);
+      if (milestoneChart) { milestoneChart.data.datasets[0].data = Object.values(projects).map(p => p.progress); milestoneChart.update(); }
+    }
+
+    /* ---------- Event wiring & init ---------- */
+    document.addEventListener('DOMContentLoaded', () => {
+      // render templates menu & chart
+      renderTemplatesMenu();
+      initMilestoneChart();
+
+      // initial project
+      const projectSelect = document.getElementById('projectSelect');
+      loadProject(projectSelect.value);
+
+      // wire projectSelect
+      projectSelect.addEventListener('change', (e) => loadProject(e.target.value));
+
+      // templates
+      document.getElementById('applyTemplateBtn').addEventListener('click', () => {
+        const chosen = document.querySelector('input[name="template"]:checked');
+        if (!chosen) { alert('Select a template from the template menu'); return; }
+        applyTemplate(chosen.value);
+      });
+      document.getElementById('openTemplatesPage').addEventListener('click', () => location.hash = '#templates');
+      document.getElementById('applySelectedTemplate').addEventListener('click', () => {
+        const chosen = document.querySelector('input[name="tpl"]:checked');
+        if (!chosen) { alert('Select a template on the Templates page'); return; }
+        applyTemplate(chosen.value);
+      });
+
+      // contributors page wiring
+      document.getElementById('contributorsProjectFilter').addEventListener('change', (e) => renderContributorsTable(e.target.value));
+      document.getElementById('exportCsvBtn').addEventListener('click', () => exportContributorsCsv(document.getElementById('contributorsProjectFilter').value || 'ALL'));
+
+      // flows wiring
+      const flowsSelect = document.getElementById('flowsProjectSelect');
+      if (flowsSelect) flowsSelect.addEventListener('change', updateFlowDiagram);
+      document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', (ev) => {
+        document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+        ev.currentTarget.classList.add('active');
+        updateFlowDiagram();
+      }));
+      document.getElementById('exportPngBtn').addEventListener('click', () => exportDiagramToPng((flowsSelect && flowsSelect.value) + '.png'));
+      document.getElementById('openInNewBtn').addEventListener('click', () => {
+        const container = document.getElementById('flowDiagramArea');
+        const svg = container.querySelector('svg');
+        if (!svg) { alert('Diagram not ready'); return; }
+        if (!svg.getAttribute('xmlns')) svg.setAttribute('xmlns','http://www.w3.org/2000/svg');
+        const serializer = new XMLSerializer();
+        const svgStr = serializer.serializeToString(svg);
+        const blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+      });
+
+      // navigation (hash)
+      function showView(view) {
+        document.getElementById('dashboardView').classList.toggle('hidden', view !== 'dashboard');
+        document.getElementById('templatesView').classList.toggle('hidden', view !== 'templates');
+        document.getElementById('contributorsView').classList.toggle('hidden', view !== 'contributors');
+        document.getElementById('flowsView').classList.toggle('hidden', view !== 'flows');
+        document.getElementById('navDashboard').classList.toggle('bg-gray-200', view === 'dashboard');
+        document.getElementById('navTemplates').classList.toggle('bg-gray-200', view === 'templates');
+        document.getElementById('navContributors').classList.toggle('bg-gray-200', view === 'contributors');
+        document.getElementById('navFlows').classList.toggle('bg-gray-200', view === 'flows');
+      }
+
+      window.addEventListener('hashchange', () => {
+        const h = location.hash.replace('#','') || 'dashboard';
+        showView(h);
+        if (h === 'contributors') renderContributorsTable(document.getElementById('contributorsProjectFilter').value || 'ALL');
+        if (h === 'flows') updateFlowDiagram();
+      });
+
+      // default view
+      if (!location.hash) location.hash = '#dashboard';
+      showView(location.hash.replace('#','') || 'dashboard');
+
+      // initial contributors table
+      renderContributorsTable('ALL');
+
+      // initial flows diagram
+      updateFlowDiagram();
+
+      // responsive adjustments
+      window.addEventListener('resize', () => {
+        if (_fcInstance) try { _fcInstance.render(); } catch(e){}
+        if (milestoneChart) milestoneChart.resize();
+      });
+    });
+  </script>
+</body>
+</html>
