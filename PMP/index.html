@@ -3,15 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="keywords" content="FE-Summrized">
-  <meta name="description" content="FELIXENT: Project Management Training">
-  <meta name="author" content="Mosquito">
-  <link href="contents/favicon.ico" rel="icon">
-  <title>Project Management System</title>
+  <title>PM Demo — Single File (Fixed)</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* small focus style for accessibility */
     [data-task-id]:focus { outline: 3px solid rgba(99,102,241,0.4); outline-offset: 2px; }
   </style>
 </head>
@@ -19,14 +14,13 @@
   <div class="min-h-screen flex">
     <aside id="sidebar" class="w-80 bg-white border-r p-4 overflow-auto">
       <h1 class="text-2xl font-bold mb-4">PM Demo</h1>
-
       <nav class="space-y-2 mb-4">
         <button data-menu="summary" class="menu-btn w-full text-left px-3 py-2 rounded hover:bg-gray-50">Summary</button>
         <button data-menu="release" class="menu-btn w-full text-left px-3 py-2 rounded hover:bg-gray-50">Release tracks</button>
         <button data-menu="approval" class="menu-btn w-full text-left px-3 py-2 rounded hover:bg-gray-50">Custom approval</button>
-        <button data-menu="workload" class="menu-btn w-full text-left px-3 py-2 rounded hover:bg-gray-50">Workload management</button>
-        <button data-menu="budget" class="menu-btn w-full text-left px-3 py-2 rounded hover:bg-gray-50">Budget creation</button>
-        <button data-menu="time" class="menu-btn w-full text-left px-3 py-2 rounded hover:bg-gray-50">Native time tracking</button>
+        <button data-menu="workload" class="menu-btn w-full text-left px-3 py-2 rounded hover:bg-gray-50">Workload</button>
+        <button data-menu="budget" class="menu-btn w-full text-left px-3 py-2 rounded hover:bg-gray-50">Budget</button>
+        <button data-menu="time" class="menu-btn w-full text-left px-3 py-2 rounded hover:bg-gray-50">Time</button>
         <button data-menu="teams" class="menu-btn w-full text-left px-3 py-2 rounded hover:bg-gray-50">Teams</button>
       </nav>
 
@@ -67,563 +61,297 @@
     </main>
   </div>
 
-  <script type="module">
-  // Single-file Project Management Demo
-  // Data (teams, roles, staff, tasks, approvals, time entries)
-  const DEMO = {
-    projects: [
-      { id: 'P1', name: 'Website Redesign', color: '#6366F1', budget: 12000, team: 'T1' },
-      { id: 'P2', name: 'Mobile App', color: '#EF4444', budget: 30000, team: 'T2' },
-      { id: 'P3', name: 'Payments API', color: '#10B981', budget: 50000, team: 'T1' }
-    ],
-    users: [
-      { id: 'U1', name: 'Aung', capacity: 40 },
-      { id: 'U2', name: 'Mya', capacity: 32 },
-      { id: 'U3', name: 'Ko', capacity: 24 },
-      { id: 'U4', name: 'Su', capacity: 36 }
-    ],
-    roles: [
-      { id: 'R1', name: 'Product Manager' },
-      { id: 'R2', name: 'Designer' },
-      { id: 'R3', name: 'Frontend' },
-      { id: 'R4', name: 'Backend' },
-      { id: 'R5', name: 'QA' }
-    ],
-    teams: [
-      { id: 'T1', name: 'Core Web Team', members: ['U1','U3','U4'] },
-      { id: 'T2', name: 'Mobile Team', members: ['U2','U4'] }
-    ],
-    staff: [
-      { userId: 'U1', roleId: 'R1' },
-      { userId: 'U2', roleId: 'R2' },
-      { userId: 'U3', roleId: 'R3' },
-      { userId: 'U4', roleId: 'R4' }
-    ],
-    tasks: [
-      { id: 'T1', title: 'Discovery', project: 'P1', assignee: 'U1', start: '2025-10-01', end: '2025-10-10', status: 'Done', hours: 40, billable: true, budgetUsed: 2000, release: 'v1.0' },
-      { id: 'T2', title: 'Design', project: 'P1', assignee: 'U2', start: '2025-10-08', end: '2025-10-20', status: 'In Progress', hours: 60, billable: true, budgetUsed: 3500, release: 'v1.1' },
-      { id: 'T3', title: 'Frontend', project: 'P1', assignee: 'U3', start: '2025-10-15', end: '2025-11-05', status: 'Todo', hours: 120, billable: true, budgetUsed: 6000, release: 'v1.1' },
-      { id: 'T4', title: 'Backend API', project: 'P3', assignee: 'U1', start: '2025-10-05', end: '2025-10-25', status: 'In Progress', hours: 100, billable: true, budgetUsed: 8000, release: 'v2.0' },
-      { id: 'T5', title: 'QA', project: 'P2', assignee: 'U2', start: '2025-10-20', end: '2025-11-10', status: 'Todo', hours: 80, billable: false, budgetUsed: 0, release: 'v1.0' }
-    ],
-    approvals: [ { id: 'A1', task: 'T2', approvers: ['U1'], status: 'Pending' } ],
-    timeEntries: [ { id: 'TT1', task: 'T1', user: 'U1', date: '2025-10-02', hours: 8 }, { id: 'TT2', task: 'T2', user: 'U2', date: '2025-10-09', hours: 6 } ]
-  };
+  <script>
+  // Fixed single-file PM demo — no modules, simple and self-contained
+  (function(){
+    // Demo data
+    const DEMO = {
+      projects: [
+        { id: 'P1', name: 'Website Redesign', color: '#6366F1', budget: 12000, team: 'T1' },
+        { id: 'P2', name: 'Mobile App', color: '#EF4444', budget: 30000, team: 'T2' },
+        { id: 'P3', name: 'Payments API', color: '#10B981', budget: 50000, team: 'T1' }
+      ],
+      users: [
+        { id: 'U1', name: 'Aung', capacity: 40 },
+        { id: 'U2', name: 'Mya', capacity: 32 },
+        { id: 'U3', name: 'Ko', capacity: 24 },
+        { id: 'U4', name: 'Su', capacity: 36 }
+      ],
+      roles: [
+        { id: 'R1', name: 'Product Manager' },
+        { id: 'R2', name: 'Designer' },
+        { id: 'R3', name: 'Frontend' },
+        { id: 'R4', name: 'Backend' },
+        { id: 'R5', name: 'QA' }
+      ],
+      teams: [
+        { id: 'T1', name: 'Core Web Team', members: ['U1','U3','U4'] },
+        { id: 'T2', name: 'Mobile Team', members: ['U2','U4'] }
+      ],
+      staff: [
+        { userId: 'U1', roleId: 'R1' },
+        { userId: 'U2', roleId: 'R2' },
+        { userId: 'U3', roleId: 'R3' },
+        { userId: 'U4', roleId: 'R4' }
+      ],
+      tasks: [
+        { id: 'T1', title: 'Discovery', project: 'P1', assignee: 'U1', start: '2025-10-01', end: '2025-10-10', status: 'Done', hours: 40, billable: true, budgetUsed: 2000, release: 'v1.0' },
+        { id: 'T2', title: 'Design', project: 'P1', assignee: 'U2', start: '2025-10-08', end: '2025-10-20', status: 'In Progress', hours: 60, billable: true, budgetUsed: 3500, release: 'v1.1' },
+        { id: 'T3', title: 'Frontend', project: 'P1', assignee: 'U3', start: '2025-10-15', end: '2025-11-05', status: 'Todo', hours: 120, billable: true, budgetUsed: 6000, release: 'v1.1' },
+        { id: 'T4', title: 'Backend API', project: 'P3', assignee: 'U1', start: '2025-10-05', end: '2025-10-25', status: 'In Progress', hours: 100, billable: true, budgetUsed: 8000, release: 'v2.0' },
+        { id: 'T5', title: 'QA', project: 'P2', assignee: 'U2', start: '2025-10-20', end: '2025-11-10', status: 'Todo', hours: 80, billable: false, budgetUsed: 0, release: 'v1.0' }
+      ],
+      approvals: [ { id: 'A1', task: 'T2', approvers: ['U1'], status: 'Pending' } ],
+      timeEntries: [ { id: 'TT1', task: 'T1', user: 'U1', date: '2025-10-02', hours: 8 }, { id: 'TT2', task: 'T2', user: 'U2', date: '2025-10-09', hours: 6 } ]
+    };
 
-  // Helpers
-  const helpers = {
-    getProject: (pid) => DEMO.projects.find(p=>p.id===pid) || {name:pid,color:'#6B7280'},
-    getProjectName: (pid) => (DEMO.projects.find(p=>p.id===pid)||{name:pid}).name,
-    getProjectColor: (pid) => (DEMO.projects.find(p=>p.id===pid)||{color:'#6B7280'}).color,
-    getUserName: (uid) => (DEMO.users.find(u=>u.id===uid)||{name:uid}).name,
-    getRoleName: (rid) => (DEMO.roles.find(r=>r.id===rid)||{name:rid}).name
-  };
+    // helpers
+    function getProject(pid){ return DEMO.projects.find(p=>p.id===pid) || {name:pid,color:'#6B7280'}; }
+    function getProjectName(pid){ return getProject(pid).name; }
+    function getProjectColor(pid){ return getProject(pid).color; }
+    function getUserName(uid){ return (DEMO.users.find(u=>u.id===uid)||{name:uid}).name; }
+    function getRoleName(rid){ return (DEMO.roles.find(r=>r.id===rid)||{name:rid}).name; }
 
-  // App state
-  const state = { view: 'gantt', currentMenu: 'summary', projectFilter: 'all', roleFilter: 'all' };
+    // state
+    const state = { view:'gantt', currentMenu:'summary', projectFilter:'all', roleFilter:'all' };
 
-  // DOM references
-  const $ = s => document.querySelector(s);
-  const $all = s => Array.from(document.querySelectorAll(s));
+    // DOM helpers
+    const $ = s => document.querySelector(s);
+    const $$ = s => Array.from(document.querySelectorAll(s));
 
-  // Init
-  function init() {
-    populateSidebar();
-    wireControls();
-    renderTopSummary();
-    renderView();
-  }
+    // populate filter selects
+    function populateFilters(){
+      const pf = $('#filter-project');
+      DEMO.projects.forEach(p=>{ const o = document.createElement('option'); o.value=p.id; o.textContent=p.name; pf.appendChild(o); });
+      const rf = $('#filter-role');
+      DEMO.roles.forEach(r=>{ const o = document.createElement('option'); o.value=r.id; o.textContent=r.name; rf.appendChild(o); });
+    }
 
-  // Sidebar fill (projects / roles)
-  function populateSidebar() {
-    const pf = $('#filter-project');
-    DEMO.projects.forEach(p => {
-      const opt = document.createElement('option'); opt.value = p.id; opt.textContent = p.name; pf.appendChild(opt);
-    });
-    const rf = $('#filter-role');
-    DEMO.roles.forEach(r => {
-      const opt = document.createElement('option'); opt.value = r.id; opt.textContent = r.name; rf.appendChild(opt);
-    });
-  }
-
-  // Event wiring
-  function wireControls() {
-    $all('.menu-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        $all('.menu-btn').forEach(b => b.classList.remove('bg-indigo-50'));
-        btn.classList.add('bg-indigo-50');
-        state.currentMenu = btn.dataset.menu;
-        renderTopSummary();
-        renderView();
-      });
-    });
-    $all('.view-btn').forEach(b => {
-      b.addEventListener('click', () => {
-        $all('.view-btn').forEach(x => x.classList.remove('bg-indigo-600','text-white'));
+    // UI wiring
+    function wire(){
+      $$('.menu-btn').forEach(b=> b.addEventListener('click', () => {
+        $$('.menu-btn').forEach(x=>x.classList.remove('bg-indigo-50'));
+        b.classList.add('bg-indigo-50');
+        state.currentMenu = b.dataset.menu;
+        renderTopSummary(); renderView();
+      }));
+      $$('.view-btn').forEach(b=> b.addEventListener('click', () => {
+        $$('.view-btn').forEach(x=> x.classList.remove('bg-indigo-600','text-white'));
         b.classList.add('bg-indigo-600','text-white');
         state.view = b.dataset.view;
         renderView();
-      });
-    });
-    $('#filter-project').addEventListener('change', e => {
-      state.projectFilter = e.target.value; renderTopSummary(); renderView();
-    });
-    $('#filter-role').addEventListener('change', e => {
-      state.roleFilter = e.target.value; renderTopSummary(); renderView();
-    });
-    $('#export-tasks').addEventListener('click', ()=> exportTasksCSV());
-    $('#export-times').addEventListener('click', ()=> exportTimeCSV());
-  }
-
-  // Top summary
-  function renderTopSummary() {
-    const el = $('#top-summary'); el.innerHTML = '';
-    let tasks = filterTasks();
-    const totalProjects = new Set(tasks.map(t=>t.project)).size || DEMO.projects.length;
-    const open = tasks.filter(t=> t.status !== 'Done').length;
-    const done = tasks.filter(t=> t.status === 'Done').length;
-    const budgetUsed = tasks.reduce((s,t)=> s + (t.budgetUsed||0),0);
-    const items = [
-      {label: 'Projects', value: totalProjects},
-      {label: 'Open tasks', value: open},
-      {label: 'Completed', value: done},
-      {label: 'Budget used', value: `$${budgetUsed.toLocaleString()}`}
-    ];
-    items.forEach(i=>{
-      const card = document.createElement('div'); card.className='bg-white p-4 rounded shadow';
-      card.innerHTML = `<div class="text-sm text-gray-500">${i.label}</div><div class="text-lg font-semibold mt-2">${i.value}</div>`;
-      el.appendChild(card);
-    });
-
-    if (state.currentMenu === 'release') {
-      const rc = document.createElement('div'); rc.className='col-span-4 bg-white p-4 rounded shadow mt-4';
-      rc.innerHTML = '<canvas id="releaseChart"></canvas>'; el.appendChild(rc);
-      renderReleaseChart();
+      }));
+      $('#filter-project').addEventListener('change', e=> { state.projectFilter=e.target.value; renderTopSummary(); renderView(); });
+      $('#filter-role').addEventListener('change', e=> { state.roleFilter=e.target.value; renderTopSummary(); renderView(); });
+      $('#export-tasks').addEventListener('click', exportTasksCSV);
+      $('#export-times').addEventListener('click', exportTimeCSV);
     }
-    if (state.currentMenu === 'summary') {
-      const sc = document.createElement('div'); sc.className='col-span-4 bg-white p-4 rounded shadow mt-4';
-      sc.innerHTML = '<canvas id="statusChart" height="120"></canvas>'; el.appendChild(sc);
-      renderStatusChart();
-    }
-  }
 
-  function renderReleaseChart() {
-    const ctx = document.getElementById('releaseChart').getContext('2d');
-    const releases = {};
-    DEMO.tasks.forEach(t => releases[t.release] = (releases[t.release]||0)+1);
-    new Chart(ctx, { type: 'bar', data: { labels: Object.keys(releases), datasets: [{ label:'Tasks per release', data: Object.values(releases), backgroundColor: '#6366F1' }]}, options:{ responsive:true, plugins:{ legend:{ display:false }}}});
-  }
+    // top summary + charts
+    function renderTopSummary(){
+      const el = $('#top-summary'); el.innerHTML='';
+      const tasks = filteredTasks();
+      const totalProjects = new Set(tasks.map(t=>t.project)).size || DEMO.projects.length;
+      const open = tasks.filter(t=>t.status!=='Done').length;
+      const done = tasks.filter(t=>t.status==='Done').length;
+      const budgetUsed = tasks.reduce((s,t)=>s+(t.budgetUsed||0),0);
+      const items = [
+        {label:'Projects', value: totalProjects},
+        {label:'Open tasks', value: open},
+        {label:'Completed', value: done},
+        {label:'Budget used', value: `$${budgetUsed.toLocaleString()}`}
+      ];
+      items.forEach(i=>{ const c = document.createElement('div'); c.className='bg-white p-4 rounded shadow'; c.innerHTML = `<div class="text-sm text-gray-500">${i.label}</div><div class="text-lg font-semibold mt-2">${i.value}</div>`; el.appendChild(c); });
 
-  function renderStatusChart() {
-    const ctx = document.getElementById('statusChart').getContext('2d');
-    const tasks = filterTasks();
-    const counts = { Todo:0, 'In Progress':0, Done:0 };
-    tasks.forEach(t => counts[t.status === 'Done' ? 'Done' : (t.status === 'In Progress' ? 'In Progress' : 'Todo')]++);
-    new Chart(ctx, { type:'doughnut', data:{ labels: Object.keys(counts), datasets: [{ data: Object.values(counts), backgroundColor: ['#F97316','#6366F1','#10B981'] }]}, options:{ plugins:{ legend:{ position:'bottom' } } } );
-  }
-
-  // Filter helper
-  function filterTasks() {
-    let tasks = DEMO.tasks.slice();
-    if (state.projectFilter !== 'all') tasks = tasks.filter(t => t.project === state.projectFilter);
-    if (state.roleFilter !== 'all') {
-      const usersWithRole = DEMO.staff.filter(s => s.roleId === state.roleFilter).map(s => s.userId);
-      tasks = tasks.filter(t => usersWithRole.includes(t.assignee));
-    }
-    return tasks;
-  }
-
-  // Main view renderer
-  function renderView() {
-    const area = $('#view-area'); area.innerHTML = '';
-    if (state.view === 'gantt') renderGantt(area);
-    if (state.view === 'grid') renderGrid(area);
-    if (state.view === 'card') renderCard(area);
-    if (state.view === 'calendar') renderCalendar(area);
-
-    // menu-specific widgets
-    if (state.currentMenu === 'workload') renderWorkloadWidget(area);
-    if (state.currentMenu === 'budget') renderBudgetWidget(area);
-    if (state.currentMenu === 'approval') renderApprovalWidget(area);
-    if (state.currentMenu === 'time') renderTimeTrackingWidget(area);
-    if (state.currentMenu === 'teams') renderTeamsView(area);
-    if (state.currentMenu === 'summary') renderSummaryWidget(area);
-  }
-
-  // Gantt (interactive drag + resize + keyboard)
-  function renderGantt(container) {
-    const tasks = filterTasks();
-    if (!tasks.length) { container.innerHTML = '<div class="text-center py-20 text-gray-500">No tasks</div>'; return; }
-
-    const min = new Date(Math.min(...tasks.map(t => new Date(t.start))));
-    min.setDate(min.getDate()-5);
-    const max = new Date(Math.max(...tasks.map(t => new Date(t.end))));
-    max.setDate(max.getDate()+5);
-    const totalDays = Math.max(1, Math.ceil((max - min)/(1000*60*60*24)));
-    const pxPerDay = Math.max(8, Math.floor((container.clientWidth || 800) / Math.min(totalDays, 120)));
-
-    const header = document.createElement('div'); header.className = 'overflow-x-auto';
-    const ruler = document.createElement('div'); ruler.className = 'flex gap-1 mb-3';
-    for (let d=0; d<=totalDays; d++) {
-      const dt = new Date(min); dt.setDate(min.getDate()+d);
-      const lbl = document.createElement('div'); lbl.className='text-xs text-gray-500 text-center'; lbl.style.width = pxPerDay + 'px'; lbl.textContent = `${dt.getMonth()+1}/${dt.getDate()}`;
-      ruler.appendChild(lbl);
-    }
-    header.appendChild(ruler);
-    container.appendChild(header);
-
-    const grid = document.createElement('div'); grid.className = 'w-full';
-    tasks.forEach(t => {
-      const row = document.createElement('div'); row.className = 'flex items-center gap-4 border-b py-2';
-      const meta = document.createElement('div'); meta.className = 'w-48 text-sm';
-      meta.innerHTML = `<div class="font-medium">${t.title}</div><div class="text-xs text-gray-500">${helpers.getUserName(t.assignee)}</div>`;
-      const timeline = document.createElement('div'); timeline.className = 'flex-1 relative h-12 bg-gray-50 rounded overflow-visible';
-      timeline.style.minWidth = (pxPerDay * totalDays) + 'px';
-
-      const startOffset = Math.ceil((new Date(t.start) - min)/(1000*60*60*24));
-      const dur = Math.max(1, Math.ceil((new Date(t.end) - new Date(t.start))/(1000*60*60*24)) + 1);
-      const bar = document.createElement('div'); bar.className = 'absolute h-8 rounded flex items-center text-white px-2 cursor-move';
-      bar.style.left = (startOffset * pxPerDay) + 'px';
-      bar.style.width = (dur * pxPerDay) + 'px';
-      bar.style.background = helpers.getProjectColor(t.project);
-      bar.dataset.taskId = t.id;
-      bar.setAttribute('tabindex','0');
-      bar.setAttribute('role','slider');
-      bar.setAttribute('aria-label', `${t.title} from ${t.start} to ${t.end}`);
-      bar.innerHTML = `<span class="truncate">${t.title} • ${t.status}</span>`;
-
-      const leftHandle = document.createElement('div'); leftHandle.className='absolute left-0 top-0 bottom-0 w-2 cursor-ew-resize'; leftHandle.dataset.handle='left';
-      const rightHandle = document.createElement('div'); rightHandle.className='absolute right-0 top-0 bottom-0 w-2 cursor-ew-resize'; rightHandle.dataset.handle='right';
-      bar.appendChild(leftHandle); bar.appendChild(rightHandle);
-
-      timeline.appendChild(bar); row.appendChild(meta); row.appendChild(timeline); grid.appendChild(row);
-    });
-    container.appendChild(grid);
-
-    // Interactions
-    initGanttInteractions(container, pxPerDay);
-  }
-
-  // Gantt interaction state
-  let G = { dragging: null, startX:0, originalLeft:0, originalWidth:0, pxPerDay:10 };
-
-  function initGanttInteractions(container, pxPerDay) {
-    G.pxPerDay = pxPerDay;
-
-    function onMouseDown(e) {
-      const bar = e.target.closest('[data-task-id]');
-      if (!bar) return;
-      const handle = e.target.dataset.handle || 'move';
-      G.dragging = { bar, handle };
-      G.startX = e.clientX;
-      G.originalLeft = parseInt(bar.style.left || 0, 10);
-      G.originalWidth = parseInt(bar.style.width || 0, 10);
-      document.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseup', onMouseUp);
-      e.preventDefault();
-    }
-    function onMouseMove(e) {
-      if (!G.dragging) return;
-      const { bar, handle } = G.dragging;
-      const dx = e.clientX - G.startX;
-      if (handle === 'left') {
-        const newLeft = Math.max(0, G.originalLeft + dx);
-        const newWidth = Math.max(G.pxPerDay, G.originalWidth - (newLeft - G.originalLeft));
-        bar.style.left = newLeft + 'px';
-        bar.style.width = newWidth + 'px';
-      } else if (handle === 'right') {
-        const newWidth = Math.max(G.pxPerDay, G.originalWidth + dx);
-        bar.style.width = newWidth + 'px';
-      } else {
-        const newLeft = Math.max(0, G.originalLeft + dx);
-        bar.style.left = newLeft + 'px';
+      if (state.currentMenu === 'release') {
+        const rc = document.createElement('div'); rc.className='col-span-4 bg-white p-4 rounded shadow mt-4'; rc.innerHTML = '<canvas id="releaseChart"></canvas>'; el.appendChild(rc);
+        renderReleaseChart();
+      }
+      if (state.currentMenu === 'summary') {
+        const sc = document.createElement('div'); sc.className='col-span-4 bg-white p-4 rounded shadow mt-4'; sc.innerHTML = '<canvas id="statusChart" height="120"></canvas>'; el.appendChild(sc);
+        renderStatusChart();
       }
     }
-    function onMouseUp() {
-      if (!G.dragging) return;
-      const { bar } = G.dragging;
-      const taskId = bar.dataset.taskId;
-      const timeline = bar.parentElement;
-      const tasks = filterTasks();
+
+    function renderReleaseChart(){
+      const el = document.getElementById('releaseChart'); if (!el) return;
+      const releases={}; DEMO.tasks.forEach(t=> releases[t.release]=(releases[t.release]||0)+1);
+      new Chart(el.getContext('2d'), { type:'bar', data:{ labels:Object.keys(releases), datasets:[{ label:'Tasks', data:Object.values(releases), backgroundColor:'#6366F1' }]}, options:{ plugins:{ legend:{ display:false }}}});
+    }
+    function renderStatusChart(){
+      const el = document.getElementById('statusChart'); if (!el) return;
+      const tasks = filteredTasks(); const counts={Todo:0,'In Progress':0,Done:0};
+      tasks.forEach(t=> counts[t.status==='Done'?'Done':(t.status==='In Progress'?'In Progress':'Todo')]++);
+      new Chart(el.getContext('2d'), { type:'doughnut', data:{ labels:Object.keys(counts), datasets:[{ data:Object.values(counts), backgroundColor:['#F97316','#6366F1','#10B981'] }]}, options:{ plugins:{ legend:{ position:'bottom' }}}});
+    }
+
+    // filtering utility
+    function filteredTasks(){
+      let tasks = DEMO.tasks.slice();
+      if (state.projectFilter !== 'all') tasks = tasks.filter(t=> t.project === state.projectFilter);
+      if (state.roleFilter !== 'all') {
+        const users = DEMO.staff.filter(s=>s.roleId===state.roleFilter).map(s=>s.userId);
+        tasks = tasks.filter(t=> users.includes(t.assignee));
+      }
+      return tasks;
+    }
+
+    // main view renderer
+    function renderView(){
+      const area = $('#view-area'); area.innerHTML='';
+      if (state.view === 'gantt') renderGantt(area);
+      if (state.view === 'grid') renderGrid(area);
+      if (state.view === 'card') renderCard(area);
+      if (state.view === 'calendar') renderCalendar(area);
+
+      if (state.currentMenu === 'workload') renderWorkload(area);
+      if (state.currentMenu === 'budget') renderBudget(area);
+      if (state.currentMenu === 'approval') renderApproval(area);
+      if (state.currentMenu === 'time') renderTimeTracking(area);
+      if (state.currentMenu === 'teams') renderTeams(area);
+      if (state.currentMenu === 'summary') {/* top summary already shows chart */}
+    }
+
+    // Gantt render + interactions
+    function renderGantt(container){
+      const tasks = filteredTasks();
+      if (!tasks.length) { container.innerHTML = '<div class="text-center py-20 text-gray-500">No tasks</div>'; return; }
       const min = new Date(Math.min(...tasks.map(t=>new Date(t.start)))); min.setDate(min.getDate()-5);
-      const leftPx = parseInt(bar.style.left || 0, 10);
-      const widthPx = parseInt(bar.style.width || 0, 10);
-      const pxpd = Math.max(6, Math.round(timeline.scrollWidth / Math.max(30, Math.ceil((new Date(Math.max(...tasks.map(t=>new Date(t.end)))) - min)/(1000*60*60*24)))));
-      const newStart = new Date(min); newStart.setDate(min.getDate() + Math.round(leftPx / pxpd));
-      const newEnd = new Date(newStart); newEnd.setDate(newStart.getDate() + Math.max(0, Math.round(widthPx / pxpd) - 1));
-      const task = DEMO.tasks.find(x => x.id === taskId);
-      if (task) { task.start = newStart.toISOString().slice(0,10); task.end = newEnd.toISOString().slice(0,10); }
-      G.dragging = null;
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-      renderTopSummary();
-      renderView();
+      const max = new Date(Math.max(...tasks.map(t=>new Date(t.end)))); max.setDate(max.getDate()+5);
+      const totalDays = Math.max(1, Math.ceil((max-min)/(1000*60*60*24)));
+      const pxPerDay = Math.max(8, Math.floor((container.clientWidth||800)/Math.min(totalDays,120)));
+      const header = document.createElement('div'); header.className='overflow-x-auto'; const ruler = document.createElement('div'); ruler.className='flex gap-1 mb-3';
+      for(let d=0; d<=totalDays; d++){ const dt=new Date(min); dt.setDate(min.getDate()+d); const lbl=document.createElement('div'); lbl.className='text-xs text-gray-500 text-center'; lbl.style.width=pxPerDay+'px'; lbl.textContent=`${dt.getMonth()+1}/${dt.getDate()}`; ruler.appendChild(lbl); }
+      header.appendChild(ruler); container.appendChild(header);
+      const grid = document.createElement('div'); grid.className='w-full';
+      tasks.forEach(t=>{
+        const row = document.createElement('div'); row.className='flex items-center gap-4 border-b py-2';
+        const meta = document.createElement('div'); meta.className='w-48 text-sm'; meta.innerHTML = `<div class="font-medium">${t.title}</div><div class="text-xs text-gray-500">${getUserName(t.assignee)}</div>`;
+        const timeline = document.createElement('div'); timeline.className='flex-1 relative h-12 bg-gray-50 rounded overflow-visible'; timeline.style.minWidth = (pxPerDay*totalDays)+'px';
+        const startOffset = Math.ceil((new Date(t.start)-min)/(1000*60*60*24));
+        const dur = Math.max(1, Math.ceil((new Date(t.end)-new Date(t.start))/(1000*60*60*24))+1);
+        const bar = document.createElement('div'); bar.className='absolute h-8 rounded flex items-center text-white px-2 cursor-move'; bar.style.left=(startOffset*pxPerDay)+'px'; bar.style.width=(dur*pxPerDay)+'px'; bar.style.background=getProjectColor(t.project); bar.dataset.taskId=t.id; bar.setAttribute('tabindex','0'); bar.setAttribute('role','slider'); bar.setAttribute('aria-label', `${t.title} ${t.start}→${t.end}`); bar.innerHTML=`<span class="truncate">${t.title} • ${t.status}</span>`;
+        const leftHandle = document.createElement('div'); leftHandle.className='absolute left-0 top-0 bottom-0 w-2 cursor-ew-resize'; leftHandle.dataset.handle='left';
+        const rightHandle = document.createElement('div'); rightHandle.className='absolute right-0 top-0 bottom-0 w-2 cursor-ew-resize'; rightHandle.dataset.handle='right';
+        bar.appendChild(leftHandle); bar.appendChild(rightHandle);
+        timeline.appendChild(bar); row.appendChild(meta); row.appendChild(timeline); grid.appendChild(row);
+      });
+      container.appendChild(grid);
+      initGanttInteractions(pxPerDay);
     }
 
-    function onKeyDown(e) {
-      const active = document.activeElement?.closest ? document.activeElement.closest('[data-task-id]') : null;
-      if (!active) return;
-      const taskId = active.dataset.taskId;
-      const task = DEMO.tasks.find(x=>x.id===taskId); if (!task) return;
-      if (e.key === 'ArrowLeft' && !e.altKey) {
-        const ns = new Date(task.start); ns.setDate(ns.getDate()-1);
-        const ne = new Date(task.end); ne.setDate(ne.getDate()-1);
-        task.start = ns.toISOString().slice(0,10); task.end = ne.toISOString().slice(0,10);
-        renderTopSummary(); renderView();
-        e.preventDefault();
-      } else if (e.key === 'ArrowRight' && !e.altKey) {
-        const ns = new Date(task.start); ns.setDate(ns.getDate()+1);
-        const ne = new Date(task.end); ne.setDate(ne.getDate()+1);
-        task.start = ns.toISOString().slice(0,10); task.end = ne.toISOString().slice(0,10);
-        renderTopSummary(); renderView();
-        e.preventDefault();
-      } else if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && e.altKey) {
-        const ne = new Date(task.end);
-        ne.setDate(ne.getDate() + (e.key === 'ArrowRight' ? 1 : -1));
-        if (ne >= new Date(task.start)) { task.end = ne.toISOString().slice(0,10); renderTopSummary(); renderView(); }
+    // Gantt interaction state & handlers
+    let G = { dragging:null, startX:0, origLeft:0, origWidth:0, pxPerDay:10 };
+    function initGanttInteractions(pxPerDay){
+      G.pxPerDay = pxPerDay;
+      function onDown(e){
+        const bar = e.target.closest('[data-task-id]'); if(!bar) return;
+        const handle = e.target.dataset.handle || 'move';
+        G.dragging = { bar, handle };
+        G.startX = e.clientX;
+        G.origLeft = parseInt(bar.style.left||0,10);
+        G.origWidth = parseInt(bar.style.width||0,10);
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
         e.preventDefault();
       }
+      function onMove(e){
+        if(!G.dragging) return;
+        const { bar, handle } = G.dragging; const dx = e.clientX - G.startX;
+        if(handle==='left'){ const newLeft = Math.max(0, G.origLeft + dx); const newWidth = Math.max(G.pxPerDay, G.origWidth - (newLeft - G.origLeft)); bar.style.left=newLeft+'px'; bar.style.width=newWidth+'px'; }
+        else if(handle==='right'){ const newWidth = Math.max(G.pxPerDay, G.origWidth + dx); bar.style.width = newWidth+'px'; }
+        else { const newLeft = Math.max(0, G.origLeft + dx); bar.style.left = newLeft+'px'; }
+      }
+      function onUp(){
+        if(!G.dragging) return;
+        const { bar } = G.dragging; const taskId = bar.dataset.taskId; const timeline = bar.parentElement;
+        const tasks = filteredTasks(); const min = new Date(Math.min(...tasks.map(t=>new Date(t.start)))); min.setDate(min.getDate()-5);
+        const leftPx = parseInt(bar.style.left||0,10); const widthPx = parseInt(bar.style.width||0,10);
+        const pxpd = Math.max(6, Math.round(timeline.scrollWidth / Math.max(30, Math.ceil((new Date(Math.max(...tasks.map(t=>new Date(t.end)))) - min)/(1000*60*60*24)))));
+        const newStart = new Date(min); newStart.setDate(min.getDate() + Math.round(leftPx / pxpd));
+        const newEnd = new Date(newStart); newEnd.setDate(newStart.getDate() + Math.max(0, Math.round(widthPx / pxpd) - 1));
+        const task = DEMO.tasks.find(x=>x.id===taskId); if(task){ task.start = newStart.toISOString().slice(0,10); task.end = newEnd.toISOString().slice(0,10); }
+        G.dragging = null; document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp);
+        renderTopSummary(); renderView();
+      }
+      function onKey(e){
+        const active = document.activeElement?.closest ? document.activeElement.closest('[data-task-id]') : null; if(!active) return;
+        const id = active.dataset.taskId; const task = DEMO.tasks.find(x=>x.id===id); if(!task) return;
+        if(e.key==='ArrowLeft' && !e.altKey){ const ns=new Date(task.start); ns.setDate(ns.getDate()-1); const ne=new Date(task.end); ne.setDate(ne.getDate()-1); task.start=ns.toISOString().slice(0,10); task.end=ne.toISOString().slice(0,10); renderTopSummary(); renderView(); e.preventDefault(); }
+        else if(e.key==='ArrowRight' && !e.altKey){ const ns=new Date(task.start); ns.setDate(ns.getDate()+1); const ne=new Date(task.end); ne.setDate(ne.getDate()+1); task.start=ns.toISOString().slice(0,10); task.end=ne.toISOString().slice(0,10); renderTopSummary(); renderView(); e.preventDefault(); }
+        else if((e.key==='ArrowLeft' || e.key==='ArrowRight') && e.altKey){ const ne=new Date(task.end); ne.setDate(ne.getDate() + (e.key==='ArrowRight'?1:-1)); if(ne >= new Date(task.start)){ task.end = ne.toISOString().slice(0,10); renderTopSummary(); renderView(); } e.preventDefault(); }
+      }
+      document.removeEventListener('mousedown', onDown); document.addEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey); document.addEventListener('keydown', onKey);
     }
 
-    document.removeEventListener('mousedown', onMouseDown);
-    document.addEventListener('mousedown', onMouseDown);
-    document.removeEventListener('keydown', onKeyDown);
-    document.addEventListener('keydown', onKeyDown);
-  }
-
-  // Grid view
-  function renderGrid(container) {
-    const tasks = filterTasks();
-    const table = document.createElement('table'); table.className='min-w-full text-sm';
-    table.innerHTML = `<thead class="bg-gray-50"><tr><th class="p-2 text-left">Task</th><th class="p-2 text-left">Project</th><th class="p-2">Assignee</th><th class="p-2">Role</th><th class="p-2">Start</th><th class="p-2">End</th><th class="p-2">Status</th><th class="p-2">Hours</th></tr></thead><tbody></tbody>`;
-    const tbody = table.querySelector('tbody');
-    tasks.forEach(t=>{
-      const tr = document.createElement('tr'); tr.className='border-b';
-      const roleMap = DEMO.staff.find(s=>s.userId===t.assignee); const roleName = roleMap ? helpers.getRoleName(roleMap.roleId) : '';
-      tr.innerHTML = `
-        <td class="p-2">${t.title}</td>
-        <td class="p-2">${helpers.getProjectName(t.project)}</td>
-        <td class="p-2 text-center">${helpers.getUserName(t.assignee)}</td>
-        <td class="p-2 text-center">${roleName}</td>
-        <td class="p-2 text-center">${t.start}</td>
-        <td class="p-2 text-center">${t.end}</td>
-        <td class="p-2 text-center">${t.status}</td>
-        <td class="p-2 text-right">${t.hours}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-    container.appendChild(table);
-  }
-
-  // Card view (kanban)
-  function renderCard(container) {
-    const tasks = filterTasks();
-    const columns = ['Todo','In Progress','Done'];
-    const board = document.createElement('div'); board.className='flex gap-4';
-    columns.forEach(col=>{
-      const colEl = document.createElement('div'); colEl.className='flex-1 bg-gray-50 p-3 rounded';
-      colEl.innerHTML = `<h4 class="font-semibold mb-2">${col}</h4>`;
-      tasks.filter(t=> mapStatus(t.status) === col).forEach(t=>{
-        const card = document.createElement('div'); card.className='bg-white p-3 rounded shadow mb-3';
-        const roleMap = DEMO.staff.find(s=>s.userId===t.assignee); const roleName = roleMap ? helpers.getRoleName(roleMap.roleId) : '';
-        card.innerHTML = `<div class="font-medium">${t.title}</div><div class="text-xs text-gray-500">${helpers.getProjectName(t.project)}</div><div class="mt-2 text-sm flex justify-between"><div>${helpers.getUserName(t.assignee)} • ${roleName}</div><div>${t.hours}h</div></div>`;
-        colEl.appendChild(card);
-      });
-      board.appendChild(colEl);
-    });
-    container.appendChild(board);
-  }
-
-  function mapStatus(s) { if (s==='Done') return 'Done'; if (s==='In Progress') return 'In Progress'; return 'Todo'; }
-
-  // Calendar view (simple month grid)
-  function renderCalendar(container) {
-    const tasks = filterTasks();
-    const now = new Date(); const year = now.getFullYear(); const month = now.getMonth();
-    const first = new Date(year, month, 1); const last = new Date(year, month+1, 0); const days = last.getDate();
-    const calendar = document.createElement('div'); calendar.className='grid grid-cols-7 gap-1';
-    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(h=>{ const hd = document.createElement('div'); hd.className='text-xs font-semibold text-gray-600'; hd.textContent=h; calendar.appendChild(hd);});
-    for (let i=0;i<first.getDay();i++) calendar.appendChild(document.createElement('div'));
-    for (let d=1; d<=days; d++){
-      const cell = document.createElement('div'); cell.className='min-h-[80px] p-2 bg-white rounded';
-      const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      cell.innerHTML = `<div class="text-xs font-medium mb-1">${d}</div>`;
-      tasks.filter(t => t.start === dateStr || (new Date(t.start) < new Date(dateStr) && new Date(t.end) >= new Date(dateStr))).forEach(t=>{
-        const pill = document.createElement('div'); pill.className='text-xs px-2 py-1 mb-1 rounded text-white'; pill.style.background = helpers.getProjectColor(t.project); pill.textContent = `${t.title} • ${helpers.getUserName(t.assignee)}`; cell.appendChild(pill);
-      });
-      calendar.appendChild(cell);
+    // Grid / Card / Calendar
+    function renderGrid(container){
+      const tasks = filteredTasks(); const table = document.createElement('table'); table.className='min-w-full text-sm';
+      table.innerHTML = `<thead class="bg-gray-50"><tr><th class="p-2 text-left">Task</th><th class="p-2 text-left">Project</th><th class="p-2">Assignee</th><th class="p-2">Role</th><th class="p-2">Start</th><th class="p-2">End</th><th class="p-2">Status</th><th class="p-2">Hours</th></tr></thead><tbody></tbody>`;
+      const tbody = table.querySelector('tbody'); tasks.forEach(t=>{ const tr=document.createElement('tr'); tr.className='border-b'; const role = DEMO.staff.find(s=>s.userId===t.assignee); const roleName = role ? getRoleName(role.roleId):''; tr.innerHTML=`<td class="p-2">${t.title}</td><td class="p-2">${getProjectName(t.project)}</td><td class="p-2 text-center">${getUserName(t.assignee)}</td><td class="p-2 text-center">${roleName}</td><td class="p-2 text-center">${t.start}</td><td class="p-2 text-center">${t.end}</td><td class="p-2 text-center">${t.status}</td><td class="p-2 text-right">${t.hours}</td>`; tbody.appendChild(tr); });
+      container.appendChild(table);
     }
-    container.appendChild(calendar);
-  }
+    function renderCard(container){
+      const tasks = filteredTasks(); const cols=['Todo','In Progress','Done']; const board=document.createElement('div'); board.className='flex gap-4';
+      cols.forEach(col=>{ const colEl=document.createElement('div'); colEl.className='flex-1 bg-gray-50 p-3 rounded'; colEl.innerHTML=`<h4 class="font-semibold mb-2">${col}</h4>`; tasks.filter(t=> mapStatus(t.status)===col).forEach(t=>{ const card=document.createElement('div'); card.className='bg-white p-3 rounded shadow mb-3'; const role = DEMO.staff.find(s=>s.userId===t.assignee); const roleName = role ? getRoleName(role.roleId):''; card.innerHTML=`<div class="font-medium">${t.title}</div><div class="text-xs text-gray-500">${getProjectName(t.project)}</div><div class="mt-2 text-sm flex justify-between"><div>${getUserName(t.assignee)} • ${roleName}</div><div>${t.hours}h</div></div>`; colEl.appendChild(card); }); board.appendChild(colEl); });
+      container.appendChild(board);
+    }
+    function renderCalendar(container){
+      const tasks = filteredTasks(); const now=new Date(), year=now.getFullYear(), month=now.getMonth(); const first=new Date(year,month,1), last=new Date(year,month+1,0), days=last.getDate();
+      const calendar=document.createElement('div'); calendar.className='grid grid-cols-7 gap-1'; ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(h=>{ const hd=document.createElement('div'); hd.className='text-xs font-semibold text-gray-600'; hd.textContent=h; calendar.appendChild(hd);});
+      for(let i=0;i<first.getDay();i++) calendar.appendChild(document.createElement('div'));
+      for(let d=1; d<=days; d++){ const cell=document.createElement('div'); cell.className='min-h-[80px] p-2 bg-white rounded'; const dateStr=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; cell.innerHTML=`<div class="text-xs font-medium mb-1">${d}</div>`; tasks.filter(t => t.start===dateStr || (new Date(t.start) < new Date(dateStr) && new Date(t.end) >= new Date(dateStr))).forEach(t=>{ const pill=document.createElement('div'); pill.className='text-xs px-2 py-1 mb-1 rounded text-white'; pill.style.background = getProjectColor(t.project); pill.textContent = `${t.title} • ${getUserName(t.assignee)}`; cell.appendChild(pill); }); calendar.appendChild(cell); }
+      container.appendChild(calendar);
+    }
 
-  // Teams view
-  function renderTeamsView(container) {
-    const wrapper = document.createElement('div'); wrapper.className='grid grid-cols-2 gap-4';
-    DEMO.teams.forEach(team=>{
-      const card = document.createElement('div'); card.className='bg-white p-4 rounded shadow';
-      card.innerHTML = `<div class="font-semibold">${team.name}</div><div class="text-xs text-gray-500 mb-2">${team.members.length} members</div>`;
-      team.members.forEach(uid=>{
-        const user = DEMO.users.find(u=>u.id===uid); const staff = DEMO.staff.find(s=>s.userId===uid); const role = staff ? helpers.getRoleName(staff.roleId) : '';
-        const memberRow = document.createElement('div'); memberRow.className='flex items-center justify-between py-2 border-t';
-        memberRow.innerHTML = `<div><div class="font-medium">${helpers.getUserName(uid)}</div><div class="text-xs text-gray-500">${role}</div></div><div class="text-xs text-gray-600">${user?.capacity || '-'}h</div>`;
-        card.appendChild(memberRow);
-      });
-      wrapper.appendChild(card);
-    });
-    container.appendChild(wrapper);
-  }
+    function mapStatus(s){ if(s==='Done') return 'Done'; if(s==='In Progress') return 'In Progress'; return 'Todo'; }
 
-  // Widgets
-  function renderWorkloadWidget(area) {
-    const box = document.createElement('div'); box.className='mt-4 p-4 bg-white rounded shadow';
-    const usersList = state.roleFilter && state.roleFilter !== 'all' ? DEMO.staff.filter(s => s.roleId === state.roleFilter).map(s=>s.userId) : DEMO.users.map(u=>u.id);
-    const workloads = {}; DEMO.users.forEach(u => { if (usersList.includes(u.id)) workloads[u.id] = { name: u.name, capacity: u.capacity, hours: 0 }; });
-    DEMO.tasks.forEach(t => { if (workloads[t.assignee]) workloads[t.assignee].hours += t.hours; });
-    let html = '<div class="font-semibold mb-2">Workload Management</div><div class="space-y-2">';
-    Object.values(workloads).forEach(w => { const pct = Math.min(100, Math.round((w.hours / w.capacity) * 100)); html += `<div><div class="flex justify-between text-sm"><div>${w.name}</div><div>${w.hours}h / ${w.capacity}h</div></div><div class="w-full bg-gray-100 h-2 rounded mt-1"><div class="h-2 rounded bg-indigo-600" style="width:${pct}%"></div></div></div>`; });
-    html += '</div>'; box.innerHTML = html; area.appendChild(box);
-  }
+    // Widgets
+    function renderWorkload(area){
+      const box=document.createElement('div'); box.className='mt-4 p-4 bg-white rounded shadow';
+      const usersList = state.roleFilter && state.roleFilter!=='all' ? DEMO.staff.filter(s=>s.roleId===state.roleFilter).map(s=>s.userId) : DEMO.users.map(u=>u.id);
+      const workloads={}; DEMO.users.forEach(u=>{ if(usersList.includes(u.id)) workloads[u.id]={name:u.name,capacity:u.capacity,hours:0}; });
+      DEMO.tasks.forEach(t=>{ if(workloads[t.assignee]) workloads[t.assignee].hours += t.hours; });
+      let html='<div class="font-semibold mb-2">Workload</div><div class="space-y-2">';
+      Object.values(workloads).forEach(w=>{ const pct=Math.min(100,Math.round((w.hours/w.capacity)*100)); html+=`<div><div class="flex justify-between text-sm"><div>${w.name}</div><div>${w.hours}h / ${w.capacity}h</div></div><div class="w-full bg-gray-100 h-2 rounded mt-1"><div class="h-2 rounded bg-indigo-600" style="width:${pct}%"></div></div></div>`; });
+      html+='</div>'; box.innerHTML=html; area.appendChild(box);
+    }
+    function renderBudget(area){
+      const box=document.createElement('div'); box.className='mt-4 p-4 bg-white rounded shadow'; let html='<div class="font-semibold mb-2">Budget</div>';
+      DEMO.projects.forEach(p=>{ const spent=DEMO.tasks.filter(t=>t.project===p.id).reduce((s,t)=>s+(t.budgetUsed||0),0); const pct=Math.round((spent/p.budget)*100); html+=`<div class="mb-3"><div class="flex justify-between text-sm"><div><strong>${p.name}</strong></div><div>$${spent.toLocaleString()} / $${p.budget.toLocaleString()}</div></div><div class="w-full bg-gray-100 h-2 rounded mt-1"><div class="h-2 rounded ${pct>90?'bg-red-500':'bg-green-500'}" style="width:${Math.min(100,pct)}%"></div></div></div>`; });
+      html += `<div class="mt-3 text-sm text-gray-600">Demo: >90% highlighted</div>`; box.innerHTML=html; area.appendChild(box);
+    }
+    function renderApproval(area){
+      const box=document.createElement('div'); box.className='mt-4 p-4 bg-white rounded shadow'; let html='<div class="font-semibold mb-2">Approval</div>';
+      DEMO.approvals.forEach(a=>{ const t=DEMO.tasks.find(x=>x.id===a.task); html+=`<div class="border p-3 rounded mb-2"><div class="text-sm font-medium">${t.title}</div><div class="text-xs text-gray-500">Approvers: ${a.approvers.join(', ')}</div><div class="mt-2 text-sm">Status: <strong>${a.status}</strong></div><div class="mt-2"><button data-approve="${a.id}" class="px-2 py-1 bg-indigo-600 text-white rounded text-sm">Approve</button></div></div>`; });
+      box.innerHTML=html; area.appendChild(box); box.querySelectorAll('[data-approve]').forEach(btn=> btn.addEventListener('click', ()=>{ const ap=DEMO.approvals.find(x=>x.id===btn.dataset.approve); ap.status='Approved'; renderView(); }));
+    }
+    function renderTimeTracking(area){
+      const box=document.createElement('div'); box.className='mt-4 p-4 bg-white rounded shadow'; let html='<div class="font-semibold mb-2">Time Tracking</div>';
+      html+=`<div class="mb-2"><form id="timeForm" class="flex gap-2"><select id="timeTask" class="border px-2 py-1 text-sm">${DEMO.tasks.map(t=>`<option value="${t.id}">${t.title}</option>`).join('')}</select><select id="timeUser" class="border px-2 py-1 text-sm">${DEMO.users.map(u=>`<option value="${u.id}">${u.name}</option>`).join('')}</select><input id="timeDate" type="date" class="border px-2 py-1 text-sm" /><input id="timeHours" type="number" min="0" step="0.25" placeholder="hours" class="border px-2 py-1 text-sm" /><button class="bg-indigo-600 text-white px-3 py-1 rounded text-sm">Log</button></form></div>`;
+      html += '<div id="timeList" class="text-sm"></div>'; box.innerHTML=html; area.appendChild(box);
+      const form = box.querySelector('#timeForm'); const list = box.querySelector('#timeList'); function refresh(){ list.innerHTML = DEMO.timeEntries.map(te=>{ const t=DEMO.tasks.find(x=>x.id===te.task); const u=DEMO.users.find(x=>x.id===te.user); return `<div class="border-b py-1">${te.date} • ${t.title} • ${u.name} • ${te.hours}h</div>`; }).join(''); } refresh();
+      form.addEventListener('submit', e=>{ e.preventDefault(); const newEntry={ id:'TT'+(DEMO.timeEntries.length+1), task:form.querySelector('#timeTask').value, user:form.querySelector('#timeUser').value, date:form.querySelector('#timeDate').value || new Date().toISOString().slice(0,10), hours: Number(form.querySelector('#timeHours').value) || 0 }; DEMO.timeEntries.push(newEntry); refresh(); renderTopSummary(); });
+    }
+    function renderTeams(area){
+      const wrap=document.createElement('div'); wrap.className='grid grid-cols-2 gap-4'; DEMO.teams.forEach(team=>{ const c=document.createElement('div'); c.className='bg-white p-4 rounded shadow'; c.innerHTML=`<div class="font-semibold">${team.name}</div><div class="text-xs text-gray-500 mb-2">${team.members.length} members</div>`; team.members.forEach(uid=>{ const user=DEMO.users.find(u=>u.id===uid); const staff=DEMO.staff.find(s=>s.userId===uid); const role=staff?getRoleName(staff.roleId):''; const row=document.createElement('div'); row.className='flex items-center justify-between py-2 border-t'; row.innerHTML=`<div><div class="font-medium">${getUserName(uid)}</div><div class="text-xs text-gray-500">${role}</div></div><div class="text-xs text-gray-600">${user?.capacity||'-'}h</div>`; c.appendChild(row); }); wrap.appendChild(c); }); area.appendChild(wrap);
+    }
 
-  function renderBudgetWidget(area) {
-    const box = document.createElement('div'); box.className='mt-4 p-4 bg-white rounded shadow';
-    let html = '<div class="font-semibold mb-2">Budget creation and monitoring</div>';
-    DEMO.projects.forEach(p=>{ const spent = DEMO.tasks.filter(t=>t.project===p.id).reduce((s,t)=>s+(t.budgetUsed||0),0); const pct = Math.round((spent / p.budget) * 100); html += `<div class="mb-3"><div class="flex justify-between text-sm"><div><strong>${p.name}</strong></div><div>$${spent.toLocaleString()} / $${p.budget.toLocaleString()}</div></div><div class="w-full bg-gray-100 h-2 rounded mt-1"><div class="h-2 rounded ${pct>90?'bg-red-500':'bg-green-500'}" style="width:${Math.min(100,pct)}%"></div></div></div>`; });
-    html += `<div class="mt-3 text-sm text-gray-600">Demo: projects exceeding 90% are highlighted</div>`; box.innerHTML = html; area.appendChild(box);
-  }
+    // CSV export
+    function toCSV(rows, headers){ const esc=v=>`"${String(v||'').replace(/"/g,'""')}"`; const out=[headers.map(esc).join(',')]; rows.forEach(r=> out.push(headers.map(h=>esc(r[h]===undefined?'':r[h])).join(','))); return out.join('\n'); }
+    function download(filename, text){ const blob=new Blob([text],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000); }
+    function exportTasksCSV(){ const headers=['id','title','project','assignee','start','end','status','hours','billable','budgetUsed','release']; const rows=DEMO.tasks.map(t=>({ id:t.id, title:t.title, project:t.project, assignee:t.assignee, start:t.start, end:t.end, status:t.status, hours:t.hours, billable:t.billable, budgetUsed:t.budgetUsed, release:t.release })); download('tasks.csv', toCSV(rows, headers)); }
+    function exportTimeCSV(){ const headers=['id','task','user','date','hours']; const rows=DEMO.timeEntries.map(te=>({ id:te.id, task:te.task, user:te.user, date:te.date, hours:te.hours })); download('timesheets.csv', toCSV(rows, headers)); }
 
-  function renderApprovalWidget(area) {
-    const box = document.createElement('div'); box.className='mt-4 p-4 bg-white rounded shadow';
-    let html = '<div class="font-semibold mb-2">Custom Approval Workflows</div>';
-    DEMO.approvals.forEach(a=>{ const t = DEMO.tasks.find(x=>x.id===a.task); html += `<div class="border p-3 rounded mb-2"><div class="text-sm font-medium">${t.title}</div><div class="text-xs text-gray-500">Approvers: ${a.approvers.join(', ')}</div><div class="mt-2 text-sm">Status: <strong>${a.status}</strong></div><div class="mt-2"><button data-approve="${a.id}" class="px-2 py-1 bg-indigo-600 text-white rounded text-sm">Approve</button></div></div>`; });
-    box.innerHTML = html; area.appendChild(box);
-    box.querySelectorAll('[data-approve]').forEach(btn=> btn.addEventListener('click', ()=> { const ap = DEMO.approvals.find(x=>x.id===btn.dataset.approve); ap.status='Approved'; renderView(); }));
-  }
+    // initial UI highlights
+    document.querySelector('[data-menu="summary"]').classList.add('bg-indigo-50');
+    document.querySelector('[data-view="gantt"]').classList.add('bg-indigo-600','text-white');
 
-  function renderTimeTrackingWidget(area) {
-    const box = document.createElement('div'); box.className='mt-4 p-4 bg-white rounded shadow';
-    let html = '<div class="font-semibold mb-2">Native Time Tracking</div>';
-    html += `<div class="mb-2"><form id="timeForm" class="flex gap-2"><select id="timeTask" class="border px-2 py-1 text-sm">${DEMO.tasks.map(t=>`<option value="${t.id}">${t.title}</option>`).join('')}</select><select id="timeUser" class="border px-2 py-1 text-sm">${DEMO.users.map(u=>`<option value="${u.id}">${u.name}</option>`).join('')}</select><input id="timeDate" type="date" class="border px-2 py-1 text-sm" /><input id="timeHours" type="number" min="0" step="0.25" placeholder="hours" class="border px-2 py-1 text-sm" /><button class="bg-indigo-600 text-white px-3 py-1 rounded text-sm">Log</button></form></div>`;
-    html += '<div id="timeList" class="text-sm"></div>'; box.innerHTML = html; area.appendChild(box);
-    const timeForm = box.querySelector('#timeForm'); const timeList = box.querySelector('#timeList');
-    function refresh() { timeList.innerHTML = DEMO.timeEntries.map(te=>{ const task = DEMO.tasks.find(t=>t.id===te.task); const user = DEMO.users.find(u=>u.id===te.user); return `<div class="border-b py-1">${te.date} • ${task.title} • ${user.name} • ${te.hours}h</div>`; }).join(''); }
-    refresh();
-    timeForm.addEventListener('submit', e=> { e.preventDefault(); const newEntry = { id: 'TT' + (DEMO.timeEntries.length+1), task: box.querySelector('#timeTask').value, user: box.querySelector('#timeUser').value, date: box.querySelector('#timeDate').value || new Date().toISOString().slice(0,10), hours: Number(box.querySelector('#timeHours').value) || 0 }; DEMO.timeEntries.push(newEntry); refresh(); renderTopSummary(); });
-  }
+    // initialise
+    populateFilters(); wire(); renderTopSummary(); renderView();
 
-  function renderSummaryWidget(area) {
-    const box = document.createElement('div'); box.className='mt-4 p-4 bg-white rounded shadow';
-    box.innerHTML = `<div class="font-semibold mb-2">Summary</div><div class="text-sm text-gray-600">Quick charts and status indicators</div><div class="mt-4"><canvas id="statusChart2" height="120"></canvas></div>`;
-    area.appendChild(box);
-    const ctx = document.getElementById('statusChart2').getContext('2d');
-    const tasks = filterTasks();
-    const counts = { Todo:0, 'In Progress':0, Done:0 }; tasks.forEach(t=> counts[t.status==='Done'?'Done':(t.status==='In Progress'?'In Progress':'Todo')]++);
-    new Chart(ctx, { type:'doughnut', data:{ labels:Object.keys(counts), datasets:[{ data:Object.values(counts), backgroundColor:['#F97316','#6366F1','#10B981'] }]}, options:{ plugins:{ legend:{ position:'bottom' } } } });
-  }
-
-  // CSV export
-  function toCSV(rows, headers) {
-    const esc = v => `"${String(v||'').replace(/"/g,'""')}"`;
-    const out = [headers.map(esc).join(',')];
-    rows.forEach(r => out.push(headers.map(h => esc(r[h]===undefined ? '' : r[h])).join(',')));
-    return out.join('\n');
-  }
-  function download(filename, text) {
-    const blob = new Blob([text], { type: 'text/csv;charset=utf-8;' }); const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(()=>URL.revokeObjectURL(url),1000);
-  }
-  function exportTasksCSV() {
-    const headers = ['id','title','project','assignee','start','end','status','hours','billable','budgetUsed','release'];
-    const rows = DEMO.tasks.map(t => ({ id: t.id, title: t.title, project: t.project, assignee: t.assignee, start: t.start, end: t.end, status: t.status, hours: t.hours, billable: t.billable, budgetUsed: t.budgetUsed, release: t.release }));
-    download('tasks.csv', toCSV(rows, headers));
-  }
-  function exportTimeCSV() {
-    const headers = ['id','task','user','date','hours'];
-    const rows = DEMO.timeEntries.map(te => ({ id: te.id, task: te.task, user: te.user, date: te.date, hours: te.hours }));
-    download('timesheets.csv', toCSV(rows, headers));
-  }
-
-  // Utility renderers
-  function renderWorkloadWidget(area, DEMO) { renderWorkloadWidget(area); } // placeholder to use same function above
-
-  // Render functions delegation (works with same names above)
-  function renderWorkloadWidget(area) { /* defined above inline */ }
-  // slight duplication fix: we already defined renderWorkloadWidget earlier; ensure it's available by no-op
-
-  // Render summary widget (already defined as renderSummaryWidget)
-
-  // Approval and Teams handled above
-
-  // Quick view selection mapping
-  function renderGrid(area) { renderGridView(area); }
-  function renderGridView(area) {
-    const tasks = filterTasks();
-    const table = document.createElement('table'); table.className='min-w-full text-sm';
-    table.innerHTML = `<thead class="bg-gray-50"><tr><th class="p-2 text-left">Task</th><th class="p-2 text-left">Project</th><th class="p-2">Assignee</th><th class="p-2">Role</th><th class="p-2">Start</th><th class="p-2">End</th><th class="p-2">Status</th><th class="p-2">Hours</th></tr></thead><tbody></tbody>`;
-    const tbody = table.querySelector('tbody');
-    tasks.forEach(t=>{
-      const tr = document.createElement('tr'); tr.className='border-b';
-      const roleMap = DEMO.staff.find(s=>s.userId===t.assignee); const roleName = roleMap ? helpers.getRoleName(roleMap.roleId) : '';
-      tr.innerHTML = `<td class="p-2">${t.title}</td><td class="p-2">${helpers.getProjectName(t.project)}</td><td class="p-2 text-center">${helpers.getUserName(t.assignee)}</td><td class="p-2 text-center">${roleName}</td><td class="p-2 text-center">${t.start}</td><td class="p-2 text-center">${t.end}</td><td class="p-2 text-center">${t.status}</td><td class="p-2 text-right">${t.hours}</td>`;
-      tbody.appendChild(tr);
-    });
-    area.appendChild(table);
-  }
-
-  function renderCard(area) { renderCardView(area); }
-  function renderCardView(area) {
-    const tasks = filterTasks();
-    const columns = ['Todo','In Progress','Done']; const board = document.createElement('div'); board.className='flex gap-4';
-    columns.forEach(col=>{
-      const colEl = document.createElement('div'); colEl.className='flex-1 bg-gray-50 p-3 rounded'; colEl.innerHTML = `<h4 class="font-semibold mb-2">${col}</h4>`;
-      tasks.filter(t=> mapStatus(t.status) === col).forEach(t=>{
-        const card = document.createElement('div'); card.className='bg-white p-3 rounded shadow mb-3';
-        const roleMap = DEMO.staff.find(s=>s.userId===t.assignee); const roleName = roleMap ? helpers.getRoleName(roleMap.roleId) : '';
-        card.innerHTML = `<div class="font-medium">${t.title}</div><div class="text-xs text-gray-500">${helpers.getProjectName(t.project)}</div><div class="mt-2 text-sm flex justify-between"><div>${helpers.getUserName(t.assignee)} • ${roleName}</div><div>${t.hours}h</div></div>`;
-        colEl.appendChild(card);
-      });
-      board.appendChild(colEl);
-    });
-    area.appendChild(board);
-  }
-
-  function renderCalendar(area) { renderCalendarView(area); }
-  function renderCalendarView(area) {
-    const tasks = filterTasks();
-    const now = new Date(), year = now.getFullYear(), month = now.getMonth();
-    const first = new Date(year, month, 1), last = new Date(year, month+1, 0), days = last.getDate();
-    const calendar = document.createElement('div'); calendar.className='grid grid-cols-7 gap-1';
-    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(h=> { const hd=document.createElement('div'); hd.className='text-xs font-semibold text-gray-600'; hd.textContent=h; calendar.appendChild(hd);});
-    for(let i=0;i<first.getDay();i++) calendar.appendChild(document.createElement('div'));
-    for(let d=1; d<=days; d++){ const cell=document.createElement('div'); cell.className='min-h-[80px] p-2 bg-white rounded'; const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; cell.innerHTML = `<div class="text-xs font-medium mb-1">${d}</div>`; tasks.filter(t => t.start === dateStr || (new Date(t.start) < new Date(dateStr) && new Date(t.end) >= new Date(dateStr))).forEach(t=>{ const pill=document.createElement('div'); pill.className='text-xs px-2 py-1 mb-1 rounded text-white'; pill.style.background = helpers.getProjectColor(t.project); pill.textContent = `${t.title} • ${helpers.getUserName(t.assignee)}`; cell.appendChild(pill); }); calendar.appendChild(cell); }
-    area.appendChild(calendar);
-  }
-
-  // Workload/Budget/Approval/Time/Teams/Summary views (invoke above definitions)
-  function renderWorkloadWidget(area) { const box = document.createElement('div'); box.className='mt-4 p-4 bg-white rounded shadow'; const usersList = state.roleFilter && state.roleFilter !== 'all' ? DEMO.staff.filter(s => s.roleId === state.roleFilter).map(s=>s.userId) : DEMO.users.map(u=>u.id); const workloads = {}; DEMO.users.forEach(u => { if (usersList.includes(u.id)) workloads[u.id] = { name:u.name, capacity:u.capacity, hours:0 }; }); DEMO.tasks.forEach(t=>{ if (workloads[t.assignee]) workloads[t.assignee].hours += t.hours; }); let html = '<div class="font-semibold mb-2">Workload Management</div><div class="space-y-2">'; Object.values(workloads).forEach(w=>{ const pct = Math.min(100, Math.round((w.hours/w.capacity)*100)); html += `<div><div class="flex justify-between text-sm"><div>${w.name}</div><div>${w.hours}h / ${w.capacity}h</div></div><div class="w-full bg-gray-100 h-2 rounded mt-1"><div class="h-2 rounded bg-indigo-600" style="width:${pct}%"></div></div></div>`; }); html += '</div>'; box.innerHTML = html; area.appendChild(box); }
-
-  function renderBudgetWidget(area) { const box = document.createElement('div'); box.className='mt-4 p-4 bg-white rounded shadow'; let html = '<div class="font-semibold mb-2">Budget creation and monitoring</div>'; DEMO.projects.forEach(p=>{ const spent = DEMO.tasks.filter(t=>t.project===p.id).reduce((s,t)=>s+(t.budgetUsed||0),0); const pct = Math.round((spent / p.budget)*100); html += `<div class="mb-3"><div class="flex justify-between text-sm"><div><strong>${p.name}</strong></div><div>$${spent.toLocaleString()} / $${p.budget.toLocaleString()}</div></div><div class="w-full bg-gray-100 h-2 rounded mt-1"><div class="h-2 rounded ${pct>90?'bg-red-500':'bg-green-500'}" style="width:${Math.min(100,pct)}%"></div></div></div>`; }); html += `<div class="mt-3 text-sm text-gray-600">Demo: projects exceeding 90% are highlighted</div>`; box.innerHTML = html; area.appendChild(box); }
-
-  function renderApprovalWidget(area) { const box = document.createElement('div'); box.className='mt-4 p-4 bg-white rounded shadow'; let html = '<div class="font-semibold mb-2">Custom Approval Workflows</div>'; DEMO.approvals.forEach(a=>{ const t = DEMO.tasks.find(x=>x.id===a.task); html += `<div class="border p-3 rounded mb-2"><div class="text-sm font-medium">${t.title}</div><div class="text-xs text-gray-500">Approvers: ${a.approvers.join(', ')}</div><div class="mt-2 text-sm">Status: <strong>${a.status}</strong></div><div class="mt-2"><button data-approve="${a.id}" class="px-2 py-1 bg-indigo-600 text-white rounded text-sm">Approve</button></div></div>`; }); box.innerHTML = html; area.appendChild(box); box.querySelectorAll('[data-approve]').forEach(btn=> btn.addEventListener('click', ()=> { const ap = DEMO.approvals.find(x=>x.id===btn.dataset.approve); ap.status='Approved'; renderView(); })); }
-
-  function renderTimeTrackingWidget(area) { const box = document.createElement('div'); box.className='mt-4 p-4 bg-white rounded shadow'; let html = '<div class="font-semibold mb-2">Native Time Tracking</div>'; html += `<div class="mb-2"><form id="timeForm" class="flex gap-2"><select id="timeTask" class="border px-2 py-1 text-sm">${DEMO.tasks.map(t=>`<option value="${t.id}">${t.title}</option>`).join('')}</select><select id="timeUser" class="border px-2 py-1 text-sm">${DEMO.users.map(u=>`<option value="${u.id}">${u.name}</option>`).join('')}</select><input id="timeDate" type="date" class="border px-2 py-1 text-sm" /><input id="timeHours" type="number" min="0" step="0.25" placeholder="hours" class="border px-2 py-1 text-sm" /><button class="bg-indigo-600 text-white px-3 py-1 rounded text-sm">Log</button></form></div>`; html += '<div id="timeList" class="text-sm"></div>'; box.innerHTML = html; area.appendChild(box); const form = box.querySelector('#timeForm'); const list = box.querySelector('#timeList'); function refresh(){ list.innerHTML = DEMO.timeEntries.map(te=>{ const t = DEMO.tasks.find(x=>x.id===te.task); const u = DEMO.users.find(x=>x.id===te.user); return `<div class="border-b py-1">${te.date} • ${t.title} • ${u.name} • ${te.hours}h</div>`; }).join(''); } refresh(); form.addEventListener('submit', e=>{ e.preventDefault(); const newEntry={ id:'TT'+(DEMO.timeEntries.length+1), task:form.querySelector('#timeTask').value, user:form.querySelector('#timeUser').value, date:form.querySelector('#timeDate').value || new Date().toISOString().slice(0,10), hours: Number(form.querySelector('#timeHours').value) || 0 }; DEMO.timeEntries.push(newEntry); refresh(); renderTopSummary(); }); }
-
-  // Teams view uses renderTeamsView above
-
-  // Summary widget uses renderSummaryWidget above
-
-  // Card/Calendar/Grid delegations already handled
-
-  // Render helpers finish
-  function mapStatus(s) { if (s==='Done') return 'Done'; if (s==='In Progress') return 'In Progress'; return 'Todo'; }
-
-  // initial UI state highlight
-  document.querySelector('[data-menu="summary"]').classList.add('bg-indigo-50');
-  document.querySelector('[data-view="gantt"]').classList.add('bg-indigo-600','text-white');
-
-  // Start
-  init();
-
+  })();
   </script>
 </body>
 </html>
