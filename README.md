@@ -5,6 +5,7 @@ This archive contains three static demo web apps designed for local testing and 
 - DWA (Digital Wallet App) — path: DWA/public
 - AMS (Inventory / Assets Management System) — path: AMS/public
 - HRMS (Human Resource Management System) — path: HRMS/public
+- Learning Management System (LMS) frontend prototype — path: LMS/
 - Others
 
 Quick-run (recommended)

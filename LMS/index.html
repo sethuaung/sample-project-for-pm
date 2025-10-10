@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="FE-Summrized">
+    <meta name="description" content="FELIXENT: Project Management Training">
+    <meta name="author" content="Mosquito">
+    <link href="contents/favicon.ico" rel="icon">
+    <title>Felixent:Learning Manangement System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/faker@5.5.3/dist/faker.min.js"></script>
+    <style>
+        /* Custom scrollbar for webkit browsers */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        /* Simple transition for page visibility */
+        .page {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .page.hidden {
+            opacity: 0;
+            display: none;
+        }
+        /* Active nav link style */
+        .nav-link.active {
+            background-color: #1e40af; /* a darker blue */
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-blue-900 text-white flex-shrink-0">
+            <div class="p-6">
+                <h1 class="text-2xl font-bold">Felixent LMS</h1>
+                <p class="text-sm text-blue-300">FE Demo</p>
+            </div>
+            <nav class="mt-8">
+                <a href="#dashboard" class="nav-link flex items-center py-3 px-6 text-blue-100 hover:bg-blue-800 active">
+                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1V10a1 1 0 00-1-1H7a1 1 0 00-1 1v10a1 1 0 001 1h2z"></path></svg>
+                    Home
+                </a>
+                <a href="#users" class="nav-link flex items-center py-3 px-6 text-blue-100 hover:bg-blue-800">
+                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M15 21v-1a6 6 0 00-1-3.72a4 4 0 00-4 0A6 6 0 003 20v1h12z"></path></svg>
+                    Users
+                </a>
+                <a href="#courses" class="nav-link flex items-center py-3 px-6 text-blue-100 hover:bg-blue-800">
+                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v11.494m-9-5.747h18"></path><path d="M12 6.253v11.494m-9-5.747h18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18a6 6 0 100-12 6 6 0 000 12z"></path></svg>
+                    Courses
+                </a>
+                <a href="#groups" class="nav-link flex items-center py-3 px-6 text-blue-100 hover:bg-blue-800">
+                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.284-1.255-.745-1.682A5.968 5.968 0 0012 15c-1.305 0-2.512.445-3.415 1.2A3 3 0 007 18v2m10 0h-2M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.284-1.255.745-1.682A5.968 5.968 0 0112 15c1.305 0 2.512.445 3.415 1.2A3 3 0 0117 18v2m-5-15a4 4 0 11-8 0 4 4 0 018 0zM12 15a4 4 0 110-8 4 4 0 010 8z"></path></svg>
+                    Groups
+                </a>
+                <a href="#branches" class="nav-link flex items-center py-3 px-6 text-blue-100 hover:bg-blue-800">
+                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                    Branches
+                </a>
+                <a href="#reports" class="nav-link flex items-center py-3 px-6 text-blue-100 hover:bg-blue-800">
+                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Reports
+                </a>
+                <a href="#settings" class="nav-link flex items-center py-3 px-6 text-blue-100 hover:bg-blue-800">
+                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    Account & Settings
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header class="bg-white shadow-md p-4 flex justify-between items-center">
+                <h2 class="text-xl font-semibold text-gray-700" id="page-title">Home</h2>
+                <div class="flex items-center">
+                    <div class="relative hidden sm:block">
+                        <input type="text" class="border rounded-full py-2 px-4 focus:ring-blue-500 focus:border-blue-500" placeholder="Search...">
+                        <svg class="w-5 h-5 absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <div class="ml-6 flex items-center">
+                        <!-- Updated Admin Profile to Institute Picture -->
+                        <img src="https://placehold.co/40x40/3B82F6/ffffff?text=F" alt="Felixent Institute Logo" class="w-10 h-10 rounded-full bg-white p-1 ring-2 ring-blue-500">
+                        <div class="ml-2">
+                            <p class="font-semibold">Felixent Admin</p>
+                            <p class="text-sm text-gray-500">Administrator</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="flex-1 p-6 overflow-y-auto">
+                <!-- Dashboard Page -->
+                <div id="dashboard-page" class="page">
+                    <!-- Stat Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                        <div class="bg-white p-6 rounded-lg shadow-md flex items-center">
+                             <div class="bg-blue-500 text-white rounded-full p-3">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M15 21v-1a6 6 0 00-1-3.72a4 4 0 00-4 0A6 6 0 003 20v1h12z"></path></svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-gray-500">Total Users</h3>
+                                <p class="text-2xl font-bold" id="total-users-stat">0</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-md flex items-center">
+                             <div class="bg-green-500 text-white rounded-full p-3">
+                               <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v11.494m-9-5.747h18"></path><path d="M12 6.253v11.494m-9-5.747h18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18a6 6 0 100-12 6 6 0 000 12z"></path></svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-gray-500">Total Courses</h3>
+                                <p class="text-2xl font-bold" id="total-courses-stat">0</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-md flex items-center">
+                             <div class="bg-yellow-500 text-white rounded-full p-3">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.284-1.255-.745-1.682A5.968 5.968 0 0012 15c-1.305 0-2.512.445-3.415 1.2A3 3 0 007 18v2m10 0h-2M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.284-1.255.745-1.682A5.968 5.968 0 0112 15c1.305 0 2.512.445 3.415 1.2A3 3 0 0117 18v2m-5-15a4 4 0 11-8 0 4 4 0 018 0zM12 15a4 4 0 110-8 4 4 0 010 8z"></path></svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-gray-500">Total Groups</h3>
+                                <p class="text-2xl font-bold" id="total-groups-stat">0</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-md flex items-center">
+                            <div class="bg-red-500 text-white rounded-full p-3">
+                               <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-gray-500">Total Branches</h3>
+                                <p class="text-2xl font-bold" id="total-branches-stat">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Charts -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h3 class="font-semibold text-gray-700 mb-4">Users by Role</h3>
+                            <div class="chart-container w-full h-80 lg:h-96">
+                                <canvas id="usersByRoleChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h3 class="font-semibold text-gray-700 mb-4">Courses by Grade</h3>
+                            <div class="chart-container w-full h-80 lg:h-96">
+                                <canvas id="coursesByGradeChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users Page -->
+                <div id="users-page" class="page hidden">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                         <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-bold text-gray-800">User Management</h2>
+                            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition duration-150 ease-in-out">Add New User</button>
+                        </div>
+                        <div class="border-b border-gray-200">
+                            <nav class="flex space-x-4" id="user-tabs">
+                                <a href="#" class="user-tab-link py-4 px-1 border-b-2 border-blue-600 font-semibold text-blue-600" data-tab="students">Students</a>
+                                <a href="#" class="user-tab-link py-4 px-1 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="teachers">Teachers</a>
+                                <a href="#" class="user-tab-link py-4 px-1 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="staff">Staff</a>
+                            </nav>
+                        </div>
+                        <div id="user-tab-content" class="mt-6">
+                            <!-- Student Content -->
+                            <div id="students-content" class="user-tab-pane">
+                                <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                                    <h3 class="font-semibold text-gray-700 mb-4">Students per Grade</h3>
+                                    <div class="chart-container w-full h-80 lg:h-96">
+                                        <canvas id="studentsPerGradeChart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full bg-white">
+                                        <thead class="bg-gray-100">
+                                            <tr>
+                                                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Name</th>
+                                                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Email</th>
+                                                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Grade</th>
+                                                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="students-table-body"></tbody>
+                                    </table>
+                                </div>
+                                <div id="students-pagination" class="mt-4 flex justify-center items-center space-x-2"></div>
+                            </div>
+                            <!-- Teacher Content -->
+                            <div id="teachers-content" class="user-tab-pane hidden">
+                                <div class="overflow-x-auto">
+                                     <table class="min-w-full bg-white">
+                                        <thead class="bg-gray-100">
+                                            <tr>
+                                                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Name</th>
+                                                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Email</th>
+                                                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Subject</th>
+                                                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="teachers-table-body"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- Staff Content -->
+                            <div id="staff-content" class="user-tab-pane hidden">
+                               <div class="overflow-x-auto">
+                                     <table class="min-w-full bg-white">
+                                        <thead class="bg-gray-100">
+                                            <tr>
+                                                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Name</th>
+                                                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Email</th>
+                                                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Role</th>
+                                                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="staff-table-body"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Courses Page -->
+                <div id="courses-page" class="page hidden">
+                     <div class="bg-white p-6 rounded-lg shadow-md">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl font-bold text-gray-800">Courses</h2>
+                            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition duration-150 ease-in-out">Add New Course</button>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="courses-list">
+                            <!-- Course cards will be injected here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Groups Page -->
+                <div id="groups-page" class="page hidden">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl font-bold text-gray-800">Groups</h2>
+                            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition duration-150 ease-in-out">Create Group</button>
+                        </div>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="font-semibold text-gray-700 mb-4">Groups per Grade</h3>
+                                <div class="chart-container w-full h-80">
+                                    <canvas id="groupsPerGradeChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="font-semibold text-gray-700 mb-4">Students per Teacher (Top 10)</h3>
+                                <div class="chart-container w-full h-80">
+                                    <canvas id="studentsPerTeacherChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                           <table class="min-w-full bg-white">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Group Name</th>
+                                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Teacher</th>
+                                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Grade</th>
+                                        <th class="text-center py-3 px-4 uppercase font-semibold text-sm">Students</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="groups-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Branches Page -->
+                <div id="branches-page" class="page hidden">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl font-bold text-gray-800">Branches & Facilities</h2>
+                            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition duration-150 ease-in-out">Add Branch</button>
+                        </div>
+                        <div id="branches-list" class="space-y-6">
+                           <!-- Branch info will be injected here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports Page -->
+                <div id="reports-page" class="page hidden">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-xl font-bold text-gray-800 mb-4">Student Reports</h2>
+                        <div class="flex flex-col sm:flex-row items-start sm:items-end space-y-4 sm:space-y-0 sm:space-x-4 mb-6 bg-gray-50 p-4 rounded-lg">
+                            <div>
+                                <label for="report-grade-filter" class="block text-sm font-medium text-gray-700">Filter by Grade:</label>
+                                <select id="report-grade-filter" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                                    <option value="all">All Grades</option>
+                                    <!-- Options will be added by JS -->
+                                </select>
+                            </div>
+                             <div>
+                                <label for="report-type-filter" class="block text-sm font-medium text-gray-700">Report Type:</label>
+                                <select id="report-type-filter" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                                    <option>Weekly</option>
+                                    <option>Monthly</option>
+                                    <option>Annual</option>
+                                </select>
+                            </div>
+                            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition duration-150 ease-in-out">Generate Report</button>
+                        </div>
+                        <div class="overflow-x-auto">
+                           <table class="min-w-full bg-white">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Student Name</th>
+                                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Grade</th>
+                                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Report Date</th>
+                                        <th class="text-center py-3 px-4 uppercase font-semibold text-sm">Avg. Score</th>
+                                        <th class="text-center py-3 px-4 uppercase font-semibold text-sm">Attendance</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reports-table-body">
+                                    <!-- Report rows will be injected here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="reports-pagination" class="mt-4 flex justify-center items-center space-x-2"></div>
+                    </div>
+                </div>
+
+                <!-- Account & Settings Page -->
+                <div id="settings-page" class="page hidden">
+                    <div class="space-y-8">
+                        <!-- Organisation Structure -->
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h2 class="text-xl font-bold text-gray-800 mb-4">School Organisation Structure</h2>
+                            <div class="border-l-4 border-blue-500 pl-4">
+                                <div class="font-bold text-lg">James (School Principal)</div>
+                                <div class="pl-8 mt-2 border-l-2 border-gray-300">
+                                    <div class="font-semibold">Vice Principal of Academics</div>
+                                    <div class="pl-8 mt-1 text-sm text-gray-600">
+                                        <div>- Head of Mathematics Dept.</div>
+                                        <div>- Head of Science Dept.</div>
+                                        <div>- Head of Arts Dept.</div>
+                                    </div>
+                                </div>
+                                <div class="pl-8 mt-4 border-l-2 border-gray-300">
+                                    <div class="font-semibold">Vice Principal of Administration</div>
+                                     <div class="pl-8 mt-1 text-sm text-gray-600">
+                                        <div>- Head of Admissions</div>
+                                        <div>- Head of Facilities</div>
+                                        <div>- Head of Finance</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- School Regulations -->
+                         <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h2 class="text-xl font-bold text-gray-800 mb-4">School Regulations</h2>
+                            <ul class="list-disc list-inside space-y-2 text-gray-700">
+                                <li>All students must adhere to the school dress code.</li>
+                                <li>Attendance is mandatory for all classes. Unnotified absence will result in disciplinary action.</li>
+                                <li>Mobile phones are not permitted during class hours.</li>
+                                <li>Respect for teachers, staff, and fellow students is expected at all times.</li>
+                                <li>Plagiarism and any form of academic dishonesty will not be tolerated.</li>
+                            </ul>
+                        </div>
+                        <!-- Location Map -->
+                         <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h2 class="text-xl font-bold text-gray-800 mb-4">Our Location</h2>
+                            <div class="w-full h-80 bg-gray-200 rounded-lg overflow-hidden">
+                                <iframe
+                                    width="100%"
+                                    height="100%"
+                                    frameborder="0" style="border:0"
+                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.521260322283!2d106.8195613507886!3d-6.194741395514652!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f5390917b759%3A0x6b45e67356080477!2sNational%20Monument!5e0!3m2!1sen!2sid!4v1625833634149!5m2!1sen!2sid"
+                                    allowfullscreen>
+                                </iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="bg-white p-4 text-center text-sm text-gray-500 border-t">
+                <a href="https://sandbox-felixent.vercel.app" class="text-indigo-600 hover:underline ml-2">Go to Main-Menu</a> · Demo data generated locally · Not connected to backend | Felixent PME Class Materials
+            </footer>
+        </main>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- CONFIG & GLOBAL STATE ---
+    const GRADES = Array.from({ length: 8 }, (_, i) => i + 5); // Grades 5 to 12
+    const SUBJECTS = ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'History', 'English', 'Computer Science', 'Art'];
+    const STAFF_ROLES = ['Librarian', 'Accountant', 'Admissions Officer', 'IT Support', 'Janitor'];
+    const FACILITIES = ['Projector', 'Whiteboard', 'Smartboard', 'Computers', 'Lab Equipment', 'Art Supplies'];
+
+    let demoData = {
+        students: [],
+        teachers: [],
+        staff: [],
+        courses: [],
+        groups: [],
+        branches: [],
+        reports: [],
+    };
+
+    let currentStudentPage = 1;
+    const STUDENTS_PER_PAGE = 50;
+
+    let currentReportPage = 1;
+    const REPORTS_PER_PAGE = 50;
+
+    let activeReportsFilterGrade = 'all';
+
+    // --- DATA GENERATION ---
+    function generateDemoData() {
+        // Generate Teachers (20)
+        for (let i = 0; i < 20; i++) {
+            demoData.teachers.push({
+                id: `T${i}`,
+                name: faker.name.findName(),
+                email: faker.internet.email(),
+                subject: faker.random.arrayElement(SUBJECTS)
+            });
+        }
+
+        // Generate Staff (10)
+        for (let i = 0; i < 10; i++) {
+            demoData.staff.push({
+                id: `S${i}`,
+                name: faker.name.findName(),
+                email: faker.internet.email(),
+                role: faker.random.arrayElement(STAFF_ROLES)
+            });
+        }
+
+        // Generate Students (170 to make total 200 users)
+        for (let i = 0; i < 170; i++) {
+            demoData.students.push({
+                id: `ST${i}`,
+                name: faker.name.findName(),
+                email: faker.internet.email(),
+                grade: faker.random.arrayElement(GRADES)
+            });
+        }
+
+        // Generate Courses
+        for (let i = 0; i < 40; i++) {
+            const grade = faker.random.arrayElement(GRADES);
+            const subject = faker.random.arrayElement(SUBJECTS);
+            demoData.courses.push({
+                id: `C${i}`,
+                name: `${subject} - Grade ${grade}`,
+                grade: grade,
+                teacherId: faker.random.arrayElement(demoData.teachers).id,
+                description: faker.lorem.sentence()
+            });
+        }
+
+        // Generate Groups
+        demoData.courses.forEach((course, i) => {
+            const groupStudents = faker.random.arrayElements(demoData.students.filter(s => s.grade === course.grade), faker.datatype.number({min: 10, max: 25}));
+            demoData.groups.push({
+                id: `G${i}`,
+                name: course.name + " Group",
+                grade: course.grade,
+                teacherId: course.teacherId,
+                studentIds: groupStudents.map(s => s.id)
+            });
+        });
+
+        // Generate Branches
+        demoData.branches.push({ id: 'B0', name: 'Main Campus', type: 'Campus', capacity: 500, facilities: ['Library', 'Cafeteria', 'Auditorium', 'Gym'] });
+        for(let i = 1; i < 11; i++) {
+            demoData.branches.push({
+                id: `B${i}`,
+                name: `Room ${100 + i}`,
+                type: 'Room',
+                capacity: 30,
+                facilities: faker.random.arrayElements(FACILITIES, faker.datatype.number({ min: 2, max: 4 }))
+            });
+        }
+
+        // Generate Reports
+        demoData.students.forEach(student => {
+            for(let i=0; i<3; i++) { // 3 reports per student = 510 reports total
+                 demoData.reports.push({
+                    studentId: student.id,
+                    reportDate: faker.date.past().toLocaleDateString(),
+                    avgScore: faker.datatype.number({min: 65, max: 98}),
+                    attendance: faker.datatype.number({min: 80, max: 100})
+                });
+            }
+        });
+    }
+
+    // --- CHARTING ---
+    let activeCharts = {};
+    function renderChart(canvasId, type, data, options) {
+        if (activeCharts[canvasId]) {
+            activeCharts[canvasId].destroy();
+        }
+        const ctx = document.getElementById(canvasId).getContext('2d');
+        activeCharts[canvasId] = new Chart(ctx, { type, data, options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            ...options
+        }});
+    }
+
+    // --- RENDER FUNCTIONS ---
+
+    function renderDashboard() {
+        document.getElementById('total-users-stat').textContent = demoData.students.length + demoData.teachers.length + demoData.staff.length;
+        document.getElementById('total-courses-stat').textContent = demoData.courses.length;
+        document.getElementById('total-groups-stat').textContent = demoData.groups.length;
+        document.getElementById('total-branches-stat').textContent = demoData.branches.length;
+
+        const usersByRoleData = {
+            labels: ['Students', 'Teachers', 'Staff'],
+            datasets: [{
+                label: 'User Count',
+                data: [demoData.students.length, demoData.teachers.length, demoData.staff.length],
+                backgroundColor: ['#3B82F6', '#10B981', '#F59E0B']
+            }]
+        };
+        renderChart('usersByRoleChart', 'doughnut', usersByRoleData, {});
+
+        const courseCountsByGrade = GRADES.reduce((acc, grade) => {
+            acc[grade] = demoData.courses.filter(c => c.grade === grade).length;
+            return acc;
+        }, {});
+        const coursesByGradeData = {
+            labels: Object.keys(courseCountsByGrade).map(g => `Grade ${g}`),
+            datasets: [{
+                label: 'Number of Courses',
+                data: Object.values(courseCountsByGrade),
+                backgroundColor: '#6366F1'
+            }]
+        };
+        renderChart('coursesByGradeChart', 'bar', coursesByGradeData, {});
+    }
+
+    function renderUsers() {
+        renderStudentsTable();
+
+        const studentsPerGradeCounts = GRADES.reduce((acc, grade) => {
+            acc[grade] = demoData.students.filter(s => s.grade === grade).length;
+            return acc;
+        }, {});
+        const studentsPerGradeData = {
+            labels: Object.keys(studentsPerGradeCounts).map(g => `Grade ${g}`),
+            datasets: [{
+                label: 'Number of Students',
+                data: Object.values(studentsPerGradeCounts),
+                backgroundColor: '#3B82F6'
+            }]
+        };
+        renderChart('studentsPerGradeChart', 'bar', studentsPerGradeData, {});
+
+        const teachersBody = document.getElementById('teachers-table-body');
+        teachersBody.innerHTML = demoData.teachers.map(t => `
+            <tr class="border-b">
+                <td class="py-3 px-4">${t.name}</td>
+                <td class="py-3 px-4">${t.email}</td>
+                <td class="py-3 px-4">${t.subject}</td>
+                <td class="py-3 px-4 text-sm font-medium"><a href="#" class="text-blue-600 hover:text-blue-900">Edit</a></td>
+            </tr>
+        `).join('');
+
+        const staffBody = document.getElementById('staff-table-body');
+        staffBody.innerHTML = demoData.staff.map(s => `
+            <tr class="border-b">
+                <td class="py-3 px-4">${s.name}</td>
+                <td class="py-3 px-4">${s.email}</td>
+                <td class="py-3 px-4">${s.role}</td>
+                <td class="py-3 px-4 text-sm font-medium"><a href="#" class="text-blue-600 hover:text-blue-900">Edit</a></td>
+            </tr>
+        `).join('');
+    }
+
+    function renderStudentsTable() {
+        const studentsBody = document.getElementById('students-table-body');
+        const start = (currentStudentPage - 1) * STUDENTS_PER_PAGE;
+        const end = start + STUDENTS_PER_PAGE;
+        const paginatedStudents = demoData.students.slice(start, end);
+
+        studentsBody.innerHTML = paginatedStudents.map(s => `
+            <tr class="border-b">
+                <td class="py-3 px-4">${s.name}</td>
+                <td class="py-3 px-4">${s.email}</td>
+                <td class="py-3 px-4">${s.grade}</td>
+                <td class="py-3 px-4 text-sm font-medium"><a href="#" class="text-blue-600 hover:text-blue-900">Edit</a></td>
+            </tr>
+        `).join('');
+
+        renderStudentsPagination();
+    }
+
+    function renderStudentsPagination() {
+        const paginationContainer = document.getElementById('students-pagination');
+        const pageCount = Math.ceil(demoData.students.length / STUDENTS_PER_PAGE);
+        paginationContainer.innerHTML = '';
+
+        if (pageCount <= 1) return;
+
+        const prevButton = document.createElement('button');
+        prevButton.innerText = 'Previous';
+        prevButton.disabled = currentStudentPage === 1;
+        prevButton.className = 'px-3 py-1 border rounded bg-white shadow-sm disabled:opacity-50 hover:bg-gray-100';
+        prevButton.addEventListener('click', () => {
+            if (currentStudentPage > 1) {
+                currentStudentPage--;
+                renderStudentsTable();
+            }
+        });
+        paginationContainer.appendChild(prevButton);
+
+        const pageInfo = document.createElement('span');
+        pageInfo.textContent = `Page ${currentStudentPage} of ${pageCount}`;
+        pageInfo.className = 'px-3 py-1 font-medium text-gray-700';
+        paginationContainer.appendChild(pageInfo);
+
+        const nextButton = document.createElement('button');
+        nextButton.innerText = 'Next';
+        nextButton.disabled = currentStudentPage === pageCount;
+        nextButton.className = 'px-3 py-1 border rounded bg-white shadow-sm disabled:opacity-50 hover:bg-gray-100';
+        nextButton.addEventListener('click', () => {
+            if (currentStudentPage < pageCount) {
+                currentStudentPage++;
+                renderStudentsTable();
+            }
+        });
+        paginationContainer.appendChild(nextButton);
+    }
+
+    function renderCourses() {
+        const coursesList = document.getElementById('courses-list');
+        coursesList.innerHTML = demoData.courses.map(course => `
+            <div class="bg-gray-50 p-4 rounded-lg border shadow-sm">
+                <h3 class="font-bold text-lg text-blue-800">${course.name}</h3>
+                <p class="text-gray-600 text-sm">Teacher: ${demoData.teachers.find(t => t.id === course.teacherId).name}</p>
+                <p class="mt-2 text-gray-700">${course.description}</p>
+            </div>
+        `).join('');
+    }
+
+    function renderGroups() {
+        const groupBody = document.getElementById('groups-table-body');
+        groupBody.innerHTML = demoData.groups.map(g => `
+            <tr class="border-b">
+                <td class="py-3 px-4">${g.name}</td>
+                <td class="py-3 px-4">${demoData.teachers.find(t=>t.id === g.teacherId)?.name || 'N/A'}</td>
+                <td class="py-3 px-4">${g.grade}</td>
+                <td class="py-3 px-4 text-center">${g.studentIds.length}</td>
+            </tr>
+        `).join('');
+
+        const groupsPerGradeCount = GRADES.reduce((acc, grade) => {
+            acc[grade] = demoData.groups.filter(g => g.grade === grade).length;
+            return acc;
+        }, {});
+        const groupsPerGradeData = {
+            labels: Object.keys(groupsPerGradeCount).map(g => `Grade ${g}`),
+            datasets: [{
+                label: '# of Groups',
+                data: Object.values(groupsPerGradeCount),
+                backgroundColor: '#8B5CF6'
+            }]
+        };
+        renderChart('groupsPerGradeChart', 'bar', groupsPerGradeData, {});
+
+        const studentsPerTeacher = demoData.teachers.map(teacher => {
+            const groupsTaught = demoData.groups.filter(g => g.teacherId === teacher.id);
+            const totalStudents = groupsTaught.reduce((sum, group) => sum + group.studentIds.length, 0);
+            return { teacherName: teacher.name, studentCount: totalStudents };
+        }).filter(t => t.studentCount > 0).sort((a,b) => b.studentCount - a.studentCount).slice(0,10); // Top 10
+
+        const studentsPerTeacherData = {
+            labels: studentsPerTeacher.map(t => t.teacherName),
+            datasets: [{
+                label: '# of Students',
+                data: studentsPerTeacher.map(t => t.studentCount),
+                backgroundColor: '#EC4899'
+            }]
+        };
+        renderChart('studentsPerTeacherChart', 'bar', studentsPerTeacherData, { indexAxis: 'y' });
+    }
+
+    function renderBranches() {
+        const branchesList = document.getElementById('branches-list');
+        branchesList.innerHTML = demoData.branches.map(branch => `
+            <div class="bg-gray-50 p-4 rounded-lg border shadow-sm">
+                <h3 class="font-bold text-lg">${branch.name} <span class="text-sm font-normal text-gray-500">(${branch.type})</span></h3>
+                <p class="text-gray-600">Capacity: ${branch.capacity}</p>
+                <div class="mt-2">
+                    <h4 class="font-semibold">Facilities:</h4>
+                    <div class="flex flex-wrap gap-2 mt-1">
+                        ${branch.facilities.map(f => `<span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">${f}</span>`).join('')}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function renderReports(filterGrade = activeReportsFilterGrade) {
+        activeReportsFilterGrade = filterGrade;
+        const reportsBody = document.getElementById('reports-table-body');
+        let filteredReports = demoData.reports;
+
+        if (filterGrade !== 'all') {
+             // Ensure comparison is correct (filterGrade is a string from select, student grade is a number)
+             const studentIdsInGrade = demoData.students.filter(s => s.grade == parseInt(filterGrade)).map(s => s.id);
+             filteredReports = demoData.reports.filter(r => studentIdsInGrade.includes(r.studentId));
+        }
+
+        const totalPages = Math.ceil(filteredReports.length / REPORTS_PER_PAGE);
+        // Ensure current page is valid after filtering
+        if (currentReportPage > totalPages && totalPages > 0) {
+            currentReportPage = totalPages;
+        } else if (totalPages === 0) {
+            currentReportPage = 1;
+        }
+
+        const start = (currentReportPage - 1) * REPORTS_PER_PAGE;
+        const end = start + REPORTS_PER_PAGE;
+        const paginatedReports = filteredReports.slice(start, end);
+
+        if(paginatedReports.length === 0 && totalPages > 0) {
+            // Should not happen if currentReportPage is reset properly, but safe guard.
+            reportsBody.innerHTML = `<tr><td colspan="5" class="text-center py-4">No reports found for this page.</td></tr>`;
+        } else if (totalPages === 0) {
+            reportsBody.innerHTML = `<tr><td colspan="5" class="text-center py-4">No reports found. Adjust filter or check data.</td></tr>`;
+        } else {
+            reportsBody.innerHTML = paginatedReports.map(report => {
+                const student = demoData.students.find(s => s.id === report.studentId);
+                return `
+                     <tr class="border-b">
+                        <td class="py-3 px-4">${student?.name || 'Unknown'}</td>
+                        <td class="py-3 px-4">${student?.grade || 'N/A'}</td>
+                        <td class="py-3 px-4">${report.reportDate}</td>
+                        <td class="py-3 px-4 text-center">${report.avgScore}%</td>
+                        <td class="py-3 px-4 text-center">${report.attendance}%</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        renderReportsPagination(totalPages, filterGrade);
+    }
+
+    function renderReportsPagination(pageCount, filterGrade) {
+        const paginationContainer = document.getElementById('reports-pagination');
+        paginationContainer.innerHTML = '';
+
+        if (pageCount <= 1) return;
+
+        // Previous Button
+        const prevButton = document.createElement('button');
+        prevButton.innerText = 'Previous';
+        prevButton.disabled = currentReportPage === 1;
+        prevButton.className = 'px-3 py-1 border rounded bg-white shadow-sm disabled:opacity-50 hover:bg-gray-100';
+        prevButton.addEventListener('click', () => {
+            if (currentReportPage > 1) {
+                currentReportPage--;
+                renderReports(filterGrade);
+            }
+        });
+        paginationContainer.appendChild(prevButton);
+
+        // Page numbers
+        const pageInfo = document.createElement('span');
+        pageInfo.textContent = `Page ${currentReportPage} of ${pageCount}`;
+        pageInfo.className = 'px-3 py-1 font-medium text-gray-700';
+        paginationContainer.appendChild(pageInfo);
+
+        // Next Button
+        const nextButton = document.createElement('button');
+        nextButton.innerText = 'Next';
+        nextButton.disabled = currentReportPage === pageCount;
+        nextButton.className = 'px-3 py-1 border rounded bg-white shadow-sm disabled:opacity-50 hover:bg-gray-100';
+        nextButton.addEventListener('click', () => {
+            if (currentReportPage < pageCount) {
+                currentReportPage++;
+                renderReports(filterGrade);
+            }
+        });
+        paginationContainer.appendChild(nextButton);
+    }
+
+    function setupReportFilters() {
+        const gradeFilter = document.getElementById('report-grade-filter');
+        GRADES.forEach(grade => {
+            const option = document.createElement('option');
+            option.value = grade;
+            option.textContent = `Grade ${grade}`;
+            gradeFilter.appendChild(option);
+        });
+        gradeFilter.addEventListener('change', (e) => {
+            currentReportPage = 1; // Reset page on filter change
+            renderReports(e.target.value);
+        });
+    }
+
+
+    // --- NAVIGATION & INITIALIZATION ---
+    const pages = document.querySelectorAll('.page');
+    const navLinks = document.querySelectorAll('.nav-link');
+    const pageTitle = document.getElementById('page-title');
+
+    function showPage(pageId) {
+        pages.forEach(page => {
+            if (page.id === `${pageId}-page`) {
+                page.classList.remove('hidden');
+            } else {
+                page.classList.add('hidden');
+            }
+        });
+
+        navLinks.forEach(link => {
+            if (link.hash === `#${pageId}`) {
+                link.classList.add('active');
+                 pageTitle.textContent = link.textContent.trim();
+            } else {
+                link.classList.remove('active');
+            }
+        });
+
+        // Specific render functions
+        switch(pageId) {
+            case 'dashboard': renderDashboard(); break;
+            case 'users': renderUsers(); break;
+            case 'courses': renderCourses(); break;
+            case 'groups': renderGroups(); break;
+            case 'branches': renderBranches(); break;
+            case 'reports': renderReports(); break;
+        }
+    }
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const pageId = link.hash.substring(1);
+            showPage(pageId);
+        });
+    });
+
+    const userTabs = document.getElementById('user-tabs');
+    const userTabLinks = document.querySelectorAll('.user-tab-link');
+    const userTabPanes = document.querySelectorAll('.user-tab-pane');
+
+    userTabs.addEventListener('click', (e) => {
+        e.preventDefault();
+        const clickedTab = e.target.closest('.user-tab-link');
+        if (!clickedTab) return;
+
+        const tabId = clickedTab.dataset.tab;
+
+        userTabLinks.forEach(link => {
+            if (link.dataset.tab === tabId) {
+                link.classList.add('border-blue-600', 'text-blue-600', 'font-semibold');
+                link.classList.remove('border-transparent', 'text-gray-500', 'font-medium');
+            } else {
+                link.classList.remove('border-blue-600', 'text-blue-600', 'font-semibold');
+                link.classList.add('border-transparent', 'text-gray-500', 'font-medium');
+            }
+        });
+
+        userTabPanes.forEach(pane => {
+            if (pane.id === `${tabId}-content`) {
+                pane.classList.remove('hidden');
+            } else {
+                pane.classList.add('hidden');
+            }
+        });
+    });
+
+
+    // Initial Load
+    generateDemoData();
+    setupReportFilters();
+    showPage('dashboard'); // Show dashboard on load
+});
+</script>
+</body>
+</html>
