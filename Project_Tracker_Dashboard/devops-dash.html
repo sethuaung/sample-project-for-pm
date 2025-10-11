@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="keywords" content="FE-Summrized">
+  <meta name="description" content="FELIXENT: Project Management Training">
+  <meta name="author" content="Mosquito">
+  <link href="favicon.ico" rel="icon">
+  <title>Fintech DevOps Dashboard — Felixent</title>
+
+  <!-- Tailwind Play CDN for prototype -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    .chart-container { position: relative; width:100%; height:200px; }
+    /* Simple CSS Gantt bars */
+    .gantt-row { display:flex; align-items:center; gap:8px; }
+    .gantt-label { width:180px; font-size:0.9rem; }
+    .gantt-track { flex:1; height:20px; background:#e6e7ea; border-radius:6px; position:relative; overflow:hidden; }
+    .gantt-bar { position:absolute; height:100%; border-radius:6px; background:#2563eb; }
+    .status-badge { font-size:0.75rem; padding:4px 6px; border-radius:6px; }
+    .gate-row { display:flex; justify-content:space-between; gap:12px; align-items:center; }
+    .small { font-size:0.85rem; }
+  </style>
+</head>
+<body class="bg-gray-100 p-4 sm:p-6">
+  <div class="max-w-7xl mx-auto">
+    <h1 class="text-2xl font-bold mb-4">Fintech DevOps Dashboard</h1>
+    <!-- Top: Two-grid layout -->
+    <div class="grid gap-4 grid-cols-1 lg:grid-cols-2 items-start">
+
+      <!-- Left column: Overview + Gantt + CI/CD -->
+      <div class="space-y-4">
+
+        <!-- Project Overview -->
+        <section class="bg-white p-4 rounded shadow">
+          <h2 class="text-xl font-bold">Project Overview</h2>
+          <p class="text-sm text-gray-600">Fintech Core System MVP — secure, auditable payment platform</p>
+          <div class="mt-3">
+            <div class="h-3 bg-gray-200 rounded-full overflow-hidden">
+              <div class="h-3 bg-blue-500" style="width:45%"></div>
+            </div>
+          </div>
+          <ul class="mt-3 text-sm space-y-1">
+            <li><strong>OKR1</strong>: Reduce MTTR</li>
+            <li><strong>OKR2</strong>: 90% Test Coverage</li>
+            <li><strong>OKR3</strong>: Audit Readiness</li>
+          </ul>
+        </section>
+
+        <!-- Milestone Gantt -->
+        <section id="ganttSection" class="bg-white p-4 rounded shadow">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-lg font-bold">Milestone Gantt</h3>
+            <div class="text-sm text-gray-500">Timeline: Oct 2025 — Apr 2026</div>
+          </div>
+          <div id="ganttContainer" class="space-y-3 small"></div>
+        </section>
+
+        <!-- CI/CD Pipeline (Chart.js) -->
+        <section class="bg-white p-4 rounded shadow">
+          <h3 class="text-lg font-bold">CI/CD Pipeline & Gates</h3>
+          <div class="chart-container mt-2"><canvas id="pipelineChart"></canvas></div>
+          <div class="mt-3 space-y-2">
+            <div id="gatesList" class="space-y-2"></div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Right column: RACI, Onboarding, Feedback, Audit Export -->
+      <div class="space-y-4">
+
+        <!-- RACI -->
+        <section class="bg-white p-4 rounded shadow">
+          <h3 class="text-lg font-bold">RACI</h3>
+          <div id="raciList" class="mt-3 text-sm space-y-2"></div>
+        </section>
+
+        <!-- Onboarding Tracker -->
+        <section class="bg-white p-4 rounded shadow">
+          <h3 class="text-lg font-bold">Onboarding Checklist</h3>
+          <div id="onboardingList" class="mt-3 space-y-3 small"></div>
+        </section>
+
+        <!-- Feedback Panel -->
+        <section class="bg-white p-4 rounded shadow">
+          <h3 class="text-lg font-bold">Contributor Feedback</h3>
+          <form id="feedbackForm" class="space-y-2 mt-2">
+            <input id="nameInput" class="w-full p-2 border rounded text-sm" placeholder="Your name" />
+            <textarea id="feedbackInput" class="w-full p-2 border rounded text-sm" placeholder="Suggestion or issue..."></textarea>
+            <div class="flex gap-2">
+              <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded text-sm">Submit</button>
+              <button id="clearFeedback" type="button" class="bg-gray-200 px-4 py-2 rounded text-sm">Clear</button>
+            </div>
+          </form>
+          <div id="feedbackList" class="mt-3 text-sm space-y-2"></div>
+        </section>
+
+        <!-- Audit Export -->
+        <section class="bg-white p-4 rounded shadow">
+          <h3 class="text-lg font-bold">Export Audit Snapshot</h3>
+          <div class="flex gap-2 mt-2">
+            <button id="exportJson" class="bg-blue-600 text-white px-4 py-2 rounded small">Export JSON</button>
+            <button id="exportCsv" class="bg-green-600 text-white px-4 py-2 rounded small">Export CSV</button>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <!-- Bottom: utility row -->
+    <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mt-4">
+      <div id="qaSection" class="bg-white p-4 rounded shadow"></div>
+      <div id="calendarSection" class="bg-white p-4 rounded shadow"></div>
+      <div id="recognitionSection" class="bg-white p-4 rounded shadow"></div>
+      <div id="onboardingSummary" class="bg-white p-4 rounded shadow"></div>
+    </div>
+    <footer class="bg-white p-4 text-center text-sm text-gray-500 border-t">
+        <a href="https://sandbox-felixent.vercel.app" class="text-indigo-600 hover:underline ml-2">Go to Main-Menu</a> · Demo data generated locally · Not connected to backend | Felixent PME Class Materials</footer>
+  </div>
+
+
+
+  <script type="module">
+    /* ===========================
+       Embedded JSON artifacts
+       =========================== */
+    const ganttJson = {
+      "project": "Fintech Core System MVP",
+      "startDate": "2025-10-15",
+      "endDate": "2026-04-15",
+      "milestones": [
+        {"id":"M1","name":"Initiation & Charter Approval","start":"2025-10-15","end":"2025-10-31"},
+        {"id":"M2","name":"Sprint 0 / Architecture & Environment Setup","start":"2025-11-01","end":"2025-11-15","dependsOn":["M1"]},
+        {"id":"M3","name":"Core Payments Development (API + Processing)","start":"2025-11-16","end":"2026-01-15","dependsOn":["M2"]},
+        {"id":"M4","name":"Reconciliation Engine + Reporting","start":"2025-12-01","end":"2026-01-31","dependsOn":["M3"]},
+        {"id":"M5","name":"CI/CD, IaC, Policy-as-Code Integration","start":"2025-12-01","end":"2026-02-15","dependsOn":["M2"]},
+        {"id":"M6","name":"Security & Compliance Tests (SAST/DAST/PenTest)","start":"2026-01-15","end":"2026-02-28","dependsOn":["M3","M5"]},
+        {"id":"M7","name":"End-to-End Performance & DR Validation","start":"2026-02-20","end":"2026-03-10","dependsOn":["M4","M6"]},
+        {"id":"M8","name":"Pilot Release (Canary) & Monitoring","start":"2026-03-11","end":"2026-03-31","dependsOn":["M7"]},
+        {"id":"M9","name":"Production Roll-out & Stabilization","start":"2026-04-01","end":"2026-04-15","dependsOn":["M8"]}
+      ]
+    };
+
+    const raciJson = {
+      "project": "Fintech Core System MVP",
+      "raci": {
+        "Sponsor":["Accountable"],
+        "PMO":["Responsible","Consulted"],
+        "ProductOwner":["Accountable","Responsible for acceptance"],
+        "EngineeringLead":["Responsible","Consulted"],
+        "DevOps":["Responsible","Informed"],
+        "Security":["Consulted","Accountable for controls"],
+        "QA":["Responsible for testing"],
+        "Operations":["Informed","Responsible for runbooks"],
+        "Legal":["Consulted"],
+        "Finance":["Informed"]
+      },
+      "roles":{
+        "Sponsor":{"people":["Sponsor Name"]},
+        "PMO":{"people":["Alice"]},
+        "ProductOwner":{"people":["Bob"]},
+        "EngineeringLead":{"people":["Charlie"]},
+        "DevOps":{"people":["Dana"]},
+        "Security":{"people":["Gus"]},
+        "QA":{"people":["Eli"]},
+        "Operations":{"people":["Fay"]},
+        "Legal":{"people":["Legal Person"]},
+        "Finance":{"people":["Finance Person"]}
+      }
+    };
+
+    const onboardingJson = {
+      "onboardingChecklist":[
+        {"role":"Developer","steps":[
+          {"id":"dev-1","title":"Access repo & clone","required":true},
+          {"id":"dev-2","title":"Local dev environment up (IaC)","required":true},
+          {"id":"dev-3","title":"Run unit tests locally","required":true},
+          {"id":"dev-4","title":"Follow code style & PR template","required":true},
+          {"id":"dev-5","title":"Sign contributor agreement","required":true},
+          {"id":"dev-6","title":"Complete security awareness training","required":true}
+        ]},
+        {"role":"DevOps","steps":[
+          {"id":"ops-1","title":"Access IaC repo & provisioning keys","required":true},
+          {"id":"ops-2","title":"Deploy sandbox via IaC","required":true},
+          {"id":"ops-3","title":"Integrate policy-as-code pipelines","required":true},
+          {"id":"ops-4","title":"Configure monitoring & alerting","required":true}
+        ]},
+        {"role":"QA","steps":[
+          {"id":"qa-1","title":"Access test harness & test data","required":true},
+          {"id":"qa-2","title":"Run integration and e2e tests","required":true},
+          {"id":"qa-3","title":"Report coverage and test matrix","required":true}
+        ]},
+        {"role":"Security","steps":[
+          {"id":"sec-1","title":"Access scanning tools (SAST/DAST)","required":true},
+          {"id":"sec-2","title":"Run baseline scans & triage","required":true},
+          {"id":"sec-3","title":"Approve policy-as-code gates","required":true}
+        ]},
+        {"role":"Operations","steps":[
+          {"id":"ops-1","title":"Receive runbooks & incident playbooks","required":true},
+          {"id":"ops-2","title":"Validate on-call rota & escalation paths","required":true},
+          {"id":"ops-3","title":"Perform DR drill","required":true}
+        ]}
+      ]
+    };
+
+    const complianceJson = {
+      "complianceMatrix":[
+        {"id":"G1","name":"Static Analysis Gate","pipelineStage":"pre-merge","checks":[{"tool":"SAST","rule":"no-critical","threshold":0}],"onFail":{"blockMerge":true,"notify":["DevOps","Security","Author"],"alertSeverity":"high"}},
+        {"id":"G2","name":"Dependency & SBOM Gate","pipelineStage":"CI","checks":[{"tool":"DependencyScanner","rule":"critical-cve","threshold":0},{"tool":"SBOM","rule":"sbom-present","threshold":true}],"onFail":{"blockPipeline":true,"notify":["DevOps","EngineeringLead","Security"],"alertSeverity":"high"}},
+        {"id":"G3","name":"Policy-as-Code Gate","pipelineStage":"deploy-staging","checks":[{"tool":"PolicyEngine","rule":"encryption-at-rest","threshold":true},{"tool":"PolicyEngine","rule":"restricted-roles","threshold":true}],"onFail":{"blockDeployment":true,"notify":["DevOps","Security"],"alertSeverity":"critical"}},
+        {"id":"G4","name":"DAST & PenTest Gate","pipelineStage":"pre-prod","checks":[{"tool":"DAST","rule":"critical-vulns","threshold":0}],"onFail":{"blockPromotion":true,"notify":["Security","EngineeringLead","PMO"],"alertSeverity":"critical"}},
+        {"id":"G5","name":"Audit Evidence Gate","pipelineStage":"release","checks":[{"tool":"Logging","rule":"retention-days","threshold":90},{"tool":"Approval","rule":"signed-release-approval","threshold":true}],"onFail":{"blockRelease":true,"notify":["PMO","Security","Legal"],"alertSeverity":"critical"}}
+      ],
+      "alerting":{"channels":["slack","email","pager"],"severityRouting":{"critical":["pager","slack:security-channel"],"high":["slack:devops-channel"],"medium":["slack:team-channel"]}}
+    };
+
+    /* ===========================
+       Sample runtime data
+       =========================== */
+    const sampleContributors = { PMO: ["Alice","Bob"], DevOps: ["Charlie","Dana"], QA: ["Eli","Fay"], Security: ["Gus"] };
+    const sampleBadges = { Dana: ["CI/CD Hero","Incident Resolver"], Eli: ["QA Champion"], Gus: ["Security Sentinel","Audit Lead"] };
+
+    /* ===========================
+       Helpers
+       =========================== */
+    function daysBetween(a,b){ return Math.round((new Date(b)-new Date(a))/(1000*60*60*24)); }
+    function clamp(v,min,max){ return Math.max(min,Math.min(max,v)); }
+    function downloadBlob(blob, filename){ const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download=filename; document.body.appendChild(link); link.click(); link.remove(); setTimeout(()=>URL.revokeObjectURL(link.href),1500); }
+
+    /* ===========================
+       Render: Gantt (simple proportional bars)
+       =========================== */
+    function renderGantt(containerId, ganttJson){
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      const timelineStart = new Date(ganttJson.startDate);
+      const timelineEnd = new Date(ganttJson.endDate);
+      const timelineDays = daysBetween(timelineStart,timelineEnd);
+      ganttJson.milestones.forEach(ms=>{
+        const row = document.createElement('div'); row.className='gantt-row';
+        const label = document.createElement('div'); label.className='gantt-label'; label.textContent = `${ms.name}`;
+        const track = document.createElement('div'); track.className='gantt-track';
+        const s = new Date(ms.start); const e = new Date(ms.end);
+        const offset = clamp(Math.round((daysBetween(timelineStart,s)/timelineDays)*100),0,100);
+        const width = clamp(Math.round((daysBetween(s,e)/timelineDays)*100),1,100-offset);
+        const bar = document.createElement('div'); bar.className='gantt-bar'; bar.style.left = offset + '%'; bar.style.width = width + '%';
+        // color by phase roughly
+        const colorIndex = (ms.id.charCodeAt(1) % 4);
+        const colors = ['#2563eb','#10b981','#f59e0b','#ef4444']; bar.style.background = colors[colorIndex];
+        bar.title = `${ms.name}: ${ms.start} → ${ms.end}`;
+        track.appendChild(bar);
+        row.appendChild(label); row.appendChild(track);
+        container.appendChild(row);
+      });
+    }
+
+    /* ===========================
+       Render: RACI
+       =========================== */
+    function renderRaci(containerId, raciJson){
+      const el = document.getElementById(containerId);
+      el.innerHTML = '';
+      Object.entries(raciJson.raci).forEach(([role,arr])=>{
+        const div = document.createElement('div'); div.className='flex justify-between items-center';
+        const left = document.createElement('div'); left.innerHTML = `<div class="font-medium">${role}</div><div class="text-xs text-gray-500">${(raciJson.roles[role] && raciJson.roles[role].people) ? raciJson.roles[role].people.join(', ') : ''}</div>`;
+        const right = document.createElement('div'); right.innerHTML = `<div class="text-sm text-gray-700">${arr.join(', ')}</div>`;
+        div.appendChild(left); div.appendChild(right);
+        el.appendChild(div);
+      });
+    }
+
+    /* ===========================
+       Render: Onboarding checklist with progress and badge assignment
+       =========================== */
+    function renderOnboarding(containerId, onboardingJson){
+      const el = document.getElementById(containerId);
+      el.innerHTML = '';
+      // simple progress sample state stored in-memory
+      const progressMap = {}; // key: role:name -> percent (simulate)
+      onboardingJson.onboardingChecklist.forEach(group=>{
+        const card = document.createElement('div'); card.className='border rounded p-3';
+        const title = document.createElement('div'); title.className='flex justify-between items-center';
+        title.innerHTML = `<div class="font-medium">${group.role}</div><div class="text-xs text-gray-500">${group.steps.length} steps</div>`;
+        card.appendChild(title);
+        group.steps.forEach(step=>{
+          const stepRow = document.createElement('div'); stepRow.className='mt-2 flex justify-between items-center small';
+          stepRow.innerHTML = `<div>${step.title}</div><div><button class="step-toggle px-2 py-1 text-xs rounded bg-gray-100" data-step="${step.id}">Mark</button></div>`;
+          card.appendChild(stepRow);
+        });
+        el.appendChild(card);
+      });
+      // add simple onboarding summary
+      const summary = document.getElementById('onboardingSummary');
+      summary.innerHTML = `<h4 class="font-medium">Onboarding Summary</h4><div id="summaryList" class="mt-2 text-sm"></div>`;
+      updateOnboardingSummary();
+      // step toggle behaviour
+      el.querySelectorAll('.step-toggle').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          btn.classList.toggle('bg-green-100');
+          btn.classList.toggle('bg-gray-100');
+          updateOnboardingSummary();
+        });
+      });
+      function updateOnboardingSummary(){
+        const s = document.getElementById('summaryList');
+        s.innerHTML = '';
+        onboardingJson.onboardingChecklist.forEach(group=>{
+          const total = group.steps.length;
+          const done = Array.from(el.querySelectorAll(`[data-step]`)).filter(b=>b.parentElement && b.parentElement.parentElement && b.parentElement.parentElement.firstChild && b.parentElement.parentElement.firstChild.textContent.includes(group.role) && b.classList.contains('bg-green-100')).length;
+          const pct = Math.round((done/total)*100);
+          const div = document.createElement('div'); div.className='mb-2';
+          div.innerHTML = `<div class="flex justify-between small"><div>${group.role}</div><div>${pct}%</div></div>
+            <div class="w-full bg-gray-200 rounded-full h-2 mt-1"><div class="h-2 bg-blue-500 rounded-full" style="width:${pct}%"></div></div>`;
+          s.appendChild(div);
+        });
+      }
+    }
+
+    /* ===========================
+       Render: CI/CD Chart + Compliance Gates
+       =========================== */
+    function renderPipelineAndGates(chartId, gatesContainerId, complianceJson){
+      // sample pipeline counts
+      const counts = [3,5,2];
+      const ctx = document.getElementById(chartId).getContext('2d');
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Build','Test','Deploy'],
+          datasets: [{ data: counts, backgroundColor:['#60A5FA','#34D399','#FBBF24'] }]
+        },
+        options: { maintainAspectRatio:false, plugins:{legend:{position:'bottom'}} }
+      });
+
+      const gatesEl = document.getElementById(gatesContainerId);
+      gatesEl.innerHTML = '';
+      complianceJson.complianceMatrix.forEach(g=>{
+        const row = document.createElement('div'); row.className='p-2 border rounded flex items-center justify-between gap-3';
+        const left = document.createElement('div'); left.innerHTML = `<div class="font-medium">${g.name}</div><div class="text-xs text-gray-500">${g.pipelineStage}</div>`;
+        const right = document.createElement('div'); right.className='flex items-center gap-2';
+        const status = simulateGateStatus(g); // simulation
+        const badge = document.createElement('span'); badge.className='status-badge';
+        badge.textContent = status.label;
+        badge.style.background = status.color; badge.style.color = '#fff';
+        right.appendChild(badge);
+        const detailsBtn = document.createElement('button'); detailsBtn.className='px-2 py-1 text-xs bg-gray-100 rounded'; detailsBtn.textContent='Details';
+        detailsBtn.addEventListener('click', ()=> alert(`${g.name}\nStage: ${g.pipelineStage}\nOn fail: ${JSON.stringify(g.onFail)}`));
+        right.appendChild(detailsBtn);
+        row.appendChild(left); row.appendChild(right);
+        gatesEl.appendChild(row);
+      });
+
+      function simulateGateStatus(gate){
+        // simple heuristic: random pass mostly, fail if 'Policy-as-Code' gate to show variety
+        if(gate.name.includes('Policy')) return {label:'FAILED', color:'#dc2626'};
+        const pass = Math.random() > 0.2;
+        return pass ? {label:'PASS', color:'#10b981'} : {label:'WARN', color:'#f59e0b'};
+      }
+    }
+
+    /* ===========================
+       Render utility cards
+       =========================== */
+    function renderQaCard(containerId){
+      document.getElementById(containerId).innerHTML = `<h4 class="font-medium">QA & Compliance</h4><div class="text-sm mt-2">Policy as Code: <span class="text-green-600 font-medium">Enabled</span></div><div class="text-sm">Last Scan: ${new Date().toISOString().slice(0,10)}</div>`;
+    }
+    function renderCalendar(containerId){
+      document.getElementById(containerId).innerHTML = `<h4 class="font-medium">Calendar</h4><div class="grid grid-cols-7 gap-1 text-xs mt-2">${['M','T','W','T','F','S','S'].map(d=>`<div class="bg-gray-200 p-1 text-center">${d}</div>`).join('')}</div>`;
+    }
+    function renderRecognition(containerId){
+      const el = document.getElementById(containerId); el.innerHTML = `<h4 class="font-medium">Recognition</h4><div class="mt-2 text-sm">${Object.entries(sampleBadges).map(([n,b])=>`<div class="flex justify-between"><div>${n}</div><div class="text-yellow-600 text-xs">${b.join(', ')}</div></div>`).join('')}</div>`;
+    }
+
+    /* ===========================
+       Feedback form & audit export
+       =========================== */
+    function setupFeedback(){
+      const form = document.getElementById('feedbackForm'); const list = document.getElementById('feedbackList'); const clear = document.getElementById('clearFeedback');
+      form.addEventListener('submit', e=>{
+        e.preventDefault();
+        const name = document.getElementById('nameInput').value.trim() || 'Anonymous';
+        const text = document.getElementById('feedbackInput').value.trim();
+        if(!text) return;
+        const entry = document.createElement('div'); entry.className='p-2 border rounded bg-gray-50';
+        entry.innerHTML = `<div class="flex justify-between"><strong>${name}</strong><span class="text-xs text-gray-500">${new Date().toLocaleDateString()}</span></div><div class="mt-1 text-sm">${text}</div>`;
+        list.prepend(entry);
+        form.reset();
+      });
+      clear.addEventListener('click', ()=> list.innerHTML='');
+    }
+
+    function setupAuditExport(){
+      document.getElementById('exportJson').addEventListener('click', ()=> exportAuditSnapshot('json'));
+      document.getElementById('exportCsv').addEventListener('click', ()=> exportAuditSnapshot('csv'));
+      window.exportAuditSnapshot = exportAuditSnapshot;
+      function exportAuditSnapshot(format='json'){
+        const snapshot = {
+          project: ganttJson.project,
+          generated: new Date().toISOString(),
+          milestones: ganttJson.milestones,
+          raci: raciJson,
+          onboardingSummary: onboardingJson
+        };
+        if(format === 'json'){
+          const blob = new Blob([JSON.stringify(snapshot,null,2)], {type:'application/json'});
+          downloadBlob(blob,'audit_snapshot.json');
+        } else {
+          const rows = [['Field','Value'], ['Project', snapshot.project], ['Generated', snapshot.generated], ['Milestones', snapshot.milestones.map(m=>m.name).join('; ')], ['RACI Roles', Object.keys(snapshot.raci.raci).join('; ')]];
+          const csv = rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+          const blob = new Blob([csv], {type:'text/csv'});
+          downloadBlob(blob,'audit_snapshot.csv');
+        }
+      }
+    }
+
+    /* ===========================
+       Initial render
+       =========================== */
+    renderGantt('ganttContainer', ganttJson);
+    renderRaci('raciList', raciJson);
+    renderOnboarding('onboardingList', onboardingJson);
+    renderPipelineAndGates('pipelineChart','gatesList', complianceJson);
+    renderQaCard('qaSection');
+    renderCalendar('calendarSection');
+    renderRecognition('recognitionSection');
+    setupFeedback();
+    setupAuditExport();
+
+    /* Debug check */
+    console.log('Dashboard initialized. Tailwind active:', document.body.classList.contains('bg-gray-100'));
+  </script>
+</body>
+</html>
