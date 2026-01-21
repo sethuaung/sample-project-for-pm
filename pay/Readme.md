@@ -7,7 +7,7 @@ It simulates basic financial operations like depositing money, withdrawing, tran
 
 ## 🔗 Live Demo
 
-🚀 [Click Here to Try Now](https://sandbox-felixent.vercel.app/)
+🚀 [Click Here to Try Now](https://fe-pay.vercel.app/)
 
 ---
 
