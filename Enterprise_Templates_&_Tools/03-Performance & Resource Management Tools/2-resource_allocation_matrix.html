@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resource Allocation Matrix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .section-box {
+            @apply bg-white p-6 rounded-xl shadow-lg border border-stone-200 mb-8;
+        }
+        .form-input, .form-select {
+            @apply w-full p-2 border border-stone-300 rounded-lg text-sm focus:ring-teal-500 focus:border-teal-500;
+        }
+        .resource-row:nth-child(even) { @apply bg-stone-50; }
+        .allocation-perfect { @apply bg-green-100 text-green-700 font-bold; }
+        .allocation-over { @apply bg-red-100 text-red-700 font-bold; }
+        .allocation-under { @apply bg-yellow-100 text-yellow-700 font-bold; }
+    </style>
+</head>
+<body class="bg-stone-50 p-6 md:p-10 font-sans antialiased">
+
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold text-teal-700 mb-2">Resource Allocation Matrix</h1>
+        <p class="text-lg text-stone-600 mb-8">Map team capacity against assigned tasks and identify over- or under-allocated resources (Hours/Week).</p>
+
+        <!-- RESOURCE DEFINITION -->
+        <div class="section-box">
+            <h2 class="text-xl font-semibold text-stone-800 mb-4 border-b pb-2">1. Define Resources (Team Members & Capacity)</h2>
+            <div id="resource-input-container" class="space-y-3">
+                <!-- Initial Resources -->
+                <div class="grid grid-cols-3 gap-4 resource-item" data-id="1">
+                    <input type="text" class="form-input resource-name" value="Developer A" placeholder="Name">
+                    <input type="number" class="form-input resource-capacity" value="40" placeholder="Capacity (Hours/Week)">
+                    <button onclick="removeResource(this)" class="bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-150">Remove</button>
+                </div>
+                <div class="grid grid-cols-3 gap-4 resource-item" data-id="2">
+                    <input type="text" class="form-input resource-name" value="Designer B" placeholder="Name">
+                    <input type="number" class="form-input resource-capacity" value="20" placeholder="Capacity (Hours/Week)">
+                    <button onclick="removeResource(this)" class="bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-150">Remove</button>
+                </div>
+            </div>
+            <button onclick="addResourceRow()" class="mt-4 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition duration-150">Add Resource</button>
+        </div>
+
+        <!-- TASK ALLOCATION -->
+        <div class="section-box">
+            <h2 class="text-xl font-semibold text-stone-800 mb-4 border-b pb-2">2. Allocate Tasks</h2>
+            <div id="task-input-container" class="space-y-3">
+                <!-- Initial Tasks -->
+                <div class="grid grid-cols-4 gap-4 task-item" data-id="1">
+                    <input type="text" class="form-input task-desc" value="Implement API endpoint" placeholder="Task Description">
+                    <select class="form-select task-assignee" onchange="updateAllocation()"><option value="Developer A">Developer A</option><option value="Designer B">Designer B</option></select>
+                    <input type="number" class="form-input task-hours" value="25" placeholder="Est. Hours/Week">
+                    <button onclick="removeTask(this)" class="bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-150">Remove</button>
+                </div>
+                <div class="grid grid-cols-4 gap-4 task-item" data-id="2">
+                    <input type="text" class="form-input task-desc" value="Wireframe redesign" placeholder="Task Description">
+                    <select class="form-select task-assignee" onchange="updateAllocation()"><option value="Developer A">Developer A</option><option value="Designer B">Designer B</option></select>
+                    <input type="number" class="form-input task-hours" value="15" placeholder="Est. Hours/Week">
+                    <button onclick="removeTask(this)" class="bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-150">Remove</button>
+                </div>
+            </div>
+            <button onclick="addTaskRow()" class="mt-4 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition duration-150">Add Task</button>
+        </div>
+
+        <!-- ALLOCATION SUMMARY -->
+        <div class="section-box bg-stone-100 border-teal-300">
+            <h2 class="text-xl font-semibold text-stone-800 mb-4 border-b pb-2">3. Allocation Summary by Resource</h2>
+            <table class="min-w-full divide-y divide-stone-200">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-stone-600 uppercase tracking-wider">Resource</th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-stone-600 uppercase tracking-wider">Capacity (Hrs/Wk)</th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-stone-600 uppercase tracking-wider">Allocated (Hrs/Wk)</th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-stone-600 uppercase tracking-wider">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="allocation-table-body" class="divide-y divide-stone-200">
+                    <!-- Allocation data goes here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let resourceCounter = 3;
+        let taskCounter = 3;
+
+        // --- RESOURCE FUNCTIONS ---
+        function addResourceRow(name = '', capacity = 40) {
+            const container = document.getElementById('resource-input-container');
+            const newId = resourceCounter++;
+            const newRow = document.createElement('div');
+            newRow.className = 'grid grid-cols-3 gap-4 resource-item';
+            newRow.setAttribute('data-id', newId);
+            newRow.innerHTML = `
+                <input type="text" class="form-input resource-name" value="${name}" oninput="updateAllocation()" placeholder="Name">
+                <input type="number" class="form-input resource-capacity" value="${capacity}" oninput="updateAllocation()" placeholder="Capacity (Hours/Week)">
+                <button onclick="removeResource(this)" class="bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-150">Remove</button>
+            `;
+            container.appendChild(newRow);
+            updateTaskAssignees();
+        }
+
+        function removeResource(button) {
+            const row = button.closest('.resource-item');
+            const resourceName = row.querySelector('.resource-name').value;
+            row.remove();
+            updateTaskAssignees();
+            updateAllocation();
+        }
+
+        // --- TASK FUNCTIONS ---
+        function addTaskRow(desc = '', assignee = '', hours = 8) {
+            const container = document.getElementById('task-input-container');
+            const newId = taskCounter++;
+            const newRow = document.createElement('div');
+            newRow.className = 'grid grid-cols-4 gap-4 task-item';
+            newRow.setAttribute('data-id', newId);
+            newRow.innerHTML = `
+                <input type="text" class="form-input task-desc" value="${desc}" placeholder="Task Description">
+                <select class="form-select task-assignee" onchange="updateAllocation()"></select>
+                <input type="number" class="form-input task-hours" value="${hours}" oninput="updateAllocation()" placeholder="Est. Hours/Week">
+                <button onclick="removeTask(this)" class="bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-150">Remove</button>
+            `;
+            container.appendChild(newRow);
+            updateTaskAssignees(assignee);
+            updateAllocation();
+        }
+
+        function removeTask(button) {
+            button.closest('.task-item').remove();
+            updateAllocation();
+        }
+
+        // --- CORE ALLOCATION LOGIC ---
+
+        function getResources() {
+            const resources = {};
+            document.querySelectorAll('.resource-item').forEach(row => {
+                const name = row.querySelector('.resource-name').value.trim();
+                const capacity = parseFloat(row.querySelector('.resource-capacity').value) || 0;
+                if (name) {
+                    resources[name] = { capacity: capacity, allocated: 0 };
+                }
+            });
+            return resources;
+        }
+
+        function getTasks() {
+            const tasks = [];
+            document.querySelectorAll('.task-item').forEach(row => {
+                const assignee = row.querySelector('.task-assignee').value;
+                const hours = parseFloat(row.querySelector('.task-hours').value) || 0;
+                if (assignee) {
+                    tasks.push({ assignee, hours });
+                }
+            });
+            return tasks;
+        }
+
+        function updateTaskAssignees(selectedAssignee = '') {
+            const resourceNames = Object.keys(getResources());
+            const selectElements = document.querySelectorAll('.task-assignee');
+
+            selectElements.forEach(select => {
+                const currentSelection = select.value;
+                select.innerHTML = resourceNames.map(name =>
+                    `<option value="${name}" ${name === currentSelection || name === selectedAssignee ? 'selected' : ''}>${name}</option>`
+                ).join('');
+                if (!select.value && resourceNames.length > 0) {
+                    select.value = resourceNames[0]; // Auto-select first resource if none selected
+                }
+            });
+            updateAllocation();
+        }
+
+        function updateAllocation() {
+            const resources = getResources();
+            const tasks = getTasks();
+
+            // Calculate allocated hours
+            tasks.forEach(task => {
+                if (resources[task.assignee]) {
+                    resources[task.assignee].allocated += task.hours;
+                }
+            });
+
+            // Render summary table
+            const tableBody = document.getElementById('allocation-table-body');
+            tableBody.innerHTML = '';
+
+            Object.keys(resources).forEach(name => {
+                const { capacity, allocated } = resources[name];
+
+                let statusText = 'Perfect';
+                let statusClass = 'allocation-perfect';
+
+                if (allocated > capacity) {
+                    statusText = 'OVER-ALLOCATED';
+                    statusClass = 'allocation-over';
+                } else if (allocated < capacity) {
+                    statusText = 'UNDER-ALLOCATED';
+                    statusClass = 'allocation-under';
+                }
+
+                if (allocated === 0 && capacity > 0) {
+                     statusText = 'UNASSIGNED';
+                     statusClass = 'allocation-under';
+                }
+
+                const row = document.createElement('tr');
+                row.className = 'resource-row';
+                row.innerHTML = `
+                    <td class="px-4 py-3 font-medium text-stone-900">${name}</td>
+                    <td class="px-4 py-3 text-center">${capacity}</td>
+                    <td class="px-4 py-3 text-center">${allocated}</td>
+                    <td class="px-4 py-3 text-center">
+                        <span class="inline-block px-3 py-1 text-xs rounded-full ${statusClass}">${statusText}</span>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            if (Object.keys(resources).length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-stone-500 italic">Define resources above to begin.</td></tr>`;
+            }
+        }
+
+        // Initial setup
+        document.addEventListener('DOMContentLoaded', () => {
+            // Re-bind listeners for resource changes
+            document.querySelectorAll('.resource-item input').forEach(input => input.addEventListener('input', updateTaskAssignees));
+            document.querySelectorAll('.task-item input').forEach(input => input.addEventListener('input', updateAllocation));
+
+            updateTaskAssignees(); // Populate initial dropdowns and calculate
+        });
+
+    </script>
+</body>
+</html>

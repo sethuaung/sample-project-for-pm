@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stakeholder Communication Plan Builder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .form-input, .form-select, .form-textarea {
+            @apply w-full p-2 border border-stone-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500 text-sm;
+        }
+        .quadrant-box {
+            @apply p-4 border-2 border-dashed rounded-lg flex flex-col items-center justify-center h-full text-center transition duration-300;
+        }
+        .quadrant-high-high { @apply border-red-400 bg-red-50 text-red-800; }
+        .quadrant-high-low { @apply border-orange-400 bg-orange-50 text-orange-800; }
+        .quadrant-low-high { @apply border-blue-400 bg-blue-50 text-blue-800; }
+        .quadrant-low-low { @apply border-green-400 bg-green-50 text-green-800; }
+        .table-header { @apply px-4 py-3 bg-teal-600 text-white text-left text-sm font-semibold uppercase tracking-wider; }
+        .table-cell { @apply px-4 py-3 border-b border-stone-200; }
+        .stakeholder-row:nth-child(even) { @apply bg-stone-50; }
+    </style>
+</head>
+<body class="bg-stone-50 p-6 md:p-10 font-sans antialiased">
+
+    <div class="max-w-7xl mx-auto">
+        <h1 class="text-3xl font-bold text-teal-700 mb-2">Stakeholder Communication Plan Builder</h1>
+        <p class="text-lg text-stone-600 mb-8">Define who needs what information, when, and how, based on their Influence and Interest (PMI Power/Interest Grid).</p>
+
+        <!-- Stakeholder Input Form -->
+        <div class="bg-white p-6 rounded-xl shadow-lg border border-stone-200 mb-10">
+            <h2 class="text-xl font-semibold text-stone-800 mb-4">Define Stakeholder Communication Needs (Max 5)</h2>
+            <div id="stakeholder-inputs" class="space-y-4">
+                <!-- Stakeholder 1 -->
+                <div class="p-4 border border-stone-100 rounded-lg bg-stone-50 grid grid-cols-1 md:grid-cols-5 gap-3">
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-medium text-stone-600">Stakeholder Group/Role</label>
+                        <input type="text" id="group-1" class="form-input" value="Executive Sponsor" placeholder="e.g., Executive Sponsor">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-600">Influence (Control)</label>
+                        <select id="influence-1" class="form-select">
+                            <option value="High" selected>High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-600">Interest (Involvement)</label>
+                        <select id="interest-1" class="form-select">
+                            <option value="High" selected>High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-600">Information Needed</label>
+                        <input type="text" id="info-1" class="form-input" value="Budget, Risk Summary, Milestones" placeholder="e.g., Budget, Risk Summary">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-medium text-stone-600">Format / Frequency</label>
+                        <input type="text" id="format-1" class="form-input" value="1-page Email Summary / Weekly" placeholder="e.g., Email Summary / Weekly">
+                    </div>
+                </div>
+                <!-- Stakeholder 2 -->
+                <div class="p-4 border border-stone-100 rounded-lg bg-stone-50 grid grid-cols-1 md:grid-cols-5 gap-3">
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-medium text-stone-600">Stakeholder Group/Role</label>
+                        <input type="text" id="group-2" class="form-input" value="Development Team" placeholder="e.g., Development Team">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-600">Influence (Control)</label>
+                        <select id="influence-2" class="form-select">
+                            <option value="High">High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low" selected>Low</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-600">Interest (Involvement)</label>
+                        <select id="interest-2" class="form-select">
+                            <option value="High" selected>High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-600">Information Needed</label>
+                        <input type="text" id="info-2" class="form-input" value="Feature Specs, Task Priority, Technical Issues" placeholder="e.g., Feature Specs, Task Priority">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-medium text-stone-600">Format / Frequency</label>
+                        <input type="text" id="format-2" class="form-input" value="Daily Standup / Daily" placeholder="e.g., Daily Standup / Daily">
+                    </div>
+                </div>
+                <!-- Stakeholder 3 -->
+                <div class="p-4 border border-stone-100 rounded-lg bg-stone-50 grid grid-cols-1 md:grid-cols-5 gap-3">
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-medium text-stone-600">Stakeholder Group/Role</label>
+                        <input type="text" id="group-3" class="form-input" value="Regulatory Compliance" placeholder="e.g., Regulatory Compliance">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-600">Influence (Control)</label>
+                        <select id="influence-3" class="form-select">
+                            <option value="High" selected>High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-600">Interest (Involvement)</label>
+                        <select id="interest-3" class="form-select">
+                            <option value="High">High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low" selected>Low</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-600">Information Needed</label>
+                        <input type="text" id="info-3" class="form-input" value="Formal Compliance Sign-offs" placeholder="e.g., Formal Compliance Sign-offs">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-medium text-stone-600">Format / Frequency</label>
+                        <input type="text" id="format-3" class="form-input" value="Formal Document Review / Quarterly" placeholder="e.g., Formal Document Review / Quarterly">
+                    </div>
+                </div>
+                <!-- Stakeholder 4 -->
+                <div class="p-4 border border-stone-100 rounded-lg bg-stone-50 grid grid-cols-1 md:grid-cols-5 gap-3">
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-medium text-stone-600">Stakeholder Group/Role</label>
+                        <input type="text" id="group-4" class="form-input" value="End Users" placeholder="e.g., End Users">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-600">Influence (Control)</label>
+                        <select id="influence-4" class="form-select">
+                            <option value="High">High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low" selected>Low</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-600">Interest (Involvement)</label>
+                        <select id="interest-4" class="form-select">
+                            <option value="High">High</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-600">Information Needed</label>
+                        <input type="text" id="info-4" class="form-input" value="Training Schedule, Release Notes" placeholder="e.g., Training Schedule, Release Notes">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-medium text-stone-600">Format / Frequency</label>
+                        <input type="text" id="format-4" class="form-input" value="Internal Newsletter / Monthly" placeholder="e.g., Internal Newsletter / Monthly">
+                    </div>
+                </div>
+                <!-- Stakeholder 5 -->
+                <div class="p-4 border border-stone-100 rounded-lg bg-stone-50 grid grid-cols-1 md:grid-cols-5 gap-3">
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-medium text-stone-600">Stakeholder Group/Role</label>
+                        <input type="text" id="group-5" class="form-input" value="Internal Project Team (HR/Finance)" placeholder="e.g., Internal Project Team (HR/Finance)">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-600">Influence (Control)</label>
+                        <select id="influence-5" class="form-select">
+                            <option value="High">High</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-600">Interest (Involvement)</label>
+                        <select id="interest-5" class="form-select">
+                            <option value="High">High</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-600">Information Needed</label>
+                        <input type="text" id="info-5" class="form-input" value="Resource Usage, Budget Variance" placeholder="e.g., Resource Usage, Budget Variance">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-medium text-stone-600">Format / Frequency</label>
+                        <input type="text" id="format-5" class="form-input" value="Formal Review Meeting / Bi-Weekly" placeholder="e.g., Formal Review Meeting / Bi-Weekly">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PMI Power/Interest Grid (Output) -->
+        <h2 class="text-2xl font-bold text-stone-800 mb-4">PMI Power/Interest Grid Strategy</h2>
+        <div class="grid grid-cols-2 gap-4 h-[300px] mb-10">
+            <!-- High Influence / High Interest -->
+            <div id="grid-high-high" class="quadrant-box quadrant-high-high">
+                <span class="text-2xl font-bold mb-1">Manage Closely</span>
+                <span class="text-sm">High Influence, High Interest</span>
+                <p id="list-high-high" class="mt-2 text-xs font-medium"></p>
+            </div>
+            <!-- High Influence / Low Interest -->
+            <div id="grid-low-high" class="quadrant-box quadrant-low-high">
+                <span class="text-2xl font-bold mb-1">Keep Satisfied</span>
+                <span class="text-sm">High Influence, Low Interest</span>
+                <p id="list-low-high" class="mt-2 text-xs font-medium"></p>
+            </div>
+            <!-- Low Influence / High Interest -->
+            <div id="grid-high-low" class="quadrant-box quadrant-high-low">
+                <span class="text-2xl font-bold mb-1">Keep Informed</span>
+                <span class="text-sm">Low Influence, High Interest</span>
+                <p id="list-high-low" class="mt-2 text-xs font-medium"></p>
+            </div>
+            <!-- Low Influence / Low Interest -->
+            <div id="grid-low-low" class="quadrant-box quadrant-low-low">
+                <span class="text-2xl font-bold mb-1">Monitor (Minimum Effort)</span>
+                <span class="text-sm">Low Influence, Low Interest</span>
+                <p id="list-low-low" class="mt-2 text-xs font-medium"></p>
+            </div>
+        </div>
+
+        <!-- Communication Matrix Table (Output) -->
+        <h2 class="text-2xl font-bold text-stone-800 mt-10 mb-4">Communication Matrix</h2>
+        <div class="bg-white rounded-xl shadow-lg overflow-x-auto">
+            <table class="min-w-full divide-y divide-stone-200">
+                <thead>
+                    <tr>
+                        <th class="table-header w-2/12">Stakeholder Group</th>
+                        <th class="table-header w-2/12">Strategy (PMI)</th>
+                        <th class="table-header w-4/12">Information Required</th>
+                        <th class="table-header w-4/12">Format & Frequency</th>
+                    </tr>
+                </thead>
+                <tbody id="comm-table-body" class="divide-y divide-stone-200">
+                    <!-- Dynamic content will be injected here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Generated Markdown Output -->
+        <h2 class="text-2xl font-bold text-stone-800 mt-10 mb-4">Markdown Export</h2>
+        <pre id="markdown-output" class="bg-stone-900 text-stone-100 p-4 rounded-lg text-sm whitespace-pre-wrap font-mono"></pre>
+    </div>
+
+    <script>
+        const NUM_STAKEHOLDERS = 5;
+
+        function getStakeholderData(id) {
+            const group = document.getElementById(`group-${id}`).value;
+            const influence = document.getElementById(`influence-${id}`).value;
+            const interest = document.getElementById(`interest-${id}`).value;
+            const info = document.getElementById(`info-${id}`).value;
+            const format = document.getElementById(`format-${id}`).value;
+
+            // Determine PMI Strategy based on grid location
+            let strategy = '';
+            if (influence === 'High' && interest === 'High') {
+                strategy = 'Manage Closely';
+            } else if (influence === 'High' && interest === 'Low') {
+                strategy = 'Keep Satisfied';
+            } else if (influence === 'Low' && interest === 'High') {
+                strategy = 'Keep Informed';
+            } else { // Low Influence / Low Interest
+                strategy = 'Monitor (Minimum Effort)';
+            }
+
+            return { group, influence, interest, info, format, strategy };
+        }
+
+        function updateCommunicationPlan() {
+            let allStakeholders = [];
+            const quadrants = {
+                'High-High': [],
+                'High-Low': [],
+                'Low-High': [],
+                'Low-Low': []
+            };
+
+            for (let i = 1; i <= NUM_STAKEHOLDERS; i++) {
+                const stakeholder = getStakeholderData(i);
+                if (stakeholder.group.trim()) {
+                    allStakeholders.push(stakeholder);
+                    // Map to quadrants based on Influence-Interest
+                    const quadrantKey = `${stakeholder.influence}-${stakeholder.interest}`;
+                    quadrants[quadrantKey.replace('Medium', 'High')]?.push(stakeholder.group);
+                    // Simplifying Medium to High for basic grid placement
+                }
+            }
+
+            // Render Quadrant Lists
+            document.getElementById('list-high-high').textContent = quadrants['High-High'].join(', ') || 'N/A';
+            document.getElementById('list-low-high').textContent = quadrants['High-Low'].join(', ') || 'N/A'; // High Influence, Low Interest
+            document.getElementById('list-high-low').textContent = quadrants['Low-High'].join(', ') || 'N/A'; // Low Influence, High Interest
+            document.getElementById('list-low-low').textContent = quadrants['Low-Low'].join(', ') || 'N/A';
+
+            // Render Table Rows
+            const tableBody = document.getElementById('comm-table-body');
+            tableBody.innerHTML = '';
+
+            allStakeholders.forEach((sh, index) => {
+                const row = document.createElement('tr');
+                row.classList.add('stakeholder-row');
+
+                row.innerHTML = `
+                    <td class="table-cell font-semibold text-stone-700">${sh.group}</td>
+                    <td class="table-cell text-sm">
+                        <span class="font-bold">${sh.strategy}</span>
+                        <div class="text-xs text-stone-500 mt-1">${sh.influence} Inf. / ${sh.interest} Int.</div>
+                    </td>
+                    <td class="table-cell">${sh.info}</td>
+                    <td class="table-cell">${sh.format}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            if (allStakeholders.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-stone-500 italic">No stakeholders defined yet.</td></tr>`;
+            }
+
+            // Render Markdown Output
+            renderMarkdown(allStakeholders);
+        }
+
+        function renderMarkdown(stakeholders) {
+            let markdown = "## Project Stakeholder Communication Matrix (PMI Framework)\n\n";
+            markdown += "### Stakeholder Strategy Summary\n";
+            markdown += "This strategy is based on the Power/Interest Grid.\n\n";
+            markdown += "* **Manage Closely (High Influence, High Interest):** Needs frequent, detailed, direct communication.\n";
+            markdown += "* **Keep Satisfied (High Influence, Low Interest):** Needs high-level, timely reports to prevent dissatisfaction.\n";
+            markdown += "* **Keep Informed (Low Influence, High Interest):** Needs frequent updates, but less detail is required.\n";
+            markdown += "* **Monitor (Low Influence, Low Interest):** Minimal effort required.\n\n";
+
+            markdown += "### Communication Matrix\n";
+            markdown += "| Stakeholder Group | Influence/Interest | PMI Strategy | Information Required | Format & Frequency |\n";
+            markdown += "| :--- | :--- | :--- | :--- | :--- |\n";
+
+            stakeholders.forEach(sh => {
+                const influenceInterest = `${sh.influence} Inf. / ${sh.interest} Int.`;
+                markdown += `| ${sh.group} | ${influenceInterest} | **${sh.strategy}** | ${sh.info} | ${sh.format} |\n`;
+            });
+
+            document.getElementById('markdown-output').innerText = markdown.trim();
+        }
+
+        // Attach event listeners to all relevant input fields
+        document.addEventListener('DOMContentLoaded', () => {
+            for (let i = 1; i <= NUM_STAKEHOLDERS; i++) {
+                document.getElementById(`group-${i}`).addEventListener('input', updateCommunicationPlan);
+                document.getElementById(`influence-${i}`).addEventListener('change', updateCommunicationPlan);
+                document.getElementById(`interest-${i}`).addEventListener('change', updateCommunicationPlan);
+                document.getElementById(`info-${i}`).addEventListener('input', updateCommunicationPlan);
+                document.getElementById(`format-${i}`).addEventListener('input', updateCommunicationPlan);
+            }
+            updateCommunicationPlan(); // Initial call
+        });
+    </script>
+</body>
+</html>

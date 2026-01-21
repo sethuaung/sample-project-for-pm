@@ -1,0 +1,3 @@
+Kanban Board Template (Enhanced for Flow)(Aligned with Kanban principles and PMI flow metrics)PROJECT/TEAM: [Project/Team Name]
+SERVICE LEVEL GOAL: [e.g., Continuous delivery of features]
+TARGET CYCLE TIME: [e.g., < 7 days]1. KANBAN BOARD COLUMNS & WIP LIMITSBACKLOG (No Limit)READY / TO DO (Limit: [e.g., 5])IN PROGRESS (WIP Limit: [Number])IN REVIEW / TESTING (Limit: [e.g., 2])DONE (No Limit)2. EXPLICIT POLICIES (Rules of the Road)[Define clear rules for moving tasks between columns and quality checks]3. FLOW METRICS (For Continuous Improvement)Cycle Time: Time from start (In Progress) to finish (Done).Throughput: Number of items completed per time period.Lead Time: Time from request (Backlog) to delivery (Done).

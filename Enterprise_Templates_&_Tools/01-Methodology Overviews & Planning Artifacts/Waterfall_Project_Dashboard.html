@@ -1,0 +1,502 @@
+<!-- Chosen Palette: Warm Neutrals with Teal Accent -->
+<!-- Application Structure Plan: The application is built as a 5-Phase Tabbed Dashboard: 1. Overview & Scope (Requirements), 2. Technical Design, 3. Schedule & Milestones (Gantt), 4. Quality & Testing, 5. Summary & Signoff. This structure was chosen because Waterfall is a sequential process; allowing the user to navigate the documents in their execution order (from high-level requirements to low-level testing details) creates a clear, logical, and user-friendly exploration path that minimizes cognitive load and highlights dependencies. -->
+<!-- Visualization & Content Choices: Task Durations (Gantt Info) -> Goal: Show Workload -> Viz/Presentation Method: Horizontal Bar Chart -> Interaction: Dynamic display of duration/dependency info on interaction -> Justification: Bar charts visually communicate time allocation better than pure text. Library/Method: Chart.js. Quality Status (Test Plan Info) -> Goal: Check Completion Status -> Viz/Presentation Method: Doughnut Chart -> Interaction: Toggle between Entry and Exit Criteria status (simulated) -> Justification: Provides immediate, high-impact proportional view of quality gates. Library/Method: Chart.js. Requirements & Design -> Goal: Detail specifications and policies -> Viz/Presentation Method: Interactive Accordions & Key Cards -> Interaction: Click to show details (FRs/NFRs) -> Justification: Keeps the main screen clean while facilitating deep-dives into technical text. Library/Method: JS/HTML/Tailwind. -->
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waterfall Project Lifecycle Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0d9488; /* Teal 600 */
+            --accent-color: #f59e0b; /* Amber 500 */
+            --bg-neutral: #fefcfb; /* Off-White/Warm Neutral */
+            --text-base: #374151; /* Gray 700 */
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-neutral); color: var(--text-base); }
+        .tab-button.active {
+            border-bottom: 3px solid var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        .section-card { @apply bg-white p-6 rounded-xl shadow-lg border border-stone-200; }
+        .kpi-metric { @apply text-3xl font-extrabold text-teal-700; }
+        .accordion-header { @apply cursor-pointer flex justify-between items-center p-3 rounded-lg hover:bg-stone-50 transition duration-150; }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px; /* Max width constraint */
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px; /* Base height */
+            max-height: 400px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Navigation (The 5 Waterfall Phases) -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="py-4 text-2xl font-bold text-teal-700">Waterfall Project Analyzer</h1>
+            <nav class="flex space-x-4 border-b">
+                <button class="tab-button active py-3 px-2 text-sm md:text-base" data-tab="overview">1. Overview & Scope</button>
+                <button class="tab-button py-3 px-2 text-sm md:text-base" data-tab="design">2. Technical Design</button>
+                <button class="tab-button py-3 px-2 text-sm md:text-base" data-tab="schedule">3. Schedule & Milestones</button>
+                <button class="tab-button py-3 px-2 text-sm md:text-base" data-tab="quality">4. Quality & Testing</button>
+                <button class="tab-button py-3 px-2 text-sm md:text-base" data-tab="summary">5. Project Sign-Off</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto p-4 md:p-8">
+
+        <!-- Phase 1: Overview & Scope (Requirements Document) -->
+        <section id="overview" class="tab-content">
+            <h2 class="text-3xl font-semibold mb-6 text-teal-700">Phase 1: Requirements Baseline (BRD/SRD)</h2>
+            <p class="mb-8 text-stone-600 border-l-4 border-teal-500 pl-4 py-2 bg-teal-50 rounded-lg">
+                This section details the **business objectives**, formal **scope**, and all approved **Functional (FR)** and **Non-Functional (NFR)** requirements. This is the baseline from which all other project phases operate.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="section-card col-span-1 md:col-span-2">
+                    <h3 class="text-xl font-bold mb-3">Project Goal & Scope Summary</h3>
+                    <p class="mb-3">**Goal:** Increase user sign-ups by 15% within 6 months.</p>
+                    <p class="mb-3">**Scope:** [Clearly define what is IN SCOPE and, critically, what is EXCLUDED from this release to prevent ambiguity.]</p>
+                    <div class="mt-4 pt-4 border-t">
+                        <h4 class="font-semibold mb-2">Stakeholder Analysis (PMI)</h4>
+                        <div id="stakeholder-list" class="space-y-2 text-sm">
+                            <p class="py-1 px-2 bg-stone-50 rounded-md">Project Manager: High Interest, Medium Influence</p>
+                            <p class="py-1 px-2 bg-stone-50 rounded-md">Business Owner: High Interest, High Influence</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="section-card col-span-1">
+                    <h3 class="text-xl font-bold mb-3">Requirements Status</h3>
+                    <p class="text-base mb-4">Baseline has been set. Change Control via formal **CRF** is mandatory for any deviation.</p>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-teal-50 rounded-lg">
+                            <p class="font-bold text-lg text-teal-800">FR Count:</p>
+                            <p id="fr-count" class="kpi-metric">3</p>
+                        </div>
+                        <div class="p-4 bg-teal-50 rounded-lg">
+                            <p class="font-bold text-lg text-teal-800">NFR Count:</p>
+                            <p id="nfr-count" class="kpi-metric">3</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Requirements Lists -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="section-card">
+                    <h3 class="text-xl font-bold mb-4 border-b pb-2">Functional Requirements (FR)</h3>
+                    <div id="fr-accordion" class="space-y-2">
+                        <!-- FRs injected here -->
+                    </div>
+                </div>
+                <div class="section-card">
+                    <h3 class="text-xl font-bold mb-4 border-b pb-2">Non-Functional Requirements (NFR)</h3>
+                    <div id="nfr-accordion" class="space-y-2">
+                        <!-- NFRs injected here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Phase 2: Technical Design (Design Document) -->
+        <section id="design" class="tab-content hidden">
+            <h2 class="text-3xl font-semibold mb-6 text-teal-700">Phase 2: Technical Design (HLD)</h2>
+            <p class="mb-8 text-stone-600 border-l-4 border-teal-500 pl-4 py-2 bg-teal-50 rounded-lg">
+                This phase translates the requirements into a physical system architecture and technical specifications, detailing the **technology stack, security policies, and deployment plan**.
+            </p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Tech Stack Card -->
+                <div class="section-card lg:col-span-1">
+                    <h3 class="text-xl font-bold mb-3">Core Technology Stack</h3>
+                    <p class="text-sm text-stone-500 mb-4">High-Level Components & Rationale</p>
+                    <ul id="tech-stack-list" class="space-y-3">
+                        <li class="p-3 bg-stone-50 rounded-lg border border-stone-100">**Frontend:** React, Tailwind CSS (Speed, component reusability)</li>
+                        <li class="p-3 bg-stone-50 rounded-lg border border-stone-100">**Backend:** Python/Django (Scalability, Enterprise support)</li>
+                        <li class="p-3 bg-stone-50 rounded-lg border border-stone-100">**Database:** PostgreSQL (ACID compliance, JSON support)</li>
+                    </ul>
+                </div>
+                <!-- Architecture Card -->
+                <div class="section-card lg:col-span-2">
+                    <h3 class="text-xl font-bold mb-3">Architectural & Data Model Summary</h3>
+                    <p class="mb-4">**Architecture:** [Describe the chosen architecture (e.g., Microservices, Serverless, Monolith, 3-Tier Web Application). Include a high-level component diagram (text/description only). Key Layers: Presentation (React), Application (Node/Express), Data (PostgreSQL). ]</p>
+                    <p class="mb-4">**Data Model:** Key entities include Users, Products, Orders. Primary relationships defined.</p>
+                    <h4 class="font-semibold mt-4 pt-4 border-t">API Interface Design</h4>
+                    <p class="text-sm mt-1">Authentication Service: Endpoints for `/auth/login`, `/auth/register` (Uses JWT). Data Service: Defines CRUD endpoints for core data (e.g., `POST /api/v1/orders`).</p>
+                </div>
+            </div>
+
+            <!-- Security & Deployment Details -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="section-card">
+                    <h3 class="text-xl font-bold mb-4">Security Design (IBM Alignment)</h3>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li>**Authentication:** Implement OAuth 2.0 flow. Credentials stored via BCrypt hashing.</li>
+                        <li>**Authorization:** Role-Based Access Control (RBAC) enforced at the API gateway layer.</li>
+                        <li>**Data Encryption:** All PII encrypted using AES-256 (NFR-2.2).</li>
+                    </ul>
+                </div>
+                <div class="section-card">
+                    <h3 class="text-xl font-bold mb-4">Deployment Strategy (Google PM Focus)</h3>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li>**CI/CD Pipeline:** Uses [e.g., GitLab CI/CD] with automated testing.</li>
+                        <li>**Rollback:** Blue-Green deployment utilized for instant rollback capability.</li>
+                        <li>**Quality:** All code must achieve a minimum **80%** test coverage.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Phase 3: Schedule & Milestones (Gantt Chart) -->
+        <section id="schedule" class="tab-content hidden">
+            <h2 class="text-3xl font-semibold mb-6 text-teal-700">Phase 3: Schedule & Workload Analysis</h2>
+            <p class="mb-8 text-stone-600 border-l-4 border-teal-500 pl-4 py-2 bg-teal-50 rounded-lg">
+                This view visualizes the formal **Gantt Chart** data, showing **task durations, critical path sequence**, and key **milestone dates**. Interact with the chart to understand time allocation.
+            </p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="section-card lg:col-span-2">
+                    <h3 class="text-xl font-bold mb-4 border-b pb-2">Task Duration Visualization (Days)</h3>
+                    <div class="chart-container h-96">
+                        <canvas id="durationChart"></canvas>
+                    </div>
+                </div>
+                <div class="section-card lg:col-span-1">
+                    <h3 class="text-xl font-bold mb-4 border-b pb-2">Key Milestones & Control</h3>
+                    <div class="space-y-3">
+                        <div class="p-3 bg-teal-50 rounded-lg">
+                            <p class="font-semibold text-teal-800">Contingency Reserve:</p>
+                            <p class="text-lg">15 Working Days</p>
+                        </div>
+                        <ul id="milestone-list" class="space-y-2 text-sm list-disc pl-5">
+                            <!-- Milestones dynamically populated -->
+                        </ul>
+                    </div>
+                    <div class="mt-4 pt-4 border-t">
+                        <p class="font-semibold mb-2">Selected Task Details:</p>
+                        <p id="selected-task-details" class="text-sm text-stone-600 italic">Hover or click a task on the chart for dependencies.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card mt-6">
+                <h3 class="text-xl font-bold mb-4">Full Schedule Details (Working Days)</h3>
+                <table class="min-w-full divide-y divide-stone-200">
+                    <thead>
+                        <tr>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-stone-500 uppercase">Phase / Task</th>
+                            <th class="px-3 py-3 text-center text-xs font-medium text-stone-500 uppercase">Duration</th>
+                            <th class="px-3 py-3 text-center text-xs font-medium text-stone-500 uppercase">Dependencies</th>
+                            <th class="px-3 py-3 text-center text-xs font-medium text-stone-500 uppercase">Milestone</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gantt-table-body" class="divide-y divide-stone-100 text-sm">
+                        <!-- Table rows injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Phase 4: Quality & Testing (Test Plan) -->
+        <section id="quality" class="tab-content hidden">
+            <h2 class="text-3xl font-semibold mb-6 text-teal-700">Phase 4: Quality Gates & Defect Management</h2>
+            <p class="mb-8 text-stone-600 border-l-4 border-teal-500 pl-4 py-2 bg-teal-50 bg-teal-50 rounded-lg">
+                This section formalizes the **Test Plan**, focusing on the required **Entry and Exit Criteria** (Quality Gates) and the **Defect Management Process**. Quality is verified against baselined NFRs.
+            </p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <div class="section-card lg:col-span-2">
+                    <h3 class="text-xl font-bold mb-4 border-b pb-2">Quality Gate Status (Simulated)</h3>
+                    <div class="chart-container h-96">
+                        <canvas id="qualityChart"></canvas>
+                    </div>
+                </div>
+                <div class="section-card lg:col-span-1">
+                    <h3 class="text-xl font-bold mb-4 border-b pb-2">Entry & Exit Criteria</h3>
+                    <p class="text-sm mb-4">Quality standards that must be met to start (Entry) or complete (Exit) the testing phase.</p>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-yellow-50 rounded-lg">
+                            <p class="font-bold text-lg text-yellow-800">Entry Criteria Status:</p>
+                            <p class="text-sm italic">Code deployed to Staging; Test cases fully defined; Environment signed off as ready.</p>
+                            <span class="inline-block mt-2 px-3 py-1 text-sm font-medium rounded-full bg-yellow-100 text-yellow-700">Not Met (Simulated)</span>
+                        </div>
+                        <div class="p-4 bg-green-50 rounded-lg">
+                            <p class="font-bold text-lg text-green-800">Exit Criteria Standard:</p>
+                            <p class="text-sm italic">100% of P1/P2 defects closed; >95% test coverage; Formal UAT Sign-off.</p>
+                            <span class="inline-block mt-2 px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-700">95% Complete (Simulated)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h3 class="text-xl font-bold mb-4">Defect Management Process (P1/P2 Standard)</h3>
+                <ol class="list-decimal pl-5 space-y-2 text-sm">
+                    <li>Defects are logged in the designated tracking tool (e.g., Jira).</li>
+                    <li>Triage & Priority: Defects are immediately prioritized (P1-Critical, P2-High, P3-Medium, P4-Low).</li>
+                    <li>**Fixing:** P1 and P2 defects **must** be fixed and re-tested within 48 hours.</li>
+                    <li>Closure: Only the QA Lead can close a defect after successful re-testing.</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Phase 5: Summary & Sign-Off -->
+        <section id="summary" class="tab-content hidden">
+            <h2 class="text-3xl font-semibold mb-6 text-teal-700">Phase 5: Project Summary & Formal Sign-Off</h2>
+            <p class="mb-8 text-stone-600 border-l-4 border-teal-500 pl-4 py-2 bg-teal-50 bg-teal-50 rounded-lg">
+                This is the final checkpoint. All required artifacts must be signed off, confirming the project has met its baselined scope (Requirements) and Quality Gates (Testing).
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="section-card">
+                    <h3 class="text-xl font-bold mb-4">Required Document Sign-Offs</h3>
+                    <ul class="space-y-3 list-disc pl-5">
+                        <li>Requirements Document (BRD/SRD) - **Approved Scope Baseline**</li>
+                        <li>High-Level Design Document - **Technical Baseline Approved**</li>
+                        <li>Gantt Chart (Schedule) - **Schedule Baseline Approved**</li>
+                        <li>Acceptance Test Plan - **Quality Strategy Approved**</li>
+                        <li>Formal UAT Sign-Off - **Product Accepted**</li>
+                    </ul>
+                    <p class="mt-6 text-sm italic text-stone-500">Note: All approvals signal official movement to the next phase of the Waterfall sequence.</p>
+                </div>
+                <div class="section-card">
+                    <h3 class="text-xl font-bold mb-4">Project Closeout Confirmation</h3>
+                    <div class="space-y-4 text-lg">
+                        <div class="p-4 bg-green-50 rounded-lg">
+                            <p class="font-bold text-green-800">Business Owner Signature:</p>
+                            <p class="mt-2 border-b border-green-300 pb-1 italic">[Signature Here]</p>
+                        </div>
+                        <div class="p-4 bg-green-50 rounded-lg">
+                            <p class="font-bold text-green-800">Project Manager Signature:</p>
+                            <p class="mt-2 border-b border-green-300 pb-1 italic">[Signature Here]</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        const PROJECT_DATA = {
+            FRs: [
+                { id: 'FR-1.0', title: 'User Authentication', detail: 'The system SHALL allow users to register with a unique email and password.' },
+                { id: 'FR-1.1', title: 'Password Complexity', detail: 'The system SHALL enforce password complexity rules (min 8 chars, 1 capital, 1 number).' },
+                { id: 'FR-1.2', title: 'Data Export', detail: 'The system SHALL allow administrators to export user data to a CSV file.' }
+            ],
+            NFRs: [
+                { id: 'NFR-2.1', title: 'Performance', detail: 'The primary dashboard screen SHALL load and display all data within 3 seconds for 95% of users.' },
+                { id: 'NFR-2.2', title: 'Security (PII)', detail: 'All Personally Identifiable Information (PII) SHALL be encrypted using AES-256 both in transit (TLS 1.2+) and at rest.' },
+                { id: 'NFR-2.3', title: 'Usability', detail: 'The primary user workflow SHALL be navigable by an average user with zero training in less than 2 minutes.' }
+            ],
+            Gantt: [
+                { phase: 'I. Initiation & Planning', id: 'P-100', desc: 'Finalize Requirements (BRD/SRD)', duration: 10, dependency: 'None', milestone: 'Requirements Baseline Signed' },
+                { phase: 'I. Initiation & Planning', id: 'P-110', desc: 'Obtain all Stakeholder Sign-offs', duration: 3, dependency: 'P-100', milestone: 'Approved Scope' },
+                { phase: 'II. Design', id: 'D-200', desc: 'Complete System Architecture (HLD)', duration: 15, dependency: 'P-110', milestone: 'Design Baseline Approved' },
+                { phase: 'II. Design', id: 'D-210', desc: 'Finalize Database Schema Design', duration: 5, dependency: 'D-200', milestone: 'Data Model Ready' },
+                { phase: 'III. Implementation', id: 'I-300', desc: 'Setup CI/CD and Dev Environment', duration: 5, dependency: 'D-200', milestone: 'Environment Ready' },
+                { phase: 'III. Implementation', id: 'I-310', desc: 'Build Core Module A (Backend)', duration: 20, dependency: 'D-210, I-300', milestone: 'Module A Complete' },
+                { phase: 'III. Implementation', id: 'I-320', desc: 'Build UI/Frontend Integration', duration: 15, dependency: 'I-310', milestone: 'Feature Integration Complete' },
+                { phase: 'IV. Testing', id: 'T-400', desc: 'Create Formal Test Cases', duration: 10, dependency: 'P-100', milestone: 'Test Plan Approved' },
+                { phase: 'IV. Testing', id: 'T-410', desc: 'Execute System Integration Testing', duration: 10, dependency: 'I-320, T-400', milestone: 'System Testing Passed' },
+                { phase: 'IV. Testing', id: 'T-420', desc: 'User Acceptance Testing (UAT)', duration: 5, dependency: 'T-410', milestone: 'UAT Sign-Off (Go/No-Go)' },
+                { phase: 'V. Deployment', id: 'L-500', desc: 'Final Deployment Checklist & Handover', duration: 3, dependency: 'T-420', milestone: 'Project Completion' }
+            ]
+        };
+
+        let durationChartInstance = null;
+        let qualityChartInstance = null;
+
+        function initializeApp() {
+            setupNavigation();
+            populateRequirements();
+            populateGantt();
+            renderDurationChart();
+            renderQualityChart();
+            updateKPIs();
+        }
+
+        function setupNavigation() {
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetTab = button.getAttribute('data-tab');
+
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    document.getElementById(targetTab).classList.remove('hidden');
+
+                    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                });
+            });
+        }
+
+        function toggleAccordion(id) {
+            const content = document.getElementById(id);
+            const icon = document.querySelector(`[data-icon="${id}"]`);
+
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.textContent = '▼';
+            } else {
+                content.classList.add('hidden');
+                icon.textContent = '▶';
+            }
+        }
+
+        function populateRequirements() {
+            const frContainer = document.getElementById('fr-accordion');
+            const nfrContainer = document.getElementById('nfr-accordion');
+
+            [
+                { data: PROJECT_DATA.FRs, container: frContainer, type: 'FR' },
+                { data: PROJECT_DATA.NFRs, container: nfrContainer, type: 'NFR' }
+            ].forEach(({ data, container, type }) => {
+                container.innerHTML = data.map((req, index) => {
+                    const contentId = `${type}-detail-${index}`;
+                    return `
+                        <div class="border rounded-lg bg-stone-50">
+                            <div class="accordion-header text-sm font-medium" onclick="toggleAccordion('${contentId}')">
+                                <span>**${req.id}** - ${req.title}</span>
+                                <span data-icon="${contentId}">▶</span>
+                            </div>
+                            <div id="${contentId}" class="p-3 bg-white border-t hidden">
+                                <p class="text-xs text-stone-700">${req.detail}</p>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            });
+        }
+
+        function updateKPIs() {
+            document.getElementById('fr-count').textContent = PROJECT_DATA.FRs.length;
+            document.getElementById('nfr-count').textContent = PROJECT_DATA.NFRs.length;
+        }
+
+        function populateGantt() {
+            const tableBody = document.getElementById('gantt-table-body');
+            const milestoneList = document.getElementById('milestone-list');
+            tableBody.innerHTML = PROJECT_DATA.Gantt.map(task => `
+                <tr class="hover:bg-teal-50 transition duration-150">
+                    <td class="px-3 py-3 font-medium">${task.id} (${task.phase})</td>
+                    <td class="px-3 py-3 text-center">${task.duration} days</td>
+                    <td class="px-3 py-3 text-center text-stone-500">${task.dependency}</td>
+                    <td class="px-3 py-3 text-center font-semibold text-teal-700">${task.milestone.includes('Milestone') ? '' : task.milestone}</td>
+                </tr>
+            `).join('');
+
+            milestoneList.innerHTML = PROJECT_DATA.Gantt.filter(task => task.milestone).map(task =>
+                `<li>**${task.milestone}** (After ${task.id})</li>`
+            ).join('');
+        }
+
+        function renderDurationChart() {
+            const ctx = document.getElementById('durationChart').getContext('2d');
+            const labels = PROJECT_DATA.Gantt.map(task => task.id + ': ' + task.desc);
+            const durations = PROJECT_DATA.Gantt.map(task => task.duration);
+
+            if (durationChartInstance) { durationChartInstance.destroy(); }
+
+            durationChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Duration (Working Days)',
+                        data: durations,
+                        backgroundColor: PROJECT_DATA.Gantt.map(task =>
+                            task.phase.includes('Design') ? '#0d9488' :
+                            task.phase.includes('Implementation') ? '#06b6d4' :
+                            '#f59e0b'
+                        ),
+                        borderColor: '#111827',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { beginAtZero: true, title: { display: true, text: 'Duration in Days' } },
+                        y: {
+                            ticks: {
+                                callback: function(value, index) {
+                                    const label = this.getLabelForValue(value);
+                                    // Custom label wrapping for long task descriptions
+                                    return label.length > 20 ? label.substring(0, 20) + '...' : label;
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: (items) => items[0].label,
+                                label: (context) => `Duration: ${context.parsed.x} days`,
+                                afterLabel: (context) => {
+                                    const task = PROJECT_DATA.Gantt[context.dataIndex];
+                                    return `Dependencies: ${task.dependency}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderQualityChart() {
+            const ctx = document.getElementById('qualityChart').getContext('2d');
+
+            if (qualityChartInstance) { qualityChartInstance.destroy(); }
+
+            qualityChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['P1/P2 Defects Closed (100% Required)', 'Remaining Defects/Tasks'],
+                    datasets: [{
+                        label: 'Exit Criteria Status',
+                        data: [100, 5], // 95% complete simulation
+                        backgroundColor: ['#10b981', '#f87171'], // Green for closed, Red for remaining
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) { label += ': '; }
+                                    if (context.parsed) { label += context.parsed + '%'; }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        window.onload = initializeApp;
+    </script>
+</body>
+</html>

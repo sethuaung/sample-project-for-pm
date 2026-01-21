@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Project Template Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #10b981; /* Emerald 500 */
+            --accent-color: #059669; /* Emerald 600 */
+            --bg-neutral: #f9fafb; /* Light Gray */
+            --text-base: #1f2937; /* Gray 800 */
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-neutral); color: var(--text-base); }
+        .input-style { @apply w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150; }
+        .btn-primary { @apply w-full py-3 px-6 bg-emerald-600 text-white font-bold rounded-lg shadow-lg hover:bg-emerald-700 transition duration-200 disabled:opacity-50; }
+        .section-card { @apply bg-white p-6 rounded-xl shadow-xl border border-gray-100; }
+        .template-output { @apply bg-gray-50 p-4 border border-gray-200 rounded-lg h-96 overflow-y-scroll text-sm whitespace-pre-wrap; }
+        .input-group-header { @apply text-base font-bold mb-3 text-gray-700 border-b pb-1; }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div class="max-w-6xl mx-auto">
+        <header class="mb-10">
+            <h1 class="text-3xl font-bold text-gray-800">Enterprise Project Template Generator</h1>
+            <p class="text-gray-600 mt-1">Generate standardized documents for **Scrum, Kanban, Waterfall, or PRINCE2** methodologies.</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            <!-- Template Selection and Dynamic Form -->
+            <div class="space-y-6">
+                <div class="section-card">
+                    <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-emerald-700">1. Select Template & Input Data</h2>
+
+                    <!-- Template Selector -->
+                    <div class="mb-6">
+                        <label for="template-select" class="block text-sm font-medium mb-2">Choose Methodology Document</label>
+                        <select id="template-select" class="input-style" onchange="renderForm()">
+                            <option value="">-- Select a Template --</option>
+                            <option value="waterfall_schedule">Waterfall: Project Schedule Summary</option>
+                            <option value="scrum_planning">Scrum: Sprint Planning Document</option>
+                            <option value="kanban_policy">Kanban: Workflow Policy & WIP Limits</option>
+                            <option value="prince2_brief">PRINCE2: Project Brief (Initial)</option>
+                        </select>
+                    </div>
+
+                    <!-- Dynamic Input Form Container -->
+                    <form id="template-form" class="space-y-4">
+                        <p class="text-gray-500 italic">Select a template above to load the relevant input fields.</p>
+                        <!-- Dynamic fields will be inserted here by JavaScript -->
+                    </form>
+                </div>
+
+                <!-- Generation Button -->
+                <button id="generate-button" class="btn-primary" onclick="generateTemplate()" disabled>Generate Standardized Document</button>
+            </div>
+
+            <!-- Generated Output -->
+            <div class="space-y-6">
+                <div class="section-card">
+                    <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-emerald-700">2. Generated Markdown Output</h2>
+                    <div id="output-title" class="text-lg font-bold mb-2 text-gray-700"></div>
+                    <pre id="template-output" class="template-output">Your standardized Markdown document will appear here after generation.</pre>
+                    <button class="w-full mt-4 py-2 px-4 bg-gray-200 text-gray-800 font-medium rounded-lg hover:bg-gray-300 transition duration-150" onclick="copyToClipboard()">Copy to Clipboard</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Template Definitions (Fields required for each generator) ---
+        const TEMPLATE_FIELDS = {
+            // A. WATERFALL: Schedule Summary Template
+            waterfall_schedule: {
+                title: "Waterfall Project Schedule Summary (Gantt Baseline)",
+                sections: [
+                    {
+                        name: "Project Fundamentals",
+                        fields: [
+                            { id: 'waterfall-project-title', label: 'Project Name/Title', type: 'text', required: true, placeholder: 'Enterprise CRM Migration' },
+                            { id: 'project-manager', label: 'Project Manager', type: 'text', required: true, placeholder: 'Jane Doe' },
+                            { id: 'start-date', label: 'Planned Start Date', type: 'date', required: true },
+                            { id: 'total-duration', label: 'Total Planned Duration (Weeks)', type: 'number', required: true, min: 1, placeholder: '24' }
+                        ]
+                    },
+                    {
+                        name: "Key Milestones & Phases",
+                        fields: [
+                            { id: 'milestone1', label: 'Phase 1: Milestone (e.g., Requirements Sign-Off)', type: 'text', required: true, placeholder: 'Requirements Baseline Approved' },
+                            { id: 'milestone2', label: 'Phase 2: Milestone (e.g., Design Complete)', type: 'text', required: true, placeholder: 'Technical Design Complete' },
+                            { id: 'milestone3', label: 'Phase 3: Milestone (e.g., UAT Sign-Off)', type: 'text', required: true, placeholder: 'UAT Sign-Off & Go-Live Decision' }
+                        ]
+                    }
+                ]
+            },
+            // B. SCRUM: Sprint Planning Template
+            scrum_planning: {
+                title: "Sprint Planning Document",
+                sections: [
+                    {
+                        name: "Sprint Details",
+                        fields: [
+                            { id: 'sprint-number', label: 'Sprint Number', type: 'number', required: true, min: 1, placeholder: '5' },
+                            { id: 'sprint-duration', label: 'Sprint Duration (Weeks)', type: 'number', required: true, min: 1, max: 4, placeholder: '2' },
+                            { id: 'team-capacity', label: 'Available Team Capacity (Person Days)', type: 'number', required: true, placeholder: '60' },
+                            { id: 'predicted-velocity', label: 'Predicted Team Velocity (Story Points)', type: 'number', required: true, placeholder: '35' }
+                        ]
+                    },
+                    {
+                        name: "Goal & Product Backlog Items (PBI)",
+                        fields: [
+                            { id: 'sprint-goal', label: 'Single, Measurable Sprint Goal', type: 'textarea', required: true, placeholder: 'Example: Successfully integrate the new payment gateway and complete checkout flow testing.' },
+                            { id: 'pbi-list', label: 'Key PBIs Selected (List IDs, e.g., US-501, US-505, T-12)', type: 'textarea', required: true, placeholder: 'US-501: As a user, I can update my profile picture.\nUS-505: Implement API rate limiting.' }
+                        ]
+                    }
+                ]
+            },
+            // C. KANBAN: Workflow Policy Template
+            kanban_policy: {
+                title: "Kanban Workflow Policy & WIP Limits",
+                sections: [
+                    {
+                        name: "Board Configuration",
+                        fields: [
+                            { id: 'workflow-name', label: 'Workflow Name (e.g., Feature Development)', type: 'text', required: true, placeholder: 'Marketing Content Creation' },
+                            { id: 'lead-time-target', label: 'Target Lead Time (Days)', type: 'number', required: true, min: 1, placeholder: '5' },
+                        ]
+                    },
+                    {
+                        name: "WIP Limits (Work In Progress)",
+                        fields: [
+                            { id: 'wip-ready', label: 'Limit: Ready/To Do', type: 'number', required: true, min: 1, placeholder: '7' },
+                            { id: 'wip-dev', label: 'Limit: In Progress (Development)', type: 'number', required: true, min: 1, placeholder: '3' },
+                            { id: 'wip-qa', label: 'Limit: QA/Testing', type: 'number', required: true, min: 1, placeholder: '2' }
+                        ]
+                    },
+                    {
+                        name: "Policies",
+                        fields: [
+                            { id: 'exit-policy', label: 'Exit Policy (Definition of Done)', type: 'textarea', required: true, placeholder: 'Code deployed to UAT environment, all tests passed, and documentation completed.' },
+                            { id: 'entry-policy', label: 'Entry Policy (Ready to Develop)', type: 'textarea', required: true, placeholder: 'User Story must be estimated, prioritized by PO, and clear acceptance criteria defined.' }
+                        ]
+                    }
+                ]
+            },
+            // D. PRINCE2: Project Brief Template
+            prince2_brief: {
+                title: "PRINCE2 Project Brief (PID Input)",
+                sections: [
+                    {
+                        name: "Project Definition",
+                        fields: [
+                            { id: 'prince2-project-title', label: 'Project Name', type: 'text', required: true, placeholder: 'Internal Compliance Reporting System' },
+                            { id: 'customer', label: 'Customer (The one paying)', type: 'text', required: true, placeholder: 'Finance Department' },
+                            { id: 'expected-benefits', label: 'Expected Key Benefits', type: 'textarea', required: true, placeholder: 'Example: Reduce compliance audit time by 40%.' },
+                        ]
+                    },
+                    {
+                        name: "Approach & Constraints",
+                        fields: [
+                            { id: 'project-approach', label: 'Project Approach (e.g., Agile, Waterfall, Hybrid)', type: 'text', required: true, placeholder: 'Hybrid (Waterfall for infrastructure, Scrum for software development)' },
+                            { id: 'key-constraints', label: 'Key Constraints (e.g., Time, Budget, Quality)', type: 'textarea', required: true, placeholder: 'Must be live before the Q4 audit deadline (Time Constraint).' },
+                        ]
+                    }
+                ]
+            }
+        };
+
+        const formContainer = document.getElementById('template-form');
+        const outputTitle = document.getElementById('output-title');
+        const outputArea = document.getElementById('template-output');
+        const generateButton = document.getElementById('generate-button');
+
+        // --- Helper Functions ---
+
+        /**
+         * Simple custom alert box (replacing forbidden alert()).
+         */
+        function alertBox(message, type) {
+            const tempDiv = document.createElement('div');
+            tempDiv.className = `fixed top-4 right-4 p-4 rounded-lg shadow-xl text-white font-bold z-50 transition-opacity duration-300`;
+            tempDiv.style.backgroundColor = type === 'error' ? '#dc2626' : '#10b981';
+            tempDiv.textContent = message;
+            document.body.appendChild(tempDiv);
+
+            setTimeout(() => {
+                tempDiv.style.opacity = '0';
+                tempDiv.addEventListener('transitionend', () => tempDiv.remove());
+            }, 3000);
+        }
+
+        /**
+         * Copies the generated markdown to the clipboard.
+         */
+        function copyToClipboard() {
+            const textToCopy = outputArea.textContent;
+            if (textToCopy && textToCopy !== 'Your standardized Markdown document will appear here after generation.') {
+                const textarea = document.createElement('textarea');
+                textarea.value = textToCopy;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    alertBox('Template copied to clipboard!', 'success');
+                } catch (err) {
+                    alertBox('Could not copy text.', 'error');
+                }
+                document.body.removeChild(textarea);
+            } else {
+                alertBox('Nothing to copy yet. Generate a template first.', 'error');
+            }
+        }
+
+        // --- Dynamic Form Renderer ---
+
+        function renderForm() {
+            const templateKey = document.getElementById('template-select').value;
+            formContainer.innerHTML = '';
+            generateButton.disabled = true;
+
+            if (!templateKey) {
+                formContainer.innerHTML = '<p class="text-gray-500 italic">Select a template above to load the relevant input fields.</p>';
+                outputTitle.textContent = '';
+                outputArea.textContent = 'Your standardized Markdown document will appear here after generation.';
+                return;
+            }
+
+            const template = TEMPLATE_FIELDS[templateKey];
+            generateButton.disabled = false;
+
+            template.sections.forEach(section => {
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'p-4 border border-gray-100 rounded-lg bg-gray-50';
+
+                const sectionHeader = document.createElement('h3');
+                sectionHeader.className = 'input-group-header';
+                sectionHeader.textContent = section.name;
+                sectionDiv.appendChild(sectionHeader);
+
+                section.fields.forEach(field => {
+                    const fieldDiv = document.createElement('div');
+                    fieldDiv.className = 'mb-3';
+
+                    const label = document.createElement('label');
+                    label.htmlFor = field.id;
+                    label.className = 'block text-sm font-medium mb-1';
+                    label.textContent = field.label + (field.required ? ' *' : '');
+                    fieldDiv.appendChild(label);
+
+                    let input;
+                    if (field.type === 'textarea') {
+                        input = document.createElement('textarea');
+                        input.rows = 3;
+                    } else {
+                        input = document.createElement('input');
+                        input.type = field.type;
+                        if (field.type === 'number') {
+                             input.min = field.min || 1;
+                             if(field.max) input.max = field.max;
+                        }
+                    }
+
+                    input.id = field.id;
+                    input.placeholder = field.placeholder || '';
+                    input.required = field.required || false;
+                    input.className = 'input-style';
+
+                    // Set default value for date field
+                    if (field.type === 'date') {
+                        input.value = new Date().toISOString().substring(0, 10);
+                    }
+
+                    sectionDiv.appendChild(input);
+                    fieldDiv.appendChild(label);
+                    fieldDiv.appendChild(input);
+                    sectionDiv.appendChild(fieldDiv);
+                });
+                formContainer.appendChild(sectionDiv);
+            });
+        }
+
+        // --- Template Generation Logic ---
+
+        /**
+         * Main function to collect form data and trigger template generation.
+         */
+        function generateTemplate() {
+            const templateKey = document.getElementById('template-select').value;
+            const templateInfo = TEMPLATE_FIELDS[templateKey];
+            const data = {};
+            let isFormValid = true;
+
+            // Collect all data and check validity
+            templateInfo.sections.forEach(section => {
+                section.fields.forEach(field => {
+                    const inputElement = document.getElementById(field.id);
+                    if (inputElement) {
+                        data[field.id] = inputElement.value.trim();
+                        if (field.required && !data[field.id]) {
+                            isFormValid = false;
+                            inputElement.classList.add('border-red-500');
+                        } else {
+                            inputElement.classList.remove('border-red-500');
+                        }
+                    }
+                });
+            });
+
+            if (!isFormValid) {
+                alertBox('Please fill out all required fields marked with an asterisk (*).', 'error');
+                return;
+            }
+
+            outputTitle.textContent = templateInfo.title;
+            let markdownOutput = '';
+
+            switch (templateKey) {
+                case 'waterfall_schedule':
+                    markdownOutput = generateWaterfallScheduleTemplate(data);
+                    break;
+                case 'scrum_planning':
+                    markdownOutput = generateScrumTemplate(data);
+                    break;
+                case 'kanban_policy':
+                    markdownOutput = generateKanbanPolicyTemplate(data);
+                    break;
+                case 'prince2_brief':
+                    markdownOutput = generatePrince2BriefTemplate(data);
+                    break;
+            }
+
+            outputArea.textContent = markdownOutput;
+        }
+
+
+        /**
+         * Generates the Waterfall Schedule Summary Markdown.
+         */
+        function generateWaterfallScheduleTemplate(data) {
+            const date = new Date().toLocaleDateString();
+
+            return `
+# ${data['waterfall-project-title']} - Project Schedule Summary
+
+**Document Type:** Waterfall Planning Baseline
+**Date Generated:** ${date}
+**Project Manager:** ${data['project-manager']}
+
+---
+
+## 1. Project Fundamentals
+
+* **Total Planned Duration:** **${data['total-duration']}** Weeks
+* **Planned Start Date:** ${data['start-date']}
+* **Projected End Date:** *[To be calculated based on duration and start date]*
+
+## 2. Key Phase Milestones
+
+| Milestone ID | Description | Status |
+|---|---|---|
+| M-100 | ${data['milestone1']} | Planned |
+| M-200 | ${data['milestone2']} | Planned |
+| M-300 | ${data['milestone3']} | Planned |
+
+## 3. Top-Level Task Breakdown (WBS Summary)
+
+| Phase | Task Description | Estimated Duration (Weeks) | Dependency |
+|---|---|---|---|
+| **Phase I: Initiation** | Requirements Gathering & Sign-Off | 4 | None |
+| **Phase II: Design** | High-Level Design & Architecture | 6 | Phase I |
+| **Phase III: Implementation** | Core Build & Unit Testing | 10 | Phase II |
+| **Phase IV: UAT/Deployment** | Final Testing & Go-Live | 4 | Phase III |
+
+---
+
+## 4. Notes & Contingency
+A **15% contingency reserve** has been factored into the overall budget and timeline to address unforeseen issues.
+`;
+        }
+
+        /**
+         * Generates the Agile Scrum Sprint Planning Markdown.
+         */
+        function generateScrumTemplate(data) {
+            const pbiList = data['pbi-list'].split('\n').map(pbi => `- [ ] ${pbi.trim()}`).join('\n');
+
+            return `
+# Sprint ${data['sprint-number']} Planning Document
+
+**Duration:** ${data['sprint-duration']} Weeks
+**Capacity:** ${data['team-capacity']} Person Days
+**Predicted Velocity:** **${data['predicted-velocity']}** Story Points
+
+---
+
+## 1. Sprint Goal (The "Why")
+
+> "${data['sprint-goal']}"
+
+*This goal represents the single most important outcome for the team to achieve by the end of the sprint.*
+
+## 2. Selected Product Backlog Items (PBI)
+
+| Status | PBI ID/Title | Estimated Points |
+|---|---|---|
+| [ ] | PBI Placeholder 1 | [Points] |
+| [ ] | PBI Placeholder 2 | [Points] |
+
+### Key PBIs (Checklist)
+${pbiList}
+
+## 3. Definition of Done (DoD) Reminder
+
+* **PASS:** All code is reviewed, tested (unit/integration), and passes static analysis.
+* **FAIL:** Product Owner has not accepted the story, or automated tests are failing.
+
+---
+
+## 4. Sprint Events Schedule
+* **Daily Scrum:** [Time/Location]
+* **Sprint Review:** [Date/Time] - Focus on achieved goal.
+* **Retrospective:** [Date/Time] - Focus on process improvement.
+`;
+        }
+
+        /**
+         * Generates the Kanban Workflow Policy Markdown.
+         */
+        function generateKanbanPolicyTemplate(data) {
+            return `
+# Kanban Workflow Policy - ${data['workflow-name']}
+
+**Target Flow Metric:**
+* **Target Lead Time (Start to Finish):** **${data['lead-time-target']}** Days
+
+---
+
+## 1. Workflow States & WIP Limits
+
+| Column/State | Definition | Max WIP Limit |
+|---|---|---|
+| **Ready/To Do** | Item is refined, prioritized, and ready for development. | **${data['wip-ready']}** |
+| **In Progress** | Active coding/design work is happening. | **${data['wip-dev']}** |
+| **QA/Testing** | Feature is feature-complete and under formal test. | **${data['wip-qa']}** |
+| **Done** | Meets Exit Policy and is deployed/released. | *Unlimited* |
+
+## 2. Explicit Policies
+
+### 2.1 Entry Policy (When can work start?)
+> ${data['entry-policy']}
+
+### 2.2 Exit Policy (Definition of Done)
+> ${data['exit-policy']}
+
+## 3. Class of Service (CoS)
+* **Standard:** Default flow, subject to Lead Time target.
+* **Expedite:** Critical blocker. Bypasses WIP limits but requires immediate swarm.
+`;
+        }
+
+        /**
+         * Generates the PRINCE2 Project Brief Markdown.
+         */
+        function generatePrince2BriefTemplate(data) {
+            return `
+# PRINCE2 Project Brief (Initial Outline)
+
+**Project Name:** ${data['prince2-project-title']}
+**Customer/Sponsor:** ${data['customer']}
+**Date Prepared:** ${new Date().toLocaleDateString()}
+
+---
+
+## 1. Project Objectives & Justification (Business Case Input)
+
+### 1.1 Expected Key Benefits
+> ${data['expected-benefits']}
+
+* **Dis-benefits:** *[Placeholder: e.g., temporary system downtime during migration]*
+* **Timeframe:** [Placeholder: e.g., 6 months]
+
+## 2. Project Approach
+
+### 2.1 Selected Approach
+The Project Manager proposes the following approach: **${data['project-approach']}**
+
+### 2.2 Key Constraints
+The following external factors will restrict or influence the project:
+* ${data['key-constraints']}
+* *[Placeholder: e.g., Resource capacity is limited to 5 FTE.]*
+
+## 3. High-Level Requirements
+*[Placeholder: Add 3-5 high-level needs here.]*
+
+## 4. Quality Expectations
+The final product must meet the following quality standards:
+* [Placeholder: e.g., Zero P1 defects upon launch.]
+* [Placeholder: e.g., Must comply with ISO 27001 security standards.]
+`;
+        }
+
+        // Initialize the form view on load
+        window.onload = renderForm;
+    </script>
+</body>
+</html>

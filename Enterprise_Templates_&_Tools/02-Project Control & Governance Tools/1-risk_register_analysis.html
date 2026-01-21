@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Risk Register and Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .form-input, .form-select, .form-textarea {
+            @apply w-full p-2 border border-stone-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500 text-sm;
+        }
+        .score-high { @apply bg-red-100 text-red-800 font-bold; }
+        .score-med { @apply bg-orange-100 text-orange-800 font-semibold; }
+        .score-low { @apply bg-yellow-100 text-yellow-800; }
+
+        .table-header { @apply px-4 py-3 bg-teal-600 text-white text-left text-sm font-semibold uppercase tracking-wider; }
+        .table-cell { @apply px-4 py-3 border-b border-stone-200; }
+        .risk-row:nth-child(even) { @apply bg-stone-50; }
+    </style>
+</head>
+<body class="bg-stone-50 p-6 md:p-10 font-sans antialiased">
+
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold text-teal-700 mb-2">Project Risk Register (PMI Framework)</h1>
+        <p class="text-lg text-stone-600 mb-8">Identify and prioritize the top 5 project risks. The score (Probability x Impact) determines the severity.</p>
+
+        <!-- Risk Input Form -->
+        <div class="bg-white p-6 rounded-xl shadow-lg border border-stone-200 mb-10">
+            <h2 class="text-xl font-semibold text-stone-800 mb-4">Add or Update Risks (Top 5)</h2>
+            <div id="risk-inputs" class="space-y-4">
+                <!-- Risk 1 -->
+                <div id="risk-input-1" class="p-4 border border-stone-100 rounded-lg bg-stone-50 grid grid-cols-1 md:grid-cols-6 gap-3">
+                    <div class="col-span-full md:col-span-2">
+                        <label class="block text-xs font-medium text-stone-600">Risk 1: Event Description</label>
+                        <input type="text" id="risk-desc-1" class="form-input" placeholder="e.g., Key vendor goes bankrupt">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-600">Probability (1-5)</label>
+                        <select id="risk-prob-1" class="form-select">
+                            <option value="1">1 (Very Low)</option>
+                            <option value="2">2 (Low)</option>
+                            <option value="3" selected>3 (Medium)</option>
+                            <option value="4">4 (High)</option>
+                            <option value="5">5 (Very High)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-600">Impact (1-5)</label>
+                        <select id="risk-impact-1" class="form-select">
+                            <option value="1">1 (Minor)</option>
+                            <option value="2">2 (Moderate)</option>
+                            <option value="3" selected>3 (Significant)</option>
+                            <option value="4">4 (Severe)</option>
+                            <option value="5">5 (Catastrophic)</option>
+                        </select>
+                    </div>
+                    <div class="col-span-full md:col-span-2">
+                        <label class="block text-xs font-medium text-stone-600">Response Strategy</label>
+                        <select id="risk-strategy-1" class="form-select mb-1">
+                            <option value="Mitigate">Mitigate (Reduce P or I)</option>
+                            <option value="Avoid">Avoid (Eliminate Threat)</option>
+                            <option value="Transfer">Transfer (Insurance/Contract)</option>
+                            <option value="Accept">Accept (Plan Contingency)</option>
+                        </select>
+                        <input type="text" id="risk-owner-1" class="form-input" placeholder="Owner (e.g., Procurement Lead)">
+                    </div>
+                </div>
+                <!-- Risk 2 -->
+                <div id="risk-input-2" class="p-4 border border-stone-100 rounded-lg bg-stone-50 grid grid-cols-1 md:grid-cols-6 gap-3">
+                    <div class="col-span-full md:col-span-2">
+                        <label class="block text-xs font-medium text-stone-600">Risk 2: Event Description</label>
+                        <input type="text" id="risk-desc-2" class="form-input" placeholder="e.g., Scope creep due to new features">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-600">Probability (1-5)</label>
+                        <select id="risk-prob-2" class="form-select">
+                            <option value="1">1 (Very Low)</option>
+                            <option value="2">2 (Low)</option>
+                            <option value="3">3 (Medium)</option>
+                            <option value="4" selected>4 (High)</option>
+                            <option value="5">5 (Very High)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-600">Impact (1-5)</label>
+                        <select id="risk-impact-2" class="form-select">
+                            <option value="1">1 (Minor)</option>
+                            <option value="2">2 (Moderate)</option>
+                            <option value="3">3 (Significant)</option>
+                            <option value="4" selected>4 (Severe)</option>
+                            <option value="5">5 (Catastrophic)</option>
+                        </select>
+                    </div>
+                    <div class="col-span-full md:col-span-2">
+                        <label class="block text-xs font-medium text-stone-600">Response Strategy</label>
+                        <select id="risk-strategy-2" class="form-select mb-1">
+                            <option value="Mitigate" selected>Mitigate (Reduce P or I)</option>
+                            <option value="Avoid">Avoid (Eliminate Threat)</option>
+                            <option value="Transfer">Transfer (Insurance/Contract)</option>
+                            <option value="Accept">Accept (Plan Contingency)</option>
+                        </select>
+                        <input type="text" id="risk-owner-2" class="form-input" placeholder="Owner (e.g., Project Manager)">
+                    </div>
+                </div>
+                <!-- Risk 3 -->
+                <div id="risk-input-3" class="p-4 border border-stone-100 rounded-lg bg-stone-50 grid grid-cols-1 md:grid-cols-6 gap-3">
+                    <div class="col-span-full md:col-span-2">
+                        <label class="block text-xs font-medium text-stone-600">Risk 3: Event Description</label>
+                        <input type="text" id="risk-desc-3" class="form-input" placeholder="e.g., Critical integration point fails testing">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-600">Probability (1-5)</label>
+                        <select id="risk-prob-3" class="form-select">
+                            <option value="1">1 (Very Low)</option>
+                            <option value="2">2 (Low)</option>
+                            <option value="3">3 (Medium)</option>
+                            <option value="4">4 (High)</option>
+                            <option value="5" selected>5 (Very High)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-600">Impact (1-5)</label>
+                        <select id="risk-impact-3" class="form-select">
+                            <option value="1">1 (Minor)</option>
+                            <option value="2">2 (Moderate)</option>
+                            <option value="3">3 (Significant)</option>
+                            <option value="4" selected>4 (Severe)</option>
+                            <option value="5">5 (Catastrophic)</option>
+                        </select>
+                    </div>
+                    <div class="col-span-full md:col-span-2">
+                        <label class="block text-xs font-medium text-stone-600">Response Strategy</label>
+                        <select id="risk-strategy-3" class="form-select mb-1">
+                            <option value="Mitigate" selected>Mitigate (Reduce P or I)</option>
+                            <option value="Avoid">Avoid (Eliminate Threat)</option>
+                            <option value="Transfer">Transfer (Insurance/Contract)</option>
+                            <option value="Accept">Accept (Plan Contingency)</option>
+                        </select>
+                        <input type="text" id="risk-owner-3" class="form-input" placeholder="Owner (e.g., QA Lead)">
+                    </div>
+                </div>
+                <!-- Risk 4 -->
+                <div id="risk-input-4" class="p-4 border border-stone-100 rounded-lg bg-stone-50 grid grid-cols-1 md:grid-cols-6 gap-3">
+                    <div class="col-span-full md:col-span-2">
+                        <label class="block text-xs font-medium text-stone-600">Risk 4: Event Description</label>
+                        <input type="text" id="risk-desc-4" class="form-input" placeholder="e.g., Underestimation of required server capacity">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-600">Probability (1-5)</label>
+                        <select id="risk-prob-4" class="form-select">
+                            <option value="1">1 (Very Low)</option>
+                            <option value="2" selected>2 (Low)</option>
+                            <option value="3">3 (Medium)</option>
+                            <option value="4">4 (High)</option>
+                            <option value="5">5 (Very High)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-600">Impact (1-5)</label>
+                        <select id="risk-impact-4" class="form-select">
+                            <option value="1">1 (Minor)</option>
+                            <option value="2">2 (Moderate)</option>
+                            <option value="3">3 (Significant)</option>
+                            <option value="4" selected>4 (Severe)</option>
+                            <option value="5">5 (Catastrophic)</option>
+                        </select>
+                    </div>
+                    <div class="col-span-full md:col-span-2">
+                        <label class="block text-xs font-medium text-stone-600">Response Strategy</label>
+                        <select id="risk-strategy-4" class="form-select mb-1">
+                            <option value="Mitigate">Mitigate (Reduce P or I)</option>
+                            <option value="Avoid">Avoid (Eliminate Threat)</option>
+                            <option value="Transfer">Transfer (Insurance/Contract)</option>
+                            <option value="Accept" selected>Accept (Plan Contingency)</option>
+                        </select>
+                        <input type="text" id="risk-owner-4" class="form-input" placeholder="Owner (e.g., Tech Lead)">
+                    </div>
+                </div>
+                <!-- Risk 5 -->
+                <div id="risk-input-5" class="p-4 border border-stone-100 rounded-lg bg-stone-50 grid grid-cols-1 md:grid-cols-6 gap-3">
+                    <div class="col-span-full md:col-span-2">
+                        <label class="block text-xs font-medium text-stone-600">Risk 5: Event Description</label>
+                        <input type="text" id="risk-desc-5" class="form-input" placeholder="e.g., Failure to get executive budget approval">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-600">Probability (1-5)</label>
+                        <select id="risk-prob-5" class="form-select">
+                            <option value="1">1 (Very Low)</option>
+                            <option value="2">2 (Low)</option>
+                            <option value="3" selected>3 (Medium)</option>
+                            <option value="4">4 (High)</option>
+                            <option value="5">5 (Very High)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-stone-600">Impact (1-5)</label>
+                        <select id="risk-impact-5" class="form-select">
+                            <option value="1">1 (Minor)</option>
+                            <option value="2">2 (Moderate)</option>
+                            <option value="3">3 (Significant)</option>
+                            <option value="4">4 (Severe)</option>
+                            <option value="5" selected>5 (Catastrophic)</option>
+                        </select>
+                    </div>
+                    <div class="col-span-full md:col-span-2">
+                        <label class="block text-xs font-medium text-stone-600">Response Strategy</label>
+                        <select id="risk-strategy-5" class="form-select mb-1">
+                            <option value="Mitigate">Mitigate (Reduce P or I)</option>
+                            <option value="Avoid">Avoid (Eliminate Threat)</option>
+                            <option value="Transfer">Transfer (Insurance/Contract)</option>
+                            <option value="Accept">Accept (Plan Contingency)</option>
+                        </select>
+                        <input type="text" id="risk-owner-5" class="form-input" placeholder="Owner (e.g., Executive Sponsor)">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Register Table (Output) -->
+        <h2 class="text-2xl font-bold text-stone-800 mb-4">Current Risk Register (Prioritized)</h2>
+        <div class="bg-white rounded-xl shadow-lg overflow-x-auto">
+            <table class="min-w-full divide-y divide-stone-200">
+                <thead>
+                    <tr>
+                        <th class="table-header w-1/12">ID</th>
+                        <th class="table-header w-4/12">Risk Event</th>
+                        <th class="table-header w-1/12 text-center">P</th>
+                        <th class="table-header w-1/12 text-center">I</th>
+                        <th class="table-header w-1/12 text-center">Score</th>
+                        <th class="table-header w-3/12">Response Strategy & Owner</th>
+                    </tr>
+                </thead>
+                <tbody id="risk-table-body" class="divide-y divide-stone-200">
+                    <!-- Dynamic content will be injected here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Generated Markdown Output -->
+        <h2 class="text-2xl font-bold text-stone-800 mt-10 mb-4">Markdown Export</h2>
+        <pre id="markdown-output" class="bg-stone-900 text-stone-100 p-4 rounded-lg text-sm whitespace-pre-wrap font-mono"></pre>
+    </div>
+
+    <script>
+        const NUM_RISKS = 5;
+
+        function getRiskData(id) {
+            const desc = document.getElementById(`risk-desc-${id}`).value;
+            const prob = parseInt(document.getElementById(`risk-prob-${id}`).value) || 0;
+            const impact = parseInt(document.getElementById(`risk-impact-${id}`).value) || 0;
+            const strategy = document.getElementById(`risk-strategy-${id}`).value;
+            const owner = document.getElementById(`risk-owner-${id}`).value;
+
+            return {
+                id: `R-${String(id).padStart(2, '0')}`,
+                desc: desc.trim(),
+                prob: prob,
+                impact: impact,
+                score: prob * impact,
+                strategy: strategy,
+                owner: owner.trim()
+            };
+        }
+
+        function getScoreClass(score) {
+            if (score >= 15) return 'score-high';
+            if (score >= 8) return 'score-med';
+            return 'score-low';
+        }
+
+        function updateRiskRegister() {
+            let allRisks = [];
+            for (let i = 1; i <= NUM_RISKS; i++) {
+                const risk = getRiskData(i);
+                if (risk.desc) {
+                    allRisks.push(risk);
+                }
+            }
+
+            // Sort by Risk Score (highest first)
+            allRisks.sort((a, b) => b.score - a.score);
+
+            const tableBody = document.getElementById('risk-table-body');
+            tableBody.innerHTML = '';
+
+            // Render Table Rows
+            allRisks.forEach((risk, index) => {
+                const row = document.createElement('tr');
+                row.classList.add('risk-row');
+
+                row.innerHTML = `
+                    <td class="table-cell font-semibold text-stone-700">${risk.id}</td>
+                    <td class="table-cell">${risk.desc}</td>
+                    <td class="table-cell text-center">${risk.prob}</td>
+                    <td class="table-cell text-center">${risk.impact}</td>
+                    <td class="table-cell text-center">
+                        <span class="inline-block px-3 py-1 rounded-full text-xs ${getScoreClass(risk.score)}">
+                            ${risk.score}
+                        </span>
+                    </td>
+                    <td class="table-cell text-sm">
+                        <span class="font-medium text-teal-700">${risk.strategy}:</span> ${risk.owner || '[Owner Needed]'}
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            // If no risks, show a placeholder
+            if (allRisks.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-stone-500 italic">No risks defined yet. Start filling out the form above!</td></tr>`;
+            }
+
+            // Render Markdown Output
+            renderMarkdown(allRisks);
+        }
+
+        function renderMarkdown(risks) {
+            let markdown = "## Project Risk Register (PMI Aligned - Top Threats)\n\n";
+            markdown += "| Risk ID | Risk Event | Probability (1-5) | Impact (1-5) | Score (P x I) | Response Strategy | Owner |\n";
+            markdown += "| :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n";
+
+            risks.forEach(risk => {
+                const responseDetail = `${risk.strategy} - ${risk.owner || 'TBD'}`;
+                markdown += `| ${risk.id} | ${risk.desc} | ${risk.prob} | ${risk.impact} | **${risk.score}** | ${responseDetail} | ${risk.owner || '[Owner Needed]'} |\n`;
+            });
+
+            markdown += "\n\n### Response Strategy Definitions\n";
+            markdown += "* **Mitigate:** Reduce the probability or impact of the threat.\n";
+            markdown += "* **Avoid:** Eliminate the threat entirely (e.g., changing the scope).\n";
+            markdown += "* **Transfer:** Shift the financial consequence to a third party (e.g., insurance, warranty).\n";
+            markdown += "* **Accept:** Acknowledge the risk and plan a contingency reserve if it occurs.\n";
+
+            document.getElementById('markdown-output').innerText = markdown.trim();
+        }
+
+        // Attach event listeners to all input fields
+        document.addEventListener('DOMContentLoaded', () => {
+            for (let i = 1; i <= NUM_RISKS; i++) {
+                document.getElementById(`risk-desc-${i}`).addEventListener('input', updateRiskRegister);
+                document.getElementById(`risk-prob-${i}`).addEventListener('change', updateRiskRegister);
+                document.getElementById(`risk-impact-${i}`).addEventListener('change', updateRiskRegister);
+                document.getElementById(`risk-strategy-${i}`).addEventListener('change', updateRiskRegister);
+                document.getElementById(`risk-owner-${i}`).addEventListener('input', updateRiskRegister);
+            }
+            updateRiskRegister(); // Initial call
+        });
+    </script>
+</body>
+</html>

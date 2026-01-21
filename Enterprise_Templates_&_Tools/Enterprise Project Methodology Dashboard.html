@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Project Methodology Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #059669; /* Emerald 600 */
+            --secondary-color: #10b981; /* Emerald 500 */
+            --bg-neutral: #f9fafb; /* Light Gray */
+            --text-base: #1f2937; /* Gray 800 */
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-neutral); color: var(--text-base); }
+        .master-tab-button.active {
+            border-bottom: 4px solid var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+        .section-card { @apply bg-white p-6 rounded-xl shadow-lg border border-gray-100; }
+        .kpi-metric { @apply text-3xl font-extrabold text-teal-700; }
+        .accordion-header { @apply cursor-pointer flex justify-between items-center p-3 rounded-lg hover:bg-gray-50 transition duration-150; }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+            height: 350px;
+            max-height: 400px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Navigation Bar (Master Methodology Tabs) -->
+    <header class="bg-white shadow-xl sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="py-4 text-3xl font-bold text-gray-800">Enterprise Project Templates</h1>
+            <nav class="flex space-x-6 border-b">
+                <button class="master-tab-button active py-3 px-2 text-base md:text-lg transition" data-master-tab="waterfall">1. Waterfall & Lifecycle Docs</button>
+                <button class="master-tab-button py-3 px-2 text-base md:text-lg transition" data-master-tab="agile">2. Agile Methodologies</button>
+                <button class="master-tab-button py-3 px-2 text-base md:text-lg transition" data-master-tab="governance">3. Governance & Control Tools</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto p-4 md:p-8">
+
+        <!-- MASTER TAB 1: Waterfall & Lifecycle Documents -->
+        <section id="waterfall" class="master-tab-content">
+            <h2 class="text-3xl font-semibold mb-6 text-green-700 border-b pb-2">Waterfall Project Lifecycle Documents (Baseline)</h2>
+            <div class="space-y-6">
+
+                <!-- Secondary Tabs for Waterfall Phases -->
+                <nav class="flex space-x-2 bg-white p-2 rounded-xl shadow-inner">
+                    <button class="waterfall-tab-button active py-2 px-4 text-sm md:text-base rounded-lg hover:bg-gray-100 transition" data-sub-tab="scope">1. Scope (Requirements)</button>
+                    <button class="waterfall-tab-button py-2 px-4 text-sm md:text-base rounded-lg hover:bg-gray-100 transition" data-sub-tab="design">2. Design (HLD)</button>
+                    <button class="waterfall-tab-button py-2 px-4 text-sm md:text-base rounded-lg hover:bg-gray-100 transition" data-sub-tab="schedule">3. Schedule (Gantt)</button>
+                    <button class="waterfall-tab-button py-2 px-4 text-sm md:text-base rounded-lg hover:bg-gray-100 transition" data-sub-tab="quality">4. Quality (Test Plan)</button>
+                </nav>
+
+                <!-- Waterfall Sub-Tab Content -->
+                <div id="waterfall-content-container">
+                    <!-- 1. Scope (Requirements) -->
+                    <div id="scope" class="waterfall-tab-content">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="section-card col-span-1 md:col-span-2">
+                                <h3 class="text-xl font-bold mb-3 border-b pb-2">Requirements Baseline (BRD/SRD)</h3>
+                                <p class="mb-4 text-gray-600">Formal scope definition is locked. Requires formal **CRF** for any change.</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <h4 class="font-semibold mb-2 text-lg">Functional Requirements (FR)</h4>
+                                        <div id="fr-accordion" class="space-y-2"></div>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold mb-2 text-lg">Non-Functional Requirements (NFR)</h4>
+                                        <div id="nfr-accordion" class="space-y-2"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="section-card col-span-1">
+                                <h3 class="text-xl font-bold mb-3">KPI Summary</h3>
+                                <div class="space-y-4">
+                                    <div class="p-4 bg-green-50 rounded-lg">
+                                        <p class="font-bold text-lg text-green-800">FR Count:</p>
+                                        <p id="fr-count" class="kpi-metric"></p>
+                                    </div>
+                                    <div class="p-4 bg-green-50 rounded-lg">
+                                        <p class="font-bold text-lg text-green-800">NFR Count:</p>
+                                        <p id="nfr-count" class="kpi-metric"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Design (HLD) -->
+                    <div id="design" class="waterfall-tab-content hidden">
+                        <div class="section-card">
+                            <h3 class="text-2xl font-bold mb-4 border-b pb-2">Technical Design Document (HLD)</h3>
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                <div>
+                                    <h4 class="font-semibold text-lg mb-2">Technology Stack</h4>
+                                    <ul class="list-disc pl-5 space-y-2 text-sm">
+                                        <li>**Frontend:** React, Tailwind CSS</li>
+                                        <li>**Backend:** Python/Django (Enterprise Ready)</li>
+                                        <li>**Database:** PostgreSQL (ACID compliant)</li>
+                                    </ul>
+                                </div>
+                                <div class="lg:col-span-2">
+                                    <h4 class="font-semibold text-lg mb-2">Security & Deployment Policies</h4>
+                                    <p class="mb-2">**Security:** OAuth 2.0, RBAC, PII Encryption (AES-256).</p>
+                                    <p class="mb-2">**Deployment:** Blue-Green Strategy, CI/CD Pipeline via GitLab.</p>
+                                    <p class="mb-2">**Quality Gate:** Minimum **80%** test coverage required for production release.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Schedule (Gantt) -->
+                    <div id="schedule" class="waterfall-tab-content hidden">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <div class="section-card lg:col-span-2">
+                                <h3 class="text-xl font-bold mb-4 border-b pb-2">Task Duration Visualization (Working Days)</h3>
+                                <div class="chart-container h-96">
+                                    <canvas id="durationChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="section-card lg:col-span-1">
+                                <h3 class="text-xl font-bold mb-4 border-b pb-2">Key Milestones & Contingency</h3>
+                                <div class="p-3 bg-yellow-50 rounded-lg mb-4">
+                                    <p class="font-semibold text-yellow-800">Contingency Reserve:</p>
+                                    <p class="text-lg">15 Working Days</p>
+                                </div>
+                                <ul id="milestone-list" class="space-y-2 text-sm list-disc pl-5"></ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Quality (Test Plan) -->
+                    <div id="quality" class="waterfall-tab-content hidden">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <div class="section-card lg:col-span-2">
+                                <h3 class="text-xl font-bold mb-4 border-b pb-2">Quality Gate Status: Defect Closure</h3>
+                                <div class="chart-container h-96">
+                                    <canvas id="qualityChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="section-card lg:col-span-1">
+                                <h3 class="text-xl font-bold mb-4 border-b pb-2">Entry & Exit Criteria</h3>
+                                <div class="space-y-4">
+                                    <div class="p-4 bg-red-50 rounded-lg">
+                                        <p class="font-bold text-lg text-red-800">Entry Criteria:</p>
+                                        <p class="text-sm italic">Code deployed to Staging; Test cases defined; Environment ready.</p>
+                                    </div>
+                                    <div class="p-4 bg-green-50 rounded-lg">
+                                        <p class="font-bold text-lg text-green-800">Exit Criteria:</p>
+                                        <p class="text-sm italic">**100% of P1/P2 defects closed**; UAT Sign-off complete.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- MASTER TAB 2: Agile Methodologies -->
+        <section id="agile" class="master-tab-content hidden">
+            <h2 class="text-3xl font-semibold mb-6 text-green-700 border-b pb-2">Agile & Hybrid Methodologies</h2>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Scrum Card -->
+                <div class="section-card">
+                    <h3 class="text-2xl font-bold mb-4 text-blue-600">Scrum Methodology (Template)</h3>
+                    <h4 class="font-semibold mt-2">Core Roles</h4>
+                    <p class="text-sm">Product Owner, Scrum Master, Development Team.</p>
+                    <h4 class="font-semibold mt-4">Key Events (Rhythm)</h4>
+                    <ul class="list-disc pl-5 text-sm">
+                        <li>Sprint Planning (8h max for 4-week sprint)</li>
+                        <li>Daily Scrum (15min, fixed time/place)</li>
+                        <li>Sprint Review & Retrospective</li>
+                    </ul>
+                    <h4 class="font-semibold mt-4">Quality Gate</h4>
+                    <p class="text-sm font-bold text-green-700">Definition of Done (DoD)</p>
+                    <p class="text-xs italic">All code reviewed, tested, documented, and meets security standards.</p>
+                </div>
+
+                <!-- Kanban Card -->
+                <div class="section-card">
+                    <h3 class="text-2xl font-bold mb-4 text-purple-600">Kanban Methodology (Template)</h3>
+                    <h4 class="font-semibold mt-2">Core Principles</h4>
+                    <p class="text-sm">Visualize workflow, Limit WIP, Manage flow, Make policies explicit.</p>
+                    <h4 class="font-semibold mt-4">Key Metrics (Flow)</h4>
+                    <ul class="list-disc pl-5 text-sm">
+                        <li>**Cycle Time:** Time from start to finish (Primary KPI).</li>
+                        <li>Lead Time: Time from request to delivery.</li>
+                        <li>Throughput: Items completed per time unit.</li>
+                    </ul>
+                    <h4 class="font-semibold mt-4">WIP Limits Example</h4>
+                    <p class="text-sm font-bold text-red-700">To Do: 5 | In Progress: 3 | QA: 2</p>
+                    <p class="text-xs italic">Prevents bottlenecks and maintains focus.</p>
+                </div>
+
+                <!-- PRINCE2 PID Card -->
+                <div class="section-card">
+                    <h3 class="text-2xl font-bold mb-4 text-orange-600">PRINCE2 PID Components</h3>
+                    <h4 class="font-semibold mt-2">Project Initiation Document (PID)</h4>
+                    <p class="text-sm">The PID serves as the agreement between the Project Manager and the Project Board.</p>
+                    <h4 class="font-semibold mt-4">Key Sections Included</h4>
+                    <ul class="list-disc pl-5 text-sm">
+                        <li>Business Case (Justification)</li>
+                        <li>Project Mandate & Objectives</li>
+                        <li>Project Approach & Controls</li>
+                        <li>Risk & Quality Management Strategies</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- MASTER TAB 3: Governance & Control Tools -->
+        <section id="governance" class="master-tab-content hidden">
+            <h2 class="text-3xl font-semibold mb-6 text-green-700 border-b pb-2">Governance & Project Control Tools</h2>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+
+                <!-- Risk Register Tool -->
+                <div class="section-card">
+                    <h3 class="text-xl font-bold mb-4 text-red-600">Risk Register Analysis (P x I)</h3>
+                    <div class="space-y-3">
+                        <div class="p-3 bg-red-50 rounded-lg border border-red-200">
+                            <p class="font-bold">Risk ID: R-01 (Scope Creep)</p>
+                            <p class="text-sm">**P x I Score:** 4 (High Impact)</p>
+                            <p class="text-xs italic">**Mitigation:** Enforce strict Change Request Form (CRF) policy.</p>
+                        </div>
+                        <div class="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                            <p class="font-bold">Risk ID: R-02 (Key Resource Loss)</p>
+                            <p class="text-sm">**P x I Score:** 3 (Medium Impact)</p>
+                            <p class="text-xs italic">**Mitigation:** Cross-train two junior developers in the core module.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Communication Plan Tool -->
+                <div class="section-card">
+                    <h3 class="text-xl font-bold mb-4 text-blue-600">Stakeholder Communication Plan</h3>
+                    <p class="text-sm mb-3">Defines *what*, *when*, and *how* based on Influence/Interest.</p>
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="p-2 text-left">Stakeholder</th>
+                                <th class="p-2">I/I</th>
+                                <th class="p-2">Cadence</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b">
+                                <td class="p-2">Business Owner</td>
+                                <td class="p-2 text-center text-green-700">High/High</td>
+                                <td class="p-2">Weekly 1:1, Executive Summary</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-2">Core Team</td>
+                                <td class="p-2 text-center text-blue-700">High/Medium</td>
+                                <td class="p-2">Daily Standup, Bi-weekly Deep Dive</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- KPI/EVM Dashboard -->
+                <div class="section-card">
+                    <h3 class="text-xl font-bold mb-4 text-green-600">KPI Tracking (EVM Metrics)</h3>
+                    <p class="text-sm mb-3">Earned Value Management (EVM) Status (Simulated Data)</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-4 bg-green-50 rounded-lg">
+                            <p class="font-bold text-lg text-green-800">Schedule Perf. Index (SPI)</p>
+                            <p class="kpi-metric">1.05</p>
+                            <p class="text-xs italic text-green-600">Ahead of Schedule (>1.0)</p>
+                        </div>
+                        <div class="p-4 bg-red-50 rounded-lg">
+                            <p class="font-bold text-lg text-red-800">Cost Perf. Index (CPI)</p>
+                            <p class="kpi-metric">0.92</p>
+                            <p class="text-xs italic text-red-600">Over Budget (<1.0)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Change Request Form (CRF) -->
+                <div class="section-card lg:col-span-2 xl:col-span-3">
+                    <h3 class="text-xl font-bold mb-4 text-gray-800">Formal Change Request Form (CRF)</h3>
+                    <form class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium">Requested Change Title:</label>
+                                <input type="text" placeholder="e.g., Add feature X to login" class="w-full mt-1 p-2 border rounded-lg focus:ring-green-500 focus:border-green-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium">Impact Assessment (Estimated Score 1-5):</label>
+                                <select class="w-full mt-1 p-2 border rounded-lg focus:ring-green-500 focus:border-green-500">
+                                    <option>5 - Critical (Requires Re-Baseline)</option>
+                                    <option>3 - Moderate (Minor Schedule Impact)</option>
+                                    <option>1 - Trivial (No impact)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium">Justification & Details:</label>
+                            <textarea rows="3" class="w-full mt-1 p-2 border rounded-lg focus:ring-green-500 focus:border-green-500" placeholder="Explain the business need and risk of not implementing the change."></textarea>
+                        </div>
+                        <button type="submit" class="w-full py-2 px-4 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition duration-150">Submit CRF for Review</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- CONSOLIDATED PROJECT DATA (All Templates) ---
+        const PROJECT_DATA = {
+            // Waterfall Data
+            FRs: [
+                { id: 'FR-1.0', title: 'User Auth', detail: 'System SHALL allow users to register with email/password.' },
+                { id: 'FR-1.1', title: 'Password Policy', detail: 'Enforce password complexity (min 8 chars, 1 capital, 1 number).' },
+                { id: 'FR-1.2', title: 'Data Export', detail: 'Admins SHALL export user data to CSV file.' }
+            ],
+            NFRs: [
+                { id: 'NFR-2.1', title: 'Performance', detail: 'Primary dashboard SHALL load within 3 seconds for 95% of users.' },
+                { id: 'NFR-2.2', title: 'Security (PII)', detail: 'All PII SHALL be encrypted using AES-256 (at rest and in transit).' },
+                { id: 'NFR-2.3', title: 'Usability', detail: 'Primary user workflow navigable with zero training in < 2 minutes.' }
+            ],
+            Gantt: [
+                { phase: 'I. Planning', id: 'P-100', desc: 'Finalize Requirements', duration: 10, dependency: 'None', milestone: 'Requirements Baseline Signed' },
+                { phase: 'II. Design', id: 'D-200', desc: 'Complete System Architecture', duration: 15, dependency: 'P-100', milestone: 'Design Baseline Approved' },
+                { phase: 'III. Implementation', id: 'I-310', desc: 'Build Core Module A', duration: 20, dependency: 'D-200', milestone: 'Module A Complete' },
+                { phase: 'IV. Testing', id: 'T-410', desc: 'Execute SIT', duration: 10, dependency: 'I-310', milestone: 'System Testing Passed' },
+                { phase: 'IV. Testing', id: 'T-420', desc: 'User Acceptance Testing (UAT)', duration: 5, dependency: 'T-410', milestone: 'UAT Sign-Off (Go/No-Go)' }
+            ]
+            // Other data (Risk, Agile, etc.) is hardcoded in the HTML structure to simplify the JS.
+        };
+
+        let durationChartInstance = null;
+        let qualityChartInstance = null;
+
+        // --- Initialization and Navigation ---
+
+        function initializeApp() {
+            setupMasterNavigation();
+            setupWaterfallNavigation();
+            populateRequirements();
+            populateGanttMilestones();
+            // Render charts for the active 'schedule' tab content initially
+            renderDurationChart();
+            renderQualityChart();
+            updateKPIs();
+            // Ensure the initial waterfall tab is set up correctly
+            activateWaterfallTab('scope');
+        }
+
+        function setupMasterNavigation() {
+            document.querySelectorAll('.master-tab-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetTab = button.getAttribute('data-master-tab');
+
+                    document.querySelectorAll('.master-tab-content').forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    document.getElementById(targetTab).classList.remove('hidden');
+
+                    document.querySelectorAll('.master-tab-button').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+
+                    // Re-render charts when navigating to the 'waterfall' tab to prevent rendering issues
+                    if (targetTab === 'waterfall') {
+                         // Only re-render if the schedule/quality tabs are selected
+                         const currentSubTab = document.querySelector('.waterfall-tab-button.active').getAttribute('data-sub-tab');
+                         if (currentSubTab === 'schedule') renderDurationChart();
+                         if (currentSubTab === 'quality') renderQualityChart();
+                    }
+                });
+            });
+        }
+
+        function setupWaterfallNavigation() {
+            document.querySelectorAll('.waterfall-tab-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetTab = button.getAttribute('data-sub-tab');
+                    activateWaterfallTab(targetTab);
+                });
+            });
+        }
+
+        function activateWaterfallTab(targetTab) {
+             document.querySelectorAll('.waterfall-tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(targetTab).classList.remove('hidden');
+
+            document.querySelectorAll('.waterfall-tab-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.waterfall-tab-button[data-sub-tab="${targetTab}"]`).classList.add('active');
+
+            // Render/Destroy charts based on the current sub-tab
+            if (targetTab === 'schedule') {
+                renderDurationChart();
+            } else if (durationChartInstance) {
+                durationChartInstance.destroy();
+            }
+
+            if (targetTab === 'quality') {
+                renderQualityChart();
+            } else if (qualityChartInstance) {
+                qualityChartInstance.destroy();
+            }
+        }
+
+        // --- Data Population & Accordion ---
+
+        function toggleAccordion(id) {
+            const content = document.getElementById(id);
+            const icon = document.querySelector(`[data-icon="${id}"]`);
+
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.textContent = '▼';
+            } else {
+                content.classList.add('hidden');
+                icon.textContent = '▶';
+            }
+        }
+
+        function populateRequirements() {
+            const frContainer = document.getElementById('fr-accordion');
+            const nfrContainer = document.getElementById('nfr-accordion');
+
+            [
+                { data: PROJECT_DATA.FRs, container: frContainer, type: 'FR' },
+                { data: PROJECT_DATA.NFRs, container: nfrContainer, type: 'NFR' }
+            ].forEach(({ data, container, type }) => {
+                container.innerHTML = data.map((req, index) => {
+                    const contentId = `${type}-detail-${index}`;
+                    return `
+                        <div class="border rounded-lg bg-gray-50">
+                            <div class="accordion-header text-sm font-medium" onclick="toggleAccordion('${contentId}')">
+                                <span>**${req.id}** - ${req.title}</span>
+                                <span data-icon="${contentId}">▶</span>
+                            </div>
+                            <div id="${contentId}" class="p-3 bg-white border-t hidden">
+                                <p class="text-xs text-gray-700">${req.detail}</p>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            });
+        }
+
+        function updateKPIs() {
+            document.getElementById('fr-count').textContent = PROJECT_DATA.FRs.length;
+            document.getElementById('nfr-count').textContent = PROJECT_DATA.NFRs.length;
+        }
+
+        function populateGanttMilestones() {
+            const milestoneList = document.getElementById('milestone-list');
+            milestoneList.innerHTML = PROJECT_DATA.Gantt.filter(task => task.milestone).map(task =>
+                `<li class="text-gray-600">**${task.milestone}** (After ${task.id})</li>`
+            ).join('');
+        }
+
+        // --- Chart Rendering ---
+
+        function renderDurationChart() {
+            const ctx = document.getElementById('durationChart');
+            if (!ctx) return;
+            const labels = PROJECT_DATA.Gantt.map(task => task.id + ': ' + task.desc);
+            const durations = PROJECT_DATA.Gantt.map(task => task.duration);
+
+            if (durationChartInstance) { durationChartInstance.destroy(); }
+
+            durationChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Duration (Working Days)',
+                        data: durations,
+                        backgroundColor: '#10b981', // Emerald 500
+                        borderColor: '#059669',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { beginAtZero: true, title: { display: true, text: 'Duration in Days' } },
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: (items) => items[0].label,
+                                label: (context) => `Duration: ${context.parsed.x} days`,
+                                afterLabel: (context) => {
+                                    const task = PROJECT_DATA.Gantt[context.dataIndex];
+                                    return `Dependencies: ${task.dependency}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderQualityChart() {
+            const ctx = document.getElementById('qualityChart');
+            if (!ctx) return;
+
+            if (qualityChartInstance) { qualityChartInstance.destroy(); }
+
+            qualityChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['P1/P2 Defects Closed (Required)', 'Open Defects/Tasks'],
+                    datasets: [{
+                        label: 'Exit Criteria Status',
+                        data: [95, 5], // Simulated 95% closure rate
+                        backgroundColor: ['#059669', '#ef4444'], // Green for closed, Red for open
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) { label += ': '; }
+                                    if (context.parsed) { label += context.parsed + '%'; }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        window.onload = initializeApp;
+    </script>
+</body>
+</html>

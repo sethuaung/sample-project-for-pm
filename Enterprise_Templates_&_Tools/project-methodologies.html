@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Methodology Template Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: The SPA is designed with a task-oriented, multi-view structure, navigated by a simple top bar ("Home", "Compare", "Generator"). This is chosen over a single, long scrolling page to reduce cognitive load and separate the user's "learning" task from their "doing" task.
+    1. 'Home' View: A simple introduction to the tool's purpose.
+    2. 'Compare' View: Allows users to understand the high-level trade-offs. It features a radar chart for multi-metric comparison (e.g., flexibility, predictability) and HTML/Tailwind cards for qualitative summaries. This helps users make an informed choice.
+    3. 'Generator' View: This is the core utility. The user selects a methodology, which *immediately* updates an info panel (using JS) to show key details and a simple HTML/CSS process flow diagram. This provides just-in-time context. A "Generate" button then populates a <pre> block with a relevant text-based template, which can be copied.
+    This flow (Learn -> Compare -> Select -> Get Context -> Generate) is logical, user-friendly, and guides the user from ambiguity to a concrete, useful output.
+    -->
+    <!-- Visualization & Content Choices:
+    - Report Info: High-level methodology characteristics (flexibility, predictability, speed, etc.).
+      - Goal: Compare.
+      - Viz/Method: Radar Chart (Chart.js/Canvas) in a styled `.chart-container`.
+      - Interaction: Hover for tooltips.
+      - Justification: Best for comparing multiple items across the same "soft" metrics. NO SVG used.
+    - Report Info: Core principles and best-use-cases for each methodology.
+      - Goal: Inform/Compare.
+      - Viz/Method: HTML/Tailwind 'Card' components in a grid.
+      - Interaction: Static text.
+      - Justification: Easy-to-scan, responsive layout for qualitative summaries.
+    - Report Info: Methodology Selection.
+      - Goal: Interact.
+      - Viz/Method: HTML <select> dropdown.
+      - Interaction: `onchange` event triggers JS function.
+      - Justification: Standard, space-saving UI element for user selection.
+    - Report Info: Process flow for each methodology (e.g., Waterfall phases, Scrum cycle).
+      - Goal: Organize.
+      - Viz/Method: Styled HTML `div`s (flexbox) with Unicode arrows (→).
+      - Interaction: Dynamically shown/hidden by JS based on selection.
+      - Justification: A clear, accessible, non-SVG way to represent simple processes.
+    - Report Info: Starter templates for projects.
+      - Goal: Inform/Create.
+      - Viz/Method: Text content (from JS object) populated into an HTML `<pre>` block.
+      - Interaction: "Generate" button (click) populates content. "Copy" button (click) copies text to clipboard using the `document.execCommand` fallback for iFrame compatibility.
+      - Justification: Provides the core utility (the template) in a read-only, formatted, and easily copyable way.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 400px;
+        }
+        .nav-btn {
+            @apply px-4 py-2 rounded-md text-sm font-medium text-stone-700 hover:bg-blue-100 hover:text-blue-700;
+        }
+        .nav-btn-active {
+            @apply bg-blue-100 text-blue-700;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-800 font-sans antialiased">
+
+    <div class="flex flex-col min-h-screen">
+        <header class="bg-white shadow-sm border-b border-stone-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                <h1 class="text-2xl font-bold text-blue-800">Project Methodology Template Generator</h1>
+                <p class="text-sm text-stone-600">Understand, compare, and generate starter templates for your projects.</p>
+            </div>
+        </header>
+
+        <nav class="bg-white shadow-sm sticky top-0 z-10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-center space-x-4">
+                    <button id="nav-home" class="nav-btn nav-btn-active" data-view="homeView">Home</button>
+                    <button id="nav-compare" class="nav-btn" data-view="compareView">Compare</button>
+                    <button id="nav-generator" class="nav-btn" data-view="generatorView">Generator</button>
+                </div>
+            </div>
+        </nav>
+
+        <main class="flex-grow max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 w-full">
+
+            <section id="homeView">
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-stone-200">
+                    <h2 class="text-xl font-semibold text-blue-700 mb-3">Welcome to the Methodology Generator</h2>
+                    <p class="text-stone-700 mb-4">
+                        Choosing the right project management methodology is crucial for success. This tool is designed to help you understand the most common methodologies, compare their strengths, and generate a basic starter template for the one you choose.
+                    </p>
+                    <p class="text-stone-700 mb-6">
+                        Use the "Compare" tab to see a high-level overview and a suitability chart. When you're ready, head to the "Generator" to select a methodology, learn more about its process, and create your template.
+                    </p>
+                    <button class="bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-150" onclick="document.getElementById('nav-generator').click()">
+                        Go to Generator →
+                    </button>
+                </div>
+            </section>
+
+            <section id="compareView" class="hidden">
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-stone-200 mb-6">
+                    <h2 class="text-xl font-semibold text-blue-700 mb-3">Compare Methodologies</h2>
+                    <p class="text-stone-700 mb-6">
+                        Different projects have different needs. A methodology that works for a highly predictable construction project (like Waterfall) will not work for a fast-moving software startup (like Agile/Scrum). This section helps you compare these approaches at a glance.
+                    </p>
+                    <div class="chart-container">
+                        <canvas id="methodologyChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-stone-200">
+                        <h3 class="font-semibold text-lg text-blue-700 mb-2">Agile (Scrum/Kanban)</h3>
+                        <p class="text-sm text-stone-600">
+                            <strong>Core Principle:</strong> Iterative and incremental progress. Embraces change and customer feedback.
+                        </p>
+                        <p class="text-sm text-stone-600 mt-2">
+                            <strong>Best For:</strong> Projects with unclear or evolving requirements, software development, R&D, and startups.
+                        </p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-stone-200">
+                        <h3 class="font-semibold text-lg text-blue-700 mb-2">Waterfall</h3>
+                        <p class="text-sm text-stone-600">
+                            <strong>Core Principle:</strong> Linear and sequential. Each phase must be completed before the next begins.
+                        </p>
+                        <p class="text-sm text-stone-600 mt-2">
+                            <strong>Best For:</strong> Projects with fixed, clear requirements, a stable scope, and predictable outcomes, like construction or manufacturing.
+                        </p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-stone-200">
+                        <h3 class="font-semibold text-lg text-blue-700 mb-2">PRINCE2</h3>
+                        <p class="text-sm text-stone-600">
+                            <strong>Core Principle:</strong> Process-driven. Focuses on business justification, defined roles, and product-based planning.
+                        </p>
+                        <p class="text-sm text-stone-600 mt-2">
+                            <strong>Best For:</strong> Large, formal, or enterprise-level projects that require significant oversight, control, and documentation.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="generatorView" class="hidden">
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-stone-200">
+                    <h2 class="text-xl font-semibold text-blue-700 mb-3">Generate Your Template</h2>
+                    <p class="text-stone-700 mb-6">
+                        Select a methodology to learn more about its key components and process flow. Then, click "Generate" to get a starter template.
+                    </p>
+
+                    <div class="mb-6">
+                        <label for="methodologySelect" class="block text-sm font-medium text-stone-700 mb-2">1. Select Methodology:</label>
+                        <select id="methodologySelect" class="w-full max-w-md p-2 border border-stone-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="scrum">Scrum (Agile)</option>
+                            <option value="kanban">Kanban (Agile)</option>
+                            <option value="waterfall">Waterfall</option>
+                            <option value="prince2">PRINCE2</option>
+                        </select>
+                    </div>
+
+                    <div id="methodologyInfo" class="mb-6 p-4 bg-stone-100 rounded-lg border border-stone-200 min-h-[100px]">
+                    </div>
+
+                    <div class="mb-6">
+                        <button id="generateButton" class="bg-blue-600 text-white font-semibold py-2 px-5 rounded-lg hover:bg-blue-700 transition duration-150">
+                            2. Generate Template
+                        </button>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-lg font-semibold text-stone-700">3. Your Generated Template:</h3>
+                            <button id="copyButton" class="text-sm bg-stone-200 text-stone-700 font-medium py-1 px-3 rounded-lg hover:bg-stone-300 transition duration-150">
+                                Copy
+                            </button>
+                        </div>
+                        <pre id="templateOutput" class="bg-stone-900 text-stone-100 p-4 rounded-lg shadow-inner overflow-x-auto min-h-[300px] text-sm">Your template will appear here...</pre>
+                        <span id="copyMessage" class="text-green-600 text-sm mt-2 hidden">Copied to clipboard!</span>
+                    </div>
+
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const views = {
+                homeView: document.getElementById('homeView'),
+                compareView: document.getElementById('compareView'),
+                generatorView: document.getElementById('generatorView')
+            };
+
+            const navButtons = {
+                home: document.getElementById('nav-home'),
+                compare: document.getElementById('nav-compare'),
+                generator: document.getElementById('nav-generator')
+            };
+
+            const generatorSelect = document.getElementById('methodologySelect');
+            const infoArea = document.getElementById('methodologyInfo');
+            const generateButton = document.getElementById('generateButton');
+            const outputArea = document.getElementById('templateOutput');
+            const copyButton = document.getElementById('copyButton');
+            const copyMessage = document.getElementById('copyMessage');
+
+            const methodologyData = {
+                'scrum': {
+                    name: 'Scrum (Agile)',
+                    description: 'A lightweight framework within Agile that helps teams manage complex projects. It uses short, time-boxed iterations called "Sprints".',
+                    process: [
+                        { name: 'Product Backlog', desc: 'Prioritized list of features' },
+                        { name: 'Sprint Planning', desc: 'Team selects work for the sprint' },
+                        { name: 'Sprint Backlog', desc: 'Work committed for the sprint' },
+                        { name: 'Sprint', desc: '2-4 week iteration (Daily Scrum)' },
+                        { name: 'Increment', desc: 'Potentially shippable product' },
+                        { name: 'Sprint Review', desc: 'Demo work to stakeholders' },
+                        { name: 'Retrospective', desc: 'Team reflects and improves' }
+                    ],
+                    template: `
+### Scrum Project Template ###
+
+---
+**PROJECT:** [Project Name]
+**PRODUCT OWNER:** [Name]
+**SCRUM MASTER:** [Name]
+**DEVELOPMENT TEAM:** [Names]
+---
+
+**1. PRODUCT BACKLOG (High-Level User Stories)**
+* (As a [user], I want [feature], so that [benefit])
+* ...
+* ...
+
+**2. SPRINT 1: [Sprint Goal]**
+
+**Sprint 1 Backlog (Tasks)**
+* [User Story 1]: Task 1, Task 2
+* [User Story 2]: Task 1, Task 2
+* ...
+
+**3. CEREMONIES SCHEDULE**
+* **Sprint Planning:** [Date, Time]
+* **Daily Scrums:** [Time, Daily]
+* **Sprint Review:** [Date, Time]
+* **Sprint Retrospective:** [Date, Time]
+`
+                },
+                'kanban': {
+                    name: 'Kanban (Agile)',
+                    description: 'A visual method for managing workflow. It focuses on continuous delivery, limiting work-in-progress (WIP), and visualizing tasks on a "Kanban board".',
+                    process: [
+                        { name: 'Backlog', desc: 'All potential tasks' },
+                        { name: 'To Do', desc: 'Prioritized tasks ready for work' },
+                        { name: 'In Progress (WIP)', desc: 'Tasks being worked on' },
+                        { name: 'Done', desc: 'Completed tasks' }
+                    ],
+                    template: `
+### Kanban Board Template ###
+
+---
+**PROJECT/TEAM:** [Project/Team Name]
+**PRIMARY GOAL:** [e.g., Continuous delivery of features]
+---
+
+**KANBAN BOARD COLUMNS:**
+
+1.  **BACKLOG**
+    * (All ideas and future tasks)
+    * ...
+
+2.  **TO DO / READY**
+    * (Tasks prioritized and ready to be started)
+    * ...
+
+3.  **IN PROGRESS (WIP Limit: [e.g., 3])**
+    * (Tasks actively being worked on)
+    * ...
+
+4.  **IN REVIEW / TESTING (WIP Limit: [e.g., 2])**
+    * (Tasks completed and awaiting verification)
+    * ...
+
+5.  **DONE**
+    * (Completed, verified, and delivered tasks)
+    * ...
+
+**WIP (Work-In-Progress) LIMITS:**
+* In Progress: [Number]
+* In Review: [Number]
+`
+                },
+                'waterfall': {
+                    name: 'Waterfall',
+                    description: 'A traditional, linear methodology. Each phase must be fully completed before the next phase can begin. It requires clear, fixed requirements upfront.',
+                    process: [
+                        { name: 'Requirements', desc: 'Gather and document all project needs' },
+                        { name: 'Design', desc: 'Create system and software design' },
+                        { name: 'Implementation', desc: 'Build the system' },
+                        { name: 'Testing', desc: 'Verify and validate the system' },
+                        { name: 'Deployment', desc: 'Release to users' },
+                        { name: 'Maintenance', desc: 'Ongoing support' }
+                    ],
+                    template: `
+### Waterfall Project Plan Template ###
+
+---
+**PROJECT:** [Project Name]
+**PROJECT MANAGER:** [Name]
+**DATE:** [Date]
+---
+
+**1. REQUIREMENTS PHASE**
+* **Objective:** Define and document all project requirements.
+* **Key Deliverables:**
+    * Requirements Document
+    * Project Scope Statement
+* **Sign-off:** [Stakeholder Name]
+
+**2. DESIGN PHASE**
+* **Objective:** Create the technical and system design based on requirements.
+* **Key Deliverables:**
+    * System Design Document
+    * Technical Specifications
+* **Sign-off:** [Stakeholder Name]
+
+**3. IMPLEMENTATION (BUILD) PHASE**
+* **Objective:** Code and build the software/product.
+* **Key Deliverables:**
+    * Working Software Modules
+    * Unit Test Results
+* **Sign-off:** [Lead Developer]
+
+**4. TESTING (VERIFICATION) PHASE**
+* **Objective:** Find and fix bugs; ensure product meets requirements.
+* **Key Deliverables:**
+    * Test Plans & Test Cases
+    * Bug Reports
+    * User Acceptance Testing (UAT) Sign-off
+* **Sign-off:** [QA Lead / Stakeholder]
+
+**5. DEPLOYMENT PHASE**
+* **Objective:** Release the product to users.
+* **Key Deliverables:**
+    * Live Product
+    * User Manuals & Training
+* **Sign-off:** [Project Manager]
+
+**6. MAINTENANCE PHASE**
+* **Objective:** Provide ongoing support and updates.
+`
+                },
+                'prince2': {
+                    name: 'PRINCE2',
+                    description: 'PRINCE2 (PRojects IN Controlled Environments) is a structured, process-based method. It focuses on business justification, defined roles, and management by stages.',
+                    process: [
+                        { name: 'Starting Up', desc: 'Appoint team, create brief' },
+                        { name: 'Initiating', desc: 'Create Project Initiation Doc (PID)' },
+                        { name: 'Directing', desc: 'Project Board oversight' },
+                        { name: 'Controlling a Stage', desc: 'PM manages daily work' },
+                        { name: 'Managing Product Delivery', desc: 'Team builds products' },
+                        { name: 'Managing Stage Boundary', desc: 'Plan next stage' },
+                        { name: 'Closing', desc: 'Formal project sign-off' }
+                    ],
+                    template: `
+### PRINCE2 Project Brief Template ###
+
+---
+**PROJECT:** [Project Name]
+**PROJECT MANAGER:** [Name]
+**EXECUTIVE:** [Name]
+---
+
+**1. PROJECT DEFINITION**
+* **Background:** (Why is this project needed?)
+* **Project Objectives:** (What will the project achieve? Must be measurable.)
+* **Business Case:** (The "why" - costs, benefits, and justification.)
+
+**2. PROJECT TEAM STRUCTURE (Key Roles)**
+* **Project Board:**
+    * Executive: [Name] (Accountable for success)
+    * Senior User: [Name] (Represents user needs)
+    * Senior Supplier: [Name] (Represents supplier interests)
+* **Project Manager:** [Name] (Manages day-to-day)
+* **Project Assurance:** (Roles for checking quality, user, supplier)
+
+**3. SCOPE & PRODUCT DESCRIPTION**
+* **Project Scope (In/Out):** (What is/is not included?)
+* **Project Product Description:** (What is the final, main deliverable?)
+* **Key Deliverables:** (Major products to be created)
+
+**4. INITIAL STAGE PLAN (Stage 1)**
+* (High-level plan for the first stage after initiation)
+
+**5. KEY RISKS (Initial)**
+* (Top 3-5 risks identified so far)
+`
+                }
+            };
+
+            function showView(viewId) {
+                Object.values(views).forEach(view => view.classList.add('hidden'));
+                if (views[viewId]) {
+                    views[viewId].classList.remove('hidden');
+                }
+
+                Object.values(navButtons).forEach(btn => btn.classList.remove('nav-btn-active'));
+                const activeBtn = document.getElementById(`nav-${viewId.replace('View', '')}`);
+                if (activeBtn) {
+                    activeBtn.classList.add('nav-btn-active');
+                }
+
+                if (viewId === 'compareView') {
+                    initChart();
+                }
+            }
+
+            document.querySelectorAll('.nav-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    showView(e.target.dataset.view);
+                });
+            });
+
+            function updateMethodologyInfo(value) {
+                const data = methodologyData[value];
+                if (!data) {
+                    infoArea.innerHTML = '';
+                    return;
+                }
+
+                let processHtml = data.process.map((step, index) => {
+                    return `
+                        <div classclass="flex-shrink-0 w-40 text-center">
+                            <div class="p-3 bg-white rounded-lg border border-stone-300 shadow-sm">
+                                <h4 class="font-semibold text-sm text-blue-700">${step.name}</h4>
+                                <p class="text-xs text-stone-600 mt-1">${step.desc}</p>
+                            </div>
+                        </div>
+                    ` + (index < data.process.length - 1 ?
+                        `<div class="flex-shrink-0 flex items-center justify-center w-10 text-xl text-blue-500 font-light">→</div>` : '');
+                }).join('');
+
+                infoArea.innerHTML = `
+                    <h3 class="font-semibold text-lg text-blue-800 mb-2">${data.name}</h3>
+                    <p class="text-sm text-stone-700 mb-4">${data.description}</p>
+                    <h4 class="font-medium text-sm text-stone-700 mb-3">Typical Process Flow:</h4>
+                    <div class="flex overflow-x-auto p-2 -mx-2">
+                        ${processHtml}
+                    </div>
+                `;
+            }
+
+            generatorSelect.addEventListener('change', () => {
+                updateMethodologyInfo(generatorSelect.value);
+                outputArea.innerText = 'Your template will appear here...';
+                copyMessage.classList.add('hidden');
+            });
+
+            generateButton.addEventListener('click', () => {
+                const value = generatorSelect.value;
+                const data = methodologyData[value];
+                if (data) {
+                    outputArea.innerText = data.template.trim();
+                }
+            });
+
+            copyButton.addEventListener('click', () => {
+                const textToCopy = outputArea.innerText;
+
+                if (textToCopy === 'Your template will appear here...') return;
+
+                const tempTextarea = document.createElement('textarea');
+                tempTextarea.value = textToCopy;
+                tempTextarea.style.position = 'absolute';
+                tempTextarea.style.left = '-9999px';
+
+                document.body.appendChild(tempTextarea);
+                tempTextarea.select();
+                tempTextarea.setSelectionRange(0, 99999);
+
+                try {
+                    document.execCommand('copy');
+                    copyMessage.innerText = 'Copied to clipboard!';
+                    copyMessage.classList.remove('hidden');
+                } catch (err) {
+                    copyMessage.innerText = 'Failed to copy.';
+                    copyMessage.classList.remove('hidden');
+                }
+
+                document.body.removeChild(tempTextarea);
+
+                setTimeout(() => {
+                    copyMessage.classList.add('hidden');
+                }, 2000);
+            });
+
+            let chartInstance = null;
+            function initChart() {
+                if (chartInstance) {
+                    return;
+                }
+                const ctx = document.getElementById('methodologyChart').getContext('2d');
+                const chartData = {
+                    labels: ['Flexibility (Change)', 'Predictability (Scope)', 'Customer Involvement', 'Speed (Time-to-market)', 'Upfront Planning', 'Overhead (Ceremony)'],
+                    datasets: [
+                        {
+                            label: 'Agile (Scrum/Kanban)',
+                            data: [9, 3, 9, 8, 3, 5],
+                            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                            borderColor: 'rgba(59, 130, 246, 1)',
+                            pointBackgroundColor: 'rgba(59, 130, 246, 1)',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Waterfall',
+                            data: [2, 9, 2, 4, 9, 3],
+                            backgroundColor: 'rgba(107, 114, 128, 0.2)',
+                            borderColor: 'rgba(107, 114, 128, 1)',
+                            pointBackgroundColor: 'rgba(107, 114, 128, 1)',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'PRINCE2',
+                            data: [4, 8, 5, 5, 8, 8],
+                            backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                            borderColor: 'rgba(16, 185, 129, 1)',
+                            pointBackgroundColor: 'rgba(16, 185, 129, 1)',
+                            borderWidth: 2
+                        }
+                    ]
+                };
+
+                chartInstance = new Chart(ctx, {
+                    type: 'radar',
+                    data: chartData,
+                    options: {
+                        maintainAspectRatio: false,
+                        responsive: true,
+                        scales: {
+                            r: {
+                                angleLines: {
+                                    color: 'rgba(0, 0, 0, 0.1)'
+                                },
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.1)'
+                                },
+                                pointLabels: {
+                                    font: {
+                                        size: 11
+                                    },
+                                    color: '#333'
+                                },
+                                ticks: {
+                                    backdropColor: 'transparent',
+                                    color: '#555',
+                                    stepSize: 2,
+                                    beginAtZero: true,
+                                    max: 10
+                                }
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                enabled: true
+                            },
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    usePointStyle: true,
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            showView('homeView');
+            updateMethodologyInfo(generatorSelect.value);
+        });
+    </script>
+</body>
+</html>

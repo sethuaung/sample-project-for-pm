@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Metrics Dashboard (EVM)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --color-teal-600: #0d9488;
+        }
+        .kpi-card {
+            @apply bg-white p-6 rounded-xl shadow-lg border border-stone-200;
+        }
+        .kpi-title {
+            @apply text-lg font-semibold text-stone-600 mb-2;
+        }
+        .kpi-value {
+            @apply text-4xl font-extrabold text-teal-700;
+        }
+        .form-input {
+            @apply w-full p-3 border-2 border-stone-300 rounded-lg text-lg text-stone-700 focus:ring-teal-500 focus:border-teal-500 transition duration-150;
+        }
+        .status-badge {
+            @apply inline-block px-3 py-1 text-sm font-medium rounded-full mt-2;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 p-6 md:p-10 font-sans antialiased">
+
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold text-teal-700 mb-2">Project Performance Dashboard (EVM)</h1>
+        <p class="text-lg text-stone-600 mb-8">Track schedule and cost performance using Earned Value Management (EVM).</p>
+
+        <!-- INPUT SECTION -->
+        <div class="bg-white p-6 rounded-xl shadow-xl border border-teal-200 mb-10">
+            <h2 class="text-xl font-semibold text-stone-800 mb-4 border-b pb-2">Enter Project Data ($ and Time)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-stone-700 mb-1">Planned Value (PV)</label>
+                    <input type="number" id="pv" class="form-input" value="100000" placeholder="e.g., 100000">
+                    <p class="text-xs text-stone-500 mt-1">Budget approved for work scheduled to be completed so far.</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-stone-700 mb-1">Earned Value (EV)</label>
+                    <input type="number" id="ev" class="form-input" value="90000" placeholder="e.g., 90000">
+                    <p class="text-xs text-stone-500 mt-1">Budget for work *actually* completed so far.</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-stone-700 mb-1">Actual Cost (AC)</label>
+                    <input type="number" id="ac" class="form-input" value="110000" placeholder="e.g., 110000">
+                    <p class="text-xs text-stone-500 mt-1">Total cost incurred to date.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- OUTPUT KPIs -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            <!-- CPI -->
+            <div class="kpi-card bg-white">
+                <p class="kpi-title">Cost Performance Index (CPI)</p>
+                <div id="cpi-value" class="kpi-value text-red-600">0.00</div>
+                <div id="cpi-status" class="status-badge">Requires Data</div>
+                <p class="text-xs text-stone-500 mt-2">Efficiency of budget usage. CPI > 1.0 is good.</p>
+            </div>
+            <!-- SPI -->
+            <div class="kpi-card bg-white">
+                <p class="kpi-title">Schedule Performance Index (SPI)</p>
+                <div id="spi-value" class="kpi-value text-red-600">0.00</div>
+                <div id="spi-status" class="status-badge">Requires Data</div>
+                <p class="text-xs text-stone-500 mt-2">Efficiency of time usage. SPI > 1.0 is good.</p>
+            </div>
+            <!-- CV -->
+            <div class="kpi-card bg-white">
+                <p class="kpi-title">Cost Variance (CV)</p>
+                <div id="cv-value" class="kpi-value text-stone-700">$0</div>
+                <div id="cv-status" class="status-badge">Requires Data</div>
+                <p class="text-xs text-stone-500 mt-2">Difference: EV - AC. Positive is under budget.</p>
+            </div>
+            <!-- SV -->
+            <div class="kpi-card bg-white">
+                <p class="kpi-title">Schedule Variance (SV)</p>
+                <div id="sv-value" class="kpi-value text-stone-700">$0</div>
+                <div id="sv-status" class="status-badge">Requires Data</div>
+                <p class="text-xs text-stone-500 mt-2">Difference: EV - PV. Positive is ahead of schedule.</p>
+            </div>
+        </div>
+
+        <!-- INTERPRETATION -->
+        <div class="bg-stone-100 p-6 rounded-xl border border-stone-200">
+            <h2 class="text-xl font-semibold text-stone-800 mb-4">Performance Interpretation</h2>
+            <div id="interpretation" class="text-stone-700 leading-relaxed">
+                Enter values above to see a real-time summary of your project's health.
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const inputIds = ['pv', 'ev', 'ac'];
+        const outputs = {
+            cpi: document.getElementById('cpi-value'),
+            spi: document.getElementById('spi-value'),
+            cv: document.getElementById('cv-value'),
+            sv: document.getElementById('sv-value'),
+            cpiStatus: document.getElementById('cpi-status'),
+            spiStatus: document.getElementById('spi-status'),
+            cvStatus: document.getElementById('cv-status'),
+            svStatus: document.getElementById('sv-status'),
+            interpretation: document.getElementById('interpretation')
+        };
+
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(value);
+        }
+
+        function getStatus(index) {
+            if (index > 1.05) return { text: 'Excellent', class: 'bg-green-200 text-green-800' };
+            if (index >= 1.0) return { text: 'On Track', class: 'bg-green-100 text-green-700' };
+            if (index > 0.95) return { text: 'Watch', class: 'bg-yellow-100 text-yellow-700' };
+            return { text: 'Critical', class: 'bg-red-100 text-red-700' };
+        }
+
+        function updateDashboard() {
+            const pv = parseFloat(document.getElementById('pv').value) || 0;
+            const ev = parseFloat(document.getElementById('ev').value) || 0;
+            const ac = parseFloat(document.getElementById('ac').value) || 0;
+
+            if (pv === 0 || ac === 0) {
+                outputs.interpretation.innerHTML = "Please enter valid, non-zero Planned Value (PV) and Actual Cost (AC) to calculate performance.";
+                return;
+            }
+
+            // Calculations
+            const cpi = (ac > 0) ? ev / ac : 0; // Cost Performance Index
+            const spi = (pv > 0) ? ev / pv : 0; // Schedule Performance Index
+            const cv = ev - ac; // Cost Variance
+            const sv = ev - pv; // Schedule Variance
+
+            // Render Values
+            outputs.cpi.textContent = cpi.toFixed(2);
+            outputs.spi.textContent = spi.toFixed(2);
+            outputs.cv.textContent = formatCurrency(cv);
+            outputs.sv.textContent = formatCurrency(sv);
+
+            // CPI Status
+            const cpiStatus = getStatus(cpi);
+            outputs.cpiStatus.textContent = cpiStatus.text;
+            outputs.cpiStatus.className = `status-badge ${cpiStatus.class}`;
+            outputs.cpi.className = `kpi-value ${cpi >= 1.0 ? 'text-green-600' : 'text-red-600'}`;
+
+            // SPI Status
+            const spiStatus = getStatus(spi);
+            outputs.spiStatus.textContent = spiStatus.text;
+            outputs.spiStatus.className = `status-badge ${spiStatus.class}`;
+            outputs.spi.className = `kpi-value ${spi >= 1.0 ? 'text-green-600' : 'text-red-600'}`;
+
+            // CV Status
+            outputs.cvStatus.textContent = cv >= 0 ? 'Favorable' : 'Unfavorable';
+            outputs.cvStatus.className = `status-badge ${cv >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`;
+            outputs.cv.className = `kpi-value ${cv >= 0 ? 'text-green-600' : 'text-red-600'}`;
+
+            // SV Status
+            outputs.svStatus.textContent = sv >= 0 ? 'Ahead' : 'Behind';
+            outputs.svStatus.className = `status-badge ${sv >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`;
+            outputs.sv.className = `kpi-value ${sv >= 0 ? 'text-green-600' : 'text-red-600'}`;
+
+
+            // Interpretation Summary
+            let summary = `<p class="mb-2">The project's overall health is currently **${cpiStatus.text}** on cost and **${spiStatus.text}** on schedule.</p>`;
+
+            // Cost Analysis
+            if (cpi >= 1.0) {
+                summary += `<p>💰 **Cost (CPI ${cpi.toFixed(2)}):** The project is spending efficiently. For every dollar spent, ${cpi.toFixed(2)} worth of value has been earned. (Favorable - CV ${formatCurrency(cv)}).</p>`;
+            } else {
+                summary += `<p>🔴 **Cost (CPI ${cpi.toFixed(2)}):** The project is over budget. For every dollar spent, only ${cpi.toFixed(2)} worth of value has been earned. (Unfavorable - CV ${formatCurrency(cv)}).</p>`;
+            }
+
+            // Schedule Analysis
+            if (spi >= 1.0) {
+                summary += `<p>⏰ **Schedule (SPI ${spi.toFixed(2)}):** The project is ahead of schedule, delivering more work than planned. (Favorable - SV ${formatCurrency(sv)}).</p>`;
+            } else {
+                summary += `<p>🟡 **Schedule (SPI ${spi.toFixed(2)}):** The project is behind schedule, having completed only ${spi.toFixed(2)} of the work planned to date. (Unfavorable - SV ${formatCurrency(sv)}).</p>`;
+            }
+
+            outputs.interpretation.innerHTML = summary;
+        }
+
+        inputIds.forEach(id => {
+            document.getElementById(id).addEventListener('input', updateDashboard);
+        });
+
+        updateDashboard(); // Initial run with default values
+    </script>
+</body>
+</html>
